@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ATIS Tallinn (EETN)</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #map { height: 400px; margin-bottom: 20px; }
+        #atis-message { border: 1px solid #ccc; padding: 10px; max-width: 600px; }
+    </style>
+</head>
+<body>
+    <h1>ATIS de l'aéroport de Tallinn (EETN)</h1>
+    <div id="map"></div>
+    <h2>Dernier message ATIS :</h2>
+    <div id="atis-message">
+        <!-- COPIER-COLLER LA TRANSCRIPTION ICI -->
+        <p>Tallinn ATIS, message Alpha, 12:35 UTC. Piste 08 en service, vent 270/10 kt, visibilité 10 km, pas de nuages en dessous de 1500 m, température 15°C, QNH 1013 hPa. Attendez-vous à des rafales de vent.</p>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([59.4139, 24.8328], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        L.marker([59.4139, 24.8328]).addTo(map)
+            .bindPopup("Aéroport de Tallinn (EETN)")
+            .openPopup();
+    </script>
+</body>
+</html>
