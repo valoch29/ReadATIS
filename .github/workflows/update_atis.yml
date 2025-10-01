@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.ATIS_TOKEN }}
 
@@ -47,6 +47,10 @@ jobs:
         run: |
           whisper atis_tallinn.mp3 --model base --language English --output_format txt --output_dir .
 
+      - name: Afficher la transcription
+        run: |
+          cat atis_tallinn.txt
+
       - name: Nettoyer et mettre à jour index.html avec la transcription
         run: |
           if [ -f atis_tallinn.txt ]; then
@@ -68,5 +72,6 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add index.html
-          git diff-index --quiet HEAD || git commit -m "Mise à jour automatique de l'ATIS : $(date)"
+          timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+          git commit -m "Mise à jour automatique de l'ATIS : $timestamp" || echo "Aucune modification à commiter"
           git push https://valoch29:${{ secrets.ATIS_TOKEN }}@github.com/valoch29/ReadATIS.git HEAD:main
