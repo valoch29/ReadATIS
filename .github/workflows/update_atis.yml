@@ -32,11 +32,19 @@ jobs:
         run: |
           whisper atis_tallinn.mp3 --model base --language English --output_format txt --output_dir .
 
-      - name: Mettre à jour index.html avec la transcription
+      - name: Nettoyer et mettre à jour index.html avec la transcription
         run: |
           if [ -f atis_tallinn.txt ]; then
-            transcription=$(cat atis_tallinn.txt)
-            sed -i "s|<div id=\"atis-message\">.*</div>|<div id=\"atis-message\"><p>$transcription</p></div>|" index.html
+            # Nettoyer les caractères spéciaux
+            transcription=$(cat atis_tallinn.txt | sed 's/[\/&]/\\&/g')
+            # Utiliser une approche alternative pour éviter les problèmes avec sed
+            awk -v trans="$transcription" '{
+              if ($0 ~ /<div id="atis-message">.*<\/div>/){
+                print "<div id=\"atis-message\"><p>" trans "</p></div>"
+              } else {
+                print $0
+              }
+            }' index.html > index_new.html && mv index_new.html index.html
           else
             echo "Le fichier de transcription n'existe pas."
             exit 1
