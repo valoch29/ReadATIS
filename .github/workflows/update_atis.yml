@@ -1,4 +1,4 @@
-name: Update ATIS
+name: Mise à jour ATIS
 
 on:
   schedule:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Configurer Python
@@ -36,11 +36,14 @@ jobs:
         run: |
           pip install git+https://github.com/openai/whisper.git
 
-      - name: Télécharger fichier ATIS audio
+      - name: Enregistrer le flux ATIS avec curl et ffmpeg
         run: |
-          curl -L -o atis_tallinn.mp3 "https://tonlien/atis_tallinn.mp3"
+          sudo apt update
+          sudo apt install -y ffmpeg curl
+          curl -s -A "Mozilla/5.0" -e "https://www.liveatc.net/" "https://s1-fmt2.liveatc.net/eetn2_atis" | \
+          ffmpeg -i pipe:0 -t 60 -y atis_tallinn.mp3
 
-      - name: Transcrire avec Whisper (medium)
+      - name: Transcrire avec Whisper (modèle medium)
         run: |
           whisper atis_tallinn.mp3 --model medium --language en --output_format txt --output_dir .
 
