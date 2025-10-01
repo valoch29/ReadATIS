@@ -2,8 +2,8 @@ name: Mise à jour automatique de l'ATIS
 
 on:
   schedule:
-    - cron: "22,52 * * * *"   # Exécution toutes les heures à 22 et 52 minutes UTC
-  workflow_dispatch:          # Déclenchement manuel possible
+    - cron: "22,52 * * * *"   # Toutes les heures à 22 et 52 minutes UTC
+  workflow_dispatch:
 
 jobs:
   update-atis:
@@ -41,11 +41,11 @@ jobs:
           curl -s -A "Mozilla/5.0" -e "https://www.liveatc.net/" "https://s1-fmt2.liveatc.net/eetn2_atis" | \
           ffmpeg -i pipe:0 -t 90 -y atis_tallinn.mp3
 
-      - name: Transcrire avec Whisper (modèle medium)
+      - name: Transcrire avec Whisper
         run: |
           whisper atis_tallinn.mp3 --model medium --language English --output_format txt --output_dir .
 
-      - name: Ajouter script de post-traitement
+      - name: Ajouter script de post-traitement Python
         run: |
           cat > atis_formatter.py << 'EOF'
           import re
@@ -63,22 +63,23 @@ jobs:
                   "whiskey": "Whiskey", "x-ray": "X-ray", "yankee": "Yankee", "zulu": "Zulu"
               }
               for k,v in nato.items():
-                  text = re.sub(rf"\\b{k}\\b", v, text, flags=re.IGNORECASE)
+                  text = re.sub(rf"\b{k}\b", v, text, flags=re.IGNORECASE)
 
               numbers = {
                   "zero": "0", "one": "1", "two": "2", "three": "3", "four": "4",
                   "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9"
               }
               for k,v in numbers.items():
-                  text = re.sub(rf"\\b{k}\\b", v, text, flags=re.IGNORECASE)
+                  text = re.sub(rf"\b{k}\b", v, text, flags=re.IGNORECASE)
 
-              text = re.sub(r"QNH\\s*([0-9 ]{3,5})", lambda m: f"QNH {m.group(1).replace(' ', '')} hPa", text, flags=re.IGNORECASE)
-              text = re.sub(r"([0-9]{2,3})\\s*degrees?\\s*([0-9]{1,2})\\s*knots?", r"Wind: \\1° / \\2 kt", text, flags=re.IGNORECASE)
-              text = re.sub(r"temperature\\s*([\\-0-9]{1,2})", r"Temperature: \\1°C", text, flags=re.IGNORECASE)
-              text = re.sub(r"visibility\\s*([0-9]+)\\s*kilo?met(er|re)?s?", r"Visibility: \\1 km", text, flags=re.IGNORECASE)
-              text = re.sub(r"transition level\\s*([0-9]+)", r"Transition Level: \\1", text, flags=re.IGNORECASE)
-              text = re.sub(r"runway in use\\s*([0-9]{2})", r"Runway in use: \\1", text, flags=re.IGNORECASE)
-              text = re.sub(r"ATIS information\\s*([A-Z])", r"ATIS Information \\1:", text, flags=re.IGNORECASE)
+              text = re.sub(r"QNH\s*([0-9 ]{3,5})", lambda m: f"QNH {m.group(1).replace(' ', '')} hPa", text, flags=re.IGNORECASE)
+              text = re.sub(r"([0-9]{2,3})\s*degrees?\s*([0-9]{1,2})\s*knots?", r"Wind: \1° / \2 kt", text, flags=re.IGNORECASE)
+              text = re.sub(r"temperature\s*([\-0-9]{1,3})", r"Temperature: \1°C", text, flags=re.IGNORECASE)
+              text = re.sub(r"dew point\s*([\-0-9]{1,3})", r"Dew point: \1°C", text, flags=re.IGNORECASE)
+              text = re.sub(r"visibility\s*([0-9]+)\s*kilo?met(er|re)?s?", r"Visibility: \1 km", text, flags=re.IGNORECASE)
+              text = re.sub(r"transition level\s*([0-9]+)", r"Transition Level: \1", text, flags=re.IGNORECASE)
+              text = re.sub(r"runway in use\s*([0-9]{2})", r"Runway in use: \1", text, flags=re.IGNORECASE)
+              text = re.sub(r"ATIS information\s*([A-Z])", r"ATIS Information \1:", text, flags=re.IGNORECASE)
               return text.strip()
 
           def main():
@@ -89,38 +90,37 @@ jobs:
               raw = infile.read_text(encoding="utf-8")
               cleaned = normalize_atis(raw)
               infile.write_text(cleaned, encoding="utf-8")
-              print("✅ ATIS formaté :\\n")
+              print("ATIS formaté :\n")
               print(cleaned)
 
           if __name__ == "__main__":
               main()
           EOF
 
-      - name: Post-traitement avec script Python
+      - name: Post-traitement avec Python
         run: |
           python atis_formatter.py
 
-      - name: Mettre à jour index.html avec la transcription
+      - name: Mettre à jour index.html
         run: |
           if [ -f atis_tallinn.txt ]; then
-            transcription=$(cat atis_tallinn.txt | tr '\n' ' ' | sed -e 's/&/\\&amp;/g' -e 's/</\\&lt;/g' -e 's/>/\\&gt;/g' -e 's/"/\\&quot;/g' -e "s/'/\\&#39;/g")
-            sed -i '/<div id="atis-message">/,/<\\/div>/c\<div id="atis-message">\\n        <p>'"$transcription"'</p>\\n      </div>' index.html
+            transcription=$(cat atis_tallinn.txt | tr '\n' ' ' | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' -e 's/"/\&quot;/g' -e "s/'/\&#39;/g")
+            sed -i '/<div id="atis-message">/,/<\/div>/c\<div id="atis-message">\n        <p>'"$transcription"'</p>\n      </div>' index.html
             echo "Contenu mis à jour dans index.html :"
             grep -A3 "<div id=\"atis-message\">" index.html
           else
-            echo "Erreur : le fichier atis_tallinn.txt est manquant." >&2
+            echo "Erreur : atis_tallinn.txt manquant" >&2
             exit 1
           fi
 
-      - name: Valider et pousser les modifications
+      - name: Commit et push
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add index.html
           if git diff-index --quiet HEAD; then
-            echo "Aucun changement détecté dans index.html."
+            echo "Aucun changement dans index.html."
           else
             timestamp=$(date +"%Y-%m-%d %H:%M:%S")
             git commit -m "Mise à jour ATIS Tallinn : $timestamp"
             git push
-          fi
