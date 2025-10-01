@@ -17,12 +17,11 @@ jobs:
         run: |
           echo "atis_tallinn.mp3" >> .gitignore
           echo "atis_tallinn.txt" >> .gitignore
-          echo "whisper-atis.pt" >> .gitignore
 
       - name: Installer les dépendances système
         run: |
           sudo apt update
-          sudo apt install -y ffmpeg curl wget perl
+          sudo apt install -y ffmpeg curl
 
       - name: Configurer le cache Python
         uses: actions/cache@v3
@@ -32,29 +31,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Installer Whisper et télécharger le modèle finetuné ATIS
+      - name: Installer Whisper
         run: |
           pip install git+https://github.com/openai/whisper.git
-          # Télécharger le modèle finetuné pour l'ATIS
-          wget https://huggingface.co/skytemple/whisper-medium-atc/resolve/main/model.pt -O /tmp/whisper-atis.pt
 
       - name: Enregistrer le flux ATIS avec curl et ffmpeg
         run: |
-          curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" \
-               -e "https://www.liveatc.net/" \
-               "https://s1-fmt2.liveatc.net/eetn2_atis" | \
+          curl -s -A "Mozilla/5.0" -e "https://www.liveatc.net/" "https://s1-fmt2.liveatc.net/eetn2_atis" | \
           ffmpeg -i pipe:0 -t 60 -y atis_tallinn.mp3
 
-      - name: Transcrire avec le modèle finetuné ATIS
+      - name: Transcrire avec Whisper (modèle medium)
         run: |
-          whisper atis_tallinn.mp3 \
-            --model medium \
-            --language English \
-            --output_format txt \
-            --output_dir . \
-            --fp16 False \
-            --model_path /tmp/whisper-atis.pt
-          # Post-traitement avancé pour standardiser le format ATIS
+          whisper atis_tallinn.mp3 --model medium --language English --output_format txt --output_dir .
+          # Post-traitement pour standardiser les termes ATIS
           sed -i -e 's/ degrees/°/g' \
                  -e 's/ kilo[^ ]* meters/km/g' \
                  -e 's/ Celsius/°C/g' \
@@ -65,7 +54,6 @@ jobs:
                  -e 's/\([0-9]\)\([0-9]\)\([0-9]\)°/\1\2\3°/g' \
                  -e 's/ATIS information \([A-Z]\)/ATIS information \1:/g' \
                  atis_tallinn.txt
-          # Afficher la transcription finale
           echo "Transcription finale :"
           cat atis_tallinn.txt
 
@@ -73,10 +61,10 @@ jobs:
         run: |
           if [ -f atis_tallinn.txt ]; then
             # Échapper les caractères spéciaux pour HTML
-            transcription=$(cat atis_tallinn.txt | tr '\n' ' ' | sed -e 's/"/\\&quot;/g' -e "s/'/\\&#39;/g")
-            # Créer une copie de sauvegarde
+            transcription=$(cat atis_tallinn.txt | tr '\n' ' ' | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' -e 's/"/\&quot;/g' -e "s/'/\&#39;/g")
+            # Créer un fichier temporaire pour éviter les conflits
             cp index.html index.html.bak
-            # Utiliser awk pour une substitution robuste
+            # Remplacer le contenu de la balise div#atis-message
             awk -v trans="$transcription" '
             BEGIN { in_div = 0 }
             {
@@ -93,7 +81,6 @@ jobs:
                 print $0
               }
             }' index.html.bak > index.html
-            # Afficher le résultat pour vérification
             echo "Contenu mis à jour dans index.html :"
             grep -A5 "<div id=\"atis-message\">" index.html
           else
@@ -106,11 +93,10 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add index.html
-          # Vérifier s'il y a des changements
           if git diff-index --quiet HEAD; then
             echo "Aucun changement détecté dans index.html."
           else
             timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-            git commit -m "Mise à jour ATIS Tallinn (modèle finetuné) : $timestamp"
+            git commit -m "Mise à jour ATIS Tallinn : $timestamp"
             git push https://valoch29:${{ secrets.ATIS_TOKEN }}@github.com/valoch29/ReadATIS.git HEAD:main
           fi
