@@ -1,7 +1,7 @@
 name: Mise à jour automatique de l'ATIS
 on:
   schedule:
-    - cron: '22,52 * * * *'  # Exécution toutes les heures à 22 et 52 minutes
+    - cron: '22,52 * * * *'  # Exécution à 22 et 52 minutes de chaque heure
   workflow_dispatch:         # Permet un déclenchement manuel
 
 jobs:
@@ -17,10 +17,12 @@ jobs:
         run: |
           echo "atis_tallinn.mp3" >> .gitignore
           echo "atis_tallinn.txt" >> .gitignore
+
       - name: Installer les dépendances système
         run: |
           sudo apt update
           sudo apt install -y ffmpeg curl
+
       - name: Configurer le cache Python
         uses: actions/cache@v3
         with:
@@ -28,16 +30,19 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+
       - name: Installer Whisper
         run: |
           pip install git+https://github.com/openai/whisper.git
+
       - name: Enregistrer le flux ATIS avec curl et ffmpeg
         run: |
           curl -s -A "Mozilla/5.0" -e "https://www.liveatc.net/" "https://s1-fmt2.liveatc.net/eetn2_atis" | \
           ffmpeg -i pipe:0 -t 60 -y atis_tallinn.mp3
-      - name: Transcrire avec Whisper (modèle base)
+
+      - name: Transcrire avec Whisper (modèle medium)
         run: |
-          whisper atis_tallinn.mp3 --model base --language English --output_format txt --output_dir .
+          whisper atis_tallinn.mp3 --model medium --language English --output_format txt --output_dir .
           # Post-traitement pour standardiser les termes ATIS
           sed -i -e 's/ degrees/°/g' \
                  -e 's/ kilo[^ ]* meters/km/g' \
@@ -51,6 +56,7 @@ jobs:
                  atis_tallinn.txt
           echo "Transcription finale :"
           cat atis_tallinn.txt
+
       - name: Mettre à jour index.html avec la transcription
         run: |
           if [ -f atis_tallinn.txt ]; then
@@ -78,6 +84,7 @@ jobs:
             echo "Erreur : le fichier atis_tallinn.txt est manquant." >&2
             exit 1
           fi
+
       - name: Valider et pousser les modifications
         run: |
           git config --global user.name "GitHub Actions"
@@ -89,4 +96,3 @@ jobs:
             timestamp=$(date +"%Y-%m-%d %H:%M:%S")
             git commit -m "Mise à jour ATIS Tallinn : $timestamp"
             git push --force https://valoch29:${{ secrets.ATIS_TOKEN }}@github.com/valoch29/ReadATIS.git HEAD:main
-          fi
