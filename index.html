@@ -3,28 +3,43 @@
 <head>
     <title>ATIS Tallinn (EETN)</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        #map { height: 400px; margin-bottom: 20px; }
-        #atis-message { border: 1px solid #ccc; padding: 10px; max-width: 600px; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #audio-player {
+            width: 100%;
+            margin: 20px 0;
+        }
+        #atis-message {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
     </style>
 </head>
 <body>
     <h1>ATIS de l'aéroport de Tallinn (EETN)</h1>
-    <div id="map"></div>
+
+    <h2>Flux audio en direct :</h2>
+    <audio id="audio-player" controls>
+        <source src="https://s1-fmt2.liveatc.net/eetn2_atis" type="audio/mpeg">
+        Votre navigateur ne supporte pas l'élément audio.
+    </audio>
+
     <h2>Dernier message ATIS :</h2>
     <div id="atis-message">
         <!-- La transcription sera automatiquement mise à jour ici -->
         <p>En attente de la première transcription...</p>
     </div>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script>
-        const map = L.map('map').setView([59.4139, 24.8328], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        L.marker([59.4139, 24.8328]).addTo(map)
-            .bindPopup("Aéroport de Tallinn (EETN)")
-            .openPopup();
-    </script>
 </body>
 </html>
