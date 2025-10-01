@@ -1,4 +1,4 @@
-name: Mise à jour automatique de l'ATIS (modèle finetuné)
+name: Mise à jour automatique de l'ATIS
 on:
   schedule:
     - cron: '22,52 * * * *'  # Exécution toutes les heures à 22 et 52 minutes
