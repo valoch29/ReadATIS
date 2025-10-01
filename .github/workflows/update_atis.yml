@@ -1,5 +1,4 @@
 name: Mise à jour automatique de l'ATIS
-
 on:
   schedule:
     - cron: '22,52 * * * *'  # Exécute chaque heure à 22 et 52 minutes
@@ -54,16 +53,18 @@ jobs:
       - name: Nettoyer et mettre à jour index.html avec la transcription
         run: |
           if [ -f atis_tallinn.txt ]; then
-            transcription=$(cat atis_tallinn.txt | sed ':a;N;$!ba;s/\n/ /g' | sed 's/"/\\"/g' | sed "s/'/\\'/g")
-            awk -v trans="$transcription" '{
-              if ($0 ~ /<div id="atis-message">.*<\/div>/){
-                print "<div id=\"atis-message\"><p>" trans "</p></div>"
-              } else {
-                print $0
-              }
-            }' index.html > index_new.html && mv index_new.html index.html
+            # Nettoyer la transcription : remplacer les sauts de ligne, échapper les caractères spéciaux
+            transcription=$(cat atis_tallinn.txt | tr '\n' ' ' | sed -e 's/"/\\"/g' -e "s/'/\\'"'"'/g" -e 's/  */ /g')
+            # Remplacer le contenu de la balise div#atis-message en conservant la mise en forme
+            sed -i "/<div id=\"atis-message\">/,/<\/div>/ {
+              /<div id=\"atis-message\">/! { /<\/div>/! d; };
+              s|<div id=\"atis-message\">.*</div>|<div id=\"atis-message\">\n        <p>$transcription</p>\n    </div>|
+            }" index.html
+            # Afficher le résultat pour vérification
+            echo "Contenu mis à jour dans index.html :"
+            grep -A5 "<div id=\"atis-message\">" index.html
           else
-            echo "Le fichier de transcription n'existe pas."
+            echo "Erreur : le fichier atis_tallinn.txt est manquant."
             exit 1
           fi
 
@@ -72,6 +73,11 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add index.html
-          timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-          git commit -m "Mise à jour automatique de l'ATIS : $timestamp" || echo "Aucune modification à commiter"
-          git push https://valoch29:${{ secrets.ATIS_TOKEN }}@github.com/valoch29/ReadATIS.git HEAD:main
+          # Vérifier s'il y a des changements (même minimes)
+          if git diff-index --quiet HEAD; then
+            echo "Aucun changement détecté dans index.html."
+          else
+            timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+            git commit -m "Mise à jour ATIS Tallinn : $timestamp"
+            git push https://valoch29:${{ secrets.ATIS_TOKEN }}@github.com/valoch29/ReadATIS.git HEAD:main
+          fi
