@@ -15,44 +15,15 @@ jobs:
       - name: Installer les dépendances
         run: |
           sudo apt update
-          sudo apt install -y ffmpeg python3-pip
-          pip install requests
+          sudo apt install -y ffmpeg
 
-      - name: Enregistrer le flux ATIS avec Python et ffmpeg
+      - name: Enregistrer le flux ATIS avec ffmpeg
         run: |
-          python3 - <<EOF
-          import requests
-          import subprocess
-          import os
-
-          url = "https://s1-fmt2.liveatc.net/eetn2_atis"
-          headers = {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-              "Referer": "https://www.liveatc.net/",
-              "Accept": "audio/mpeg",
-              "Connection": "keep-alive"
-          }
-
-          # Utiliser une session pour gérer les cookies
-          session = requests.Session()
-          response = session.get(url, headers=headers, stream=True)
-
-          if response.status_code == 200:
-              # Utiliser ffmpeg pour enregistrer le flux
-              process = subprocess.Popen(
-                  ["ffmpeg", "-i", "pipe:0", "-t", "60", "-y", "atis_tallinn.mp3"],
-                  stdin=subprocess.PIPE
-              )
-
-              for chunk in response.iter_content(chunk_size=1024):
-                  if chunk:
-                      process.stdin.write(chunk)
-              process.stdin.close()
-              process.wait()
-          else:
-              print(f"Erreur lors de la récupération du flux: {response.status_code}")
-              exit(1)
-          EOF
+          ffmpeg -headers "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" \
+                 -headers "Referer: https://www.liveatc.net/" \
+                 -i "https://s1-fmt2.liveatc.net/eetn2_atis" \
+                 -t 60 \
+                 -y atis_tallinn.mp3
 
       - name: Installer Whisper
         run: |
