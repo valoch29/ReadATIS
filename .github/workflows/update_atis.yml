@@ -12,6 +12,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Créer un fichier .gitignore
+        run: |
+          echo "atis_tallinn.mp3" >> .gitignore
+          echo "atis_tallinn.txt" >> .gitignore
+
       - name: Installer les dépendances
         run: |
           sudo apt update
@@ -36,7 +41,7 @@ jobs:
         run: |
           if [ -f atis_tallinn.txt ]; then
             # Nettoyer les caractères spéciaux
-            transcription=$(cat atis_tallinn.txt | sed 's/[\/&]/\\&/g')
+            transcription=$(cat atis_tallinn.txt | sed ':a;N;$!ba;s/\n/ /g' | sed 's/"/\\"/g' | sed "s/'/\\'/g")
             # Utiliser une approche alternative pour éviter les problèmes avec sed
             awk -v trans="$transcription" '{
               if ($0 ~ /<div id="atis-message">.*<\/div>/){
@@ -55,5 +60,5 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add index.html
-          git commit -m "Mise à jour automatique de l'ATIS : $(date)"
+          git diff-index --quiet HEAD || git commit -m "Mise à jour automatique de l'ATIS : $(date)"
           git push
