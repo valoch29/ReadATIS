@@ -38,7 +38,7 @@ jobs:
       - name: Enregistrer le flux ATIS avec curl et ffmpeg
         run: |
           curl -s -A "Mozilla/5.0" -e "https://www.liveatc.net/" "https://s1-fmt2.liveatc.net/eetn2_atis" | \
-          ffmpeg -i pipe:0 -t 60 -y atis_tallinn.mp3
+          ffmpeg -i pipe:0 -t 90 -y atis_tallinn.mp3
 
       - name: Transcrire avec Whisper (modèle medium)
         run: |
