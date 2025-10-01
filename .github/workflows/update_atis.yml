@@ -2,7 +2,7 @@ name: Mise à jour automatique de l'ATIS
 
 on:
   schedule:
-    - cron: '0,30 * * * *'  # Exécute 2 fois par heure
+    - cron: '22,52 * * * *'  # Exécute chaque heure à 22 et 52 minutes
   workflow_dispatch:  # Permet de lancer manuellement
 
 jobs:
@@ -15,15 +15,44 @@ jobs:
       - name: Installer les dépendances
         run: |
           sudo apt update
-          sudo apt install -y ffmpeg
+          sudo apt install -y ffmpeg python3-pip
+          pip install requests
 
-      - name: Enregistrer le flux ATIS avec ffmpeg
+      - name: Enregistrer le flux ATIS avec Python et ffmpeg
         run: |
-          ffmpeg -headers "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" \
-                 -headers "Referer: https://www.liveatc.net/" \
-                 -i "https://s1-fmt2.liveatc.net/eetn2_atis" \
-                 -t 60 \
-                 -y atis_tallinn.mp3
+          python3 - <<EOF
+          import requests
+          import subprocess
+          import os
+
+          url = "https://s1-fmt2.liveatc.net/eetn2_atis"
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+              "Referer": "https://www.liveatc.net/",
+              "Accept": "audio/mpeg",
+              "Connection": "keep-alive"
+          }
+
+          # Utiliser une session pour gérer les cookies
+          session = requests.Session()
+          response = session.get(url, headers=headers, stream=True)
+
+          if response.status_code == 200:
+              # Utiliser ffmpeg pour enregistrer le flux
+              process = subprocess.Popen(
+                  ["ffmpeg", "-i", "pipe:0", "-t", "60", "-y", "atis_tallinn.mp3"],
+                  stdin=subprocess.PIPE
+              )
+
+              for chunk in response.iter_content(chunk_size=1024):
+                  if chunk:
+                      process.stdin.write(chunk)
+              process.stdin.close()
+              process.wait()
+          else:
+              print(f"Erreur lors de la récupération du flux: {response.status_code}")
+              exit(1)
+          EOF
 
       - name: Installer Whisper
         run: |
@@ -35,8 +64,13 @@ jobs:
 
       - name: Mettre à jour index.html avec la transcription
         run: |
-          transcription=$(cat atis_tallinn.txt)
-          sed -i "s|<div id=\"atis-message\">.*</div>|<div id=\"atis-message\"><p>$transcription</p></div>|" index.html
+          if [ -f atis_tallinn.txt ]; then
+            transcription=$(cat atis_tallinn.txt)
+            sed -i "s|<div id=\"atis-message\">.*</div>|<div id=\"atis-message\"><p>$transcription</p></div>|" index.html
+          else
+            echo "Le fichier de transcription n'existe pas."
+            exit 1
+          fi
 
       - name: Valider et pousser les modifications
         run: |
