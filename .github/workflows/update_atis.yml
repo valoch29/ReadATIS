@@ -96,3 +96,4 @@ jobs:
             timestamp=$(date +"%Y-%m-%d %H:%M:%S")
             git commit -m "Mise à jour ATIS Tallinn : $timestamp"
             git push --force https://valoch29:${{ secrets.ATIS_TOKEN }}@github.com/valoch29/ReadATIS.git HEAD:main
+          fi
