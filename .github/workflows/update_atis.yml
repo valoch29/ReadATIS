@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.ATIS_TOKEN }}
 
       - name: Créer un fichier .gitignore
         run: |
@@ -40,9 +42,7 @@ jobs:
       - name: Nettoyer et mettre à jour index.html avec la transcription
         run: |
           if [ -f atis_tallinn.txt ]; then
-            # Nettoyer les caractères spéciaux
             transcription=$(cat atis_tallinn.txt | sed ':a;N;$!ba;s/\n/ /g' | sed 's/"/\\"/g' | sed "s/'/\\'/g")
-            # Utiliser une approche alternative pour éviter les problèmes avec sed
             awk -v trans="$transcription" '{
               if ($0 ~ /<div id="atis-message">.*<\/div>/){
                 print "<div id=\"atis-message\"><p>" trans "</p></div>"
@@ -61,4 +61,4 @@ jobs:
           git config --global user.email "actions@github.com"
           git add index.html
           git diff-index --quiet HEAD || git commit -m "Mise à jour automatique de l'ATIS : $(date)"
-          git push
+          git push https://valoch29:${{ secrets.ATIS_TOKEN }}@github.com/valoch29/ReadATIS.git HEAD:main
