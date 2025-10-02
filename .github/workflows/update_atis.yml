@@ -43,7 +43,7 @@ jobs:
       - name: Transcrire avec Whisper (modèle medium)
         run: |
           whisper atis_tallinn.mp3 --model medium --language English --output_format txt --output_dir .
-          # Post-traitement pour standardiser les termes ATIS
+          # Post-traitement basique pour nettoyer le texte
           sed -i -e 's/ degrees/°/g' \
                  -e 's/ kilo[^ ]* meters/km/g' \
                  -e 's/ Celsius/°C/g' \
@@ -52,22 +52,28 @@ jobs:
                  -e 's/\([0-9]\) \([0-9]\)/\1\2/g' \
                  -e 's/\([0-9]\),\([0-9]\)/\1\2/g' \
                  -e 's/\([0-9]\)\([0-9]\)\([0-9]\)°/\1\2\3°/g' \
-                 -e 's/ATIS information \([A-Z]\)/ATIS information \1:/g' \
                  atis_tallinn.txt
-          echo "Transcription finale :"
+          echo "Transcription brute :"
           cat atis_tallinn.txt
+
+      - name: Post-traitement du message ATIS
+        run: |
+          python3 process_atis.py atis_tallinn.txt > atis_structured.html
+          cat atis_structured.html
 
       - name: Mettre à jour index.html avec la transcription
         run: |
-          if [ -f atis_tallinn.txt ]; then
-            transcription=$(cat atis_tallinn.txt | tr '\n' ' ' | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' -e 's/"/\&quot;/g' -e "s/'/\&#39;/g")
+          if [ -f atis_structured.html ]; then
             cp index.html index.html.bak
-            awk -v trans="$transcription" '
+            awk '
             BEGIN { in_div = 0 }
             {
               if ($0 ~ /<div id="atis-message">/) {
                 print $0
-                print "        <p>" trans "</p>"
+                while (getline line < "atis_structured.html" > 0) {
+                  print line
+                }
+                close("atis_structured.html")
                 in_div = 1
               }
               else if ($0 ~ /<\/div>/ && in_div) {
@@ -79,9 +85,9 @@ jobs:
               }
             }' index.html.bak > index.html
             echo "Contenu mis à jour dans index.html :"
-            grep -A5 "<div id=\"atis-message\">" index.html
+            grep -A15 "<div id=\"atis-message\">" index.html
           else
-            echo "Erreur : le fichier atis_tallinn.txt est manquant." >&2
+            echo "Erreur : le fichier atis_structured.html est manquant." >&2
             exit 1
           fi
 
