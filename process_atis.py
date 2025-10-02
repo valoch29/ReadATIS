@@ -1,80 +1,97 @@
 import re
 import sys
+import json
 
-def process_atis_message(input_file):
-    with open(input_file, 'r') as f:
-        raw_text = f.read().replace("\n", " ").lower()  # Convertir en minuscules pour faciliter la recherche
+def parse_atis(raw_text):
+    raw_text = raw_text.replace("\n", " ").lower()
 
-    # Extraction de la lettre ATIS (ex: "information yankee")
-    atis_letter_match = re.search(r'information\s+([a-z])', raw_text)
-    atis_letter = atis_letter_match.group(1).upper() if atis_letter_match else "?"
+    def match(pattern, default=None, group=1):
+        m = re.search(pattern, raw_text)
+        return m.group(group) if m else default
 
-    # Extraction de l'heure (ex: "time 1020")
-    atis_time_match = re.search(r'time\s+(\d{4})', raw_text)
-    atis_time = atis_time_match.group(1) if atis_time_match else "?"
+    # Lettre et heure
+    atis_letter = match(r'information\s+([a-z])', "?").upper()
+    atis_time = match(r'time\s+(\d{4})', "?")
 
-    # Extraction du vent (ex: "wind runway 08 touchdown zone 090 degrees 13 knots")
-    wind_match = re.search(r'wind.*?(\d{2,3}).*?(\d{1,2})\s*knots', raw_text)
-    wind_direction = wind_match.group(1) if wind_match else "080"
-    wind_speed = wind_match.group(2) if wind_match else "09"
+    # Vent (gestion rafales)
+    wind = re.search(r'wind.*?(\d{2,3}).*?(\d{1,2})(?:\s*gusts?\s*(\d{1,2}))?\s*knots', raw_text)
+    wind_dir = wind.group(1) if wind else "080"
+    wind_speed = wind.group(2) if wind else "09"
+    wind_gust = wind.group(3) if wind and wind.group(3) else None
 
-    # Extraction de la visibilité (ex: "visibility runway 08 touchdown zone 10 kilometers")
-    visibility_match = re.search(r'visibility.*?(\d{1,2})\s*kilometers', raw_text)
-    visibility = visibility_match.group(1) if visibility_match else "10"
+    # Visibilité (m ou km)
+    vis = match(r'visibility.*?(\d+)\s*(kilometers|meters)', None, group=1)
+    vis_unit = match(r'visibility.*?(\d+)\s*(kilometers|meters)', "kilometers", group=2)
+    if vis:
+        visibility = f"{vis}{'KM' if 'kilo' in vis_unit else 'M'}"
+    else:
+        visibility = ">10KM"
 
-    # Extraction des nuages (ex: "cloud scattered 3100 feet")
-    cloud_match = re.search(r'cloud\s+(scattered|broken|overcast)\s+(\d+)', raw_text)
-    cloud_cover = cloud_match.group(1).upper()[:3] if cloud_match else "SCT"
-    cloud_height = cloud_match.group(2) if cloud_match else "3700"
+    # Nuages (toutes couches)
+    clouds = re.findall(r'cloud\s+(scattered|broken|overcast)\s+(\d+)', raw_text)
+    cloud_layers = [f"{c[0][:3].upper()} {c[1]}FT" for c in clouds] if clouds else ["SCT 3700FT"]
 
-    # Extraction de la présence d'oiseaux
-    bird_activity_status = "Vicinity" if "bird activity" in raw_text else "None"
+    # Oiseaux
+    bird_activity = "Yes" if "bird activity" in raw_text else "None"
 
-    # Extraction de la température et du point de rosée (ex: "temperature 11, dew point 4")
-    temp_match = re.search(r'temperature\s+(\d{1,2})', raw_text)
-    temperature = temp_match.group(1) if temp_match else "12"
-    dewpoint_match = re.search(r'dew point\s+(\d{1,2})', raw_text)
-    dewpoint = dewpoint_match.group(1) if dewpoint_match else "4"
+    # Température / Point de rosée
+    temp = match(r'temperature\s+(\d{1,2})', "12")
+    dew = match(r'dew point\s+(\d{1,2})', "4")
 
-    # Extraction du QNH (ex: "QNH 1034 hectopascal")
-    qnh_match = re.search(r'qnh\s+(\d{4})', raw_text)
-    qnh = qnh_match.group(1) if qnh_match else "1037"
+    # QNH / TL / Piste
+    qnh = match(r'qnh\s+(\d{4})', "1037")
+    tl = match(r'transition level\s+(\d{2})', "55")
+    runway = match(r'runway\s+(\d{2})\s+in use', "08")
 
-    # Extraction du Transition Level (ex: "transition level 55")
-    tl_match = re.search(r'transition level\s+(\d{2})', raw_text)
-    transition_level = tl_match.group(1) if tl_match else "55"
+    return {
+        "atis_letter": atis_letter,
+        "atis_time": atis_time,
+        "wind": f"{wind_dir}/{wind_speed}KT" + (f" G{wind_gust}" if wind_gust else ""),
+        "visibility": visibility,
+        "clouds": cloud_layers,
+        "bird": bird_activity,
+        "temp_dew": f"{temp}/{dew}",
+        "qnh": qnh,
+        "tl": tl,
+        "trend": "NOSIG",
+        "runway": runway
+    }
 
-    # Extraction de la piste en service (ex: "runway 08 in use")
-    runway_match = re.search(r'runway\s+(\d{2})\s+in use', raw_text)
-    runway_in_use = runway_match.group(1) if runway_match else "08"
-
-    # Construction du contenu structuré
-    structured_content = f"""
+def render_html(data):
+    clouds_html = "<br>".join(data["clouds"])
+    return f"""
     <h3 style="margin: 0 0 0.5em 0; font-size: 1.1em;">
-        ATIS Tallinn (EETN) - <strong>Info {atis_letter}</strong>
-        <span style="float: right; color: #666; font-size: 0.9em;">{atis_time}Z</span>
+        ATIS Tallinn (EETN) - <strong>Info {data['atis_letter']}</strong>
+        <span style="float: right; color: #666; font-size: 0.9em;">{data['atis_time']}Z</span>
     </h3>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5em;">
         <div>
-            <strong>WIND:</strong> {wind_direction}/{wind_speed}KT<br>
-            <strong>VIS:</strong> &gt;{visibility}KM<br>
+            <strong>WIND:</strong> {data['wind']}<br>
+            <strong>VIS:</strong> {data['visibility']}<br>
             <strong>RWY COND:</strong> 6/6/6 (DRY)<br>
-            <strong>CLOUD:</strong> {cloud_cover} {cloud_height}FT<br>
-            <strong>BIRD:</strong> {bird_activity_status}
+            <strong>CLOUD:</strong><br>{clouds_html}<br>
+            <strong>BIRD:</strong> {data['bird']}
         </div>
         <div>
-            <strong>TEMP/DEW:</strong> {temperature}/{dewpoint}<br>
-            <strong>QNH:</strong> {qnh}hPa<br>
-            <strong>TL:</strong> {transition_level}<br>
-            <strong>TREND:</strong> NOSIG<br>
-            <strong>RWY:</strong> {runway_in_use}
+            <strong>TEMP/DEW:</strong> {data['temp_dew']}<br>
+            <strong>QNH:</strong> {data['qnh']}hPa<br>
+            <strong>TL:</strong> {data['tl']}<br>
+            <strong>TREND:</strong> {data['trend']}<br>
+            <strong>RWY:</strong> {data['runway']}
         </div>
     </div>
     """
 
-    return structured_content
-
 if __name__ == "__main__":
     input_file = sys.argv[1]
-    structured_content = process_atis_message(input_file)
-    print(structured_content)
+    with open(input_file, "r") as f:
+        raw = f.read()
+    data = parse_atis(raw)
+
+    # Export JSON
+    with open("atis.json", "w") as f:
+        json.dump(data, f, indent=2)
+
+    # Export HTML
+    with open("atis_structured.html", "w") as f:
+        f.write(render_html(data))
