@@ -45,7 +45,7 @@ jobs:
         run: python3 update_index.py
 
       - name: Upload fichiers temporaires pour debug
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: atis-debug
           path: |
