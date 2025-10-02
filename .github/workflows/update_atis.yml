@@ -31,7 +31,7 @@ jobs:
       - name: Enregistrer l'ATIS (45s max)
         run: |
           curl -s -A "Mozilla/5.0" -e "https://www.liveatc.net/" "https://s1-fmt2.liveatc.net/eetn2_atis" | \
-          ffmpeg -i pipe:0 -t 45 -y atis_tallinn.mp3
+          ffmpeg -i pipe:0 -t 90 -y atis_tallinn.mp3
 
       - name: Transcrire avec Whisper (modèle small)
         run: whisper atis_tallinn.mp3 --model small --language English --output_format txt
