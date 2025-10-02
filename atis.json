@@ -1,10 +1,11 @@
 {
-  "atis_letter": "?",
+  "atis_letter": "D",
   "atis_time": "?",
-  "wind": "08/3KT",
+  "wind": "08/1KT",
   "visibility": "0KM",
   "clouds": [
-    "SCT 3700FT"
+    "BRO 3600FT",
+    "BRO 3600FT"
   ],
   "bird": "Yes",
   "temp_dew": "12/4",
