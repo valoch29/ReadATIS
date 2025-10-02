@@ -3,52 +3,52 @@ import sys
 
 def process_atis_message(input_file):
     with open(input_file, 'r') as f:
-        raw_text = f.read().replace("\n", " ")  # Nettoyage des sauts de ligne
+        raw_text = f.read().replace("\n", " ").lower()  # Convertir en minuscules pour faciliter la recherche
 
-    # Extraction de la lettre ATIS (ex: "Information Y")
-    atis_letter_match = re.search(r'Information\s+([A-Z])', raw_text, re.IGNORECASE)
-    atis_letter = atis_letter_match.group(1) if atis_letter_match else "?"
+    # Extraction de la lettre ATIS (ex: "information yankee")
+    atis_letter_match = re.search(r'information\s+([a-z])', raw_text)
+    atis_letter = atis_letter_match.group(1).upper() if atis_letter_match else "?"
 
-    # Extraction de l'heure (ex: "time 0850" ou "0850Z")
-    atis_time_match = re.search(r'(\d{4})', raw_text)  # Cherche un groupe de 4 chiffres
+    # Extraction de l'heure (ex: "time 1020")
+    atis_time_match = re.search(r'time\s+(\d{4})', raw_text)
     atis_time = atis_time_match.group(1) if atis_time_match else "?"
 
-    # Extraction du vent (ex: "wind 080°, 9 knots" ou "080/09KT")
-    wind_match = re.search(r'wind.*?(\d{2,3}).*?(\d{1,2})\s*knots?', raw_text, re.IGNORECASE)
+    # Extraction du vent (ex: "wind runway 08 touchdown zone 090 degrees 13 knots")
+    wind_match = re.search(r'wind.*?(\d{2,3}).*?(\d{1,2})\s*knots', raw_text)
     wind_direction = wind_match.group(1) if wind_match else "080"
     wind_speed = wind_match.group(2) if wind_match else "09"
 
-    # Extraction de la visibilité (ex: "visibility 10 kilometers")
-    visibility_match = re.search(r'visibility.*?(\d+)\s*kilometers?', raw_text, re.IGNORECASE)
+    # Extraction de la visibilité (ex: "visibility runway 08 touchdown zone 10 kilometers")
+    visibility_match = re.search(r'visibility.*?(\d{1,2})\s*kilometers', raw_text)
     visibility = visibility_match.group(1) if visibility_match else "10"
 
-    # Extraction des nuages (ex: "cloud scattered 3700 feet")
-    cloud_match = re.search(r'cloud\s+(scattered|broken|overcast)\s+(\d+)\s+feet', raw_text, re.IGNORECASE)
+    # Extraction des nuages (ex: "cloud scattered 3100 feet")
+    cloud_match = re.search(r'cloud\s+(scattered|broken|overcast)\s+(\d+)', raw_text)
     cloud_cover = cloud_match.group(1).upper()[:3] if cloud_match else "SCT"
     cloud_height = cloud_match.group(2) if cloud_match else "3700"
 
     # Extraction de la présence d'oiseaux
-    bird_activity_status = "Vicinity" if "bird activity" in raw_text.lower() else "None"
+    bird_activity_status = "Vicinity" if "bird activity" in raw_text else "None"
 
-    # Extraction de la température et du point de rosée (ex: "temperature 12, dew point 4")
-    temp_match = re.search(r'temperature\s+(\d+)', raw_text, re.IGNORECASE)
+    # Extraction de la température et du point de rosée (ex: "temperature 11, dew point 4")
+    temp_match = re.search(r'temperature\s+(\d{1,2})', raw_text)
     temperature = temp_match.group(1) if temp_match else "12"
-    dewpoint_match = re.search(r'dew point\s+(\d+)', raw_text, re.IGNORECASE)
+    dewpoint_match = re.search(r'dew point\s+(\d{1,2})', raw_text)
     dewpoint = dewpoint_match.group(1) if dewpoint_match else "4"
 
-    # Extraction du QNH (ex: "QNH 1037")
-    qnh_match = re.search(r'QNH\s+(\d+)', raw_text, re.IGNORECASE)
+    # Extraction du QNH (ex: "QNH 1034 hectopascal")
+    qnh_match = re.search(r'qnh\s+(\d{4})', raw_text)
     qnh = qnh_match.group(1) if qnh_match else "1037"
 
-    # Extraction du Transition Level (ex: "Transition level 55")
-    tl_match = re.search(r'Transition level\s+(\d+)', raw_text, re.IGNORECASE)
+    # Extraction du Transition Level (ex: "transition level 55")
+    tl_match = re.search(r'transition level\s+(\d{2})', raw_text)
     transition_level = tl_match.group(1) if tl_match else "55"
 
     # Extraction de la piste en service (ex: "runway 08 in use")
-    runway_match = re.search(r'runway\s+(\d{2})\s+in use', raw_text, re.IGNORECASE)
+    runway_match = re.search(r'runway\s+(\d{2})\s+in use', raw_text)
     runway_in_use = runway_match.group(1) if runway_match else "08"
 
-    # Construction du contenu structuré (sans doublons)
+    # Construction du contenu structuré
     structured_content = f"""
     <h3 style="margin: 0 0 0.5em 0; font-size: 1.1em;">
         ATIS Tallinn (EETN) - <strong>Info {atis_letter}</strong>
