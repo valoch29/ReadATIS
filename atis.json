@@ -1,6 +1,6 @@
 {
-  "atis_letter": "?",
-  "atis_time": "?",
+  "atis_letter": "I",
+  "atis_time": "1450",
   "wind": "08/8KT",
   "visibility": "0KM",
   "clouds": [
@@ -8,7 +8,7 @@
   ],
   "bird": "Yes",
   "temp_dew": "12/4",
-  "qnh": "1037",
+  "qnh": "1032",
   "tl": "55",
   "trend": "NOSIG",
   "runway": "08"
