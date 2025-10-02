@@ -2,13 +2,13 @@
   "atis_letter": "?",
   "atis_time": "?",
   "wind": "080/09KT",
-  "visibility": ">10KM",
+  "visibility": "0KM",
   "clouds": [
     "SCT 3700FT"
   ],
-  "bird": "None",
+  "bird": "Yes",
   "temp_dew": "12/4",
-  "qnh": "1037",
+  "qnh": "1032",
   "tl": "55",
   "trend": "NOSIG",
   "runway": "08"
