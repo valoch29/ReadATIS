@@ -2,8 +2,8 @@ name: Mise à jour automatique de l'ATIS
 
 on:
   schedule:
-    - cron: '22,52 * * * *'   # Toutes les 22e et 52e minutes de chaque heure
-  workflow_dispatch:          # Lancement manuel possible
+    - cron: '22,52 * * * *'
+  workflow_dispatch:
 
 jobs:
   update-atis:
@@ -15,7 +15,7 @@ jobs:
         with:
           token: ${{ secrets.ATIS_TOKEN }}
 
-      - name: Installer les dépendances système
+      - name: Installer dépendances système
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends ffmpeg curl
@@ -43,6 +43,14 @@ jobs:
 
       - name: Mise à jour index.html
         run: python3 update_index.py
+
+      - name: Upload fichiers temporaires pour debug
+        uses: actions/upload-artifact@v3
+        with:
+          name: atis-debug
+          path: |
+            atis_tallinn.txt
+            atis_structured.html
 
       - name: Valider et pousser les modifications
         run: |
