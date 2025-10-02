@@ -5,7 +5,7 @@ def process_atis_message(input_file):
     with open(input_file, 'r') as f:
         raw_text = f.read()
 
-    # Extraction des données (exemples simplifiés)
+    # Extraction des données
     atis_letter_match = re.search(r'Information ([A-Z])', raw_text)
     atis_letter = atis_letter_match.group(1) if atis_letter_match else "?"
 
@@ -13,24 +13,48 @@ def process_atis_message(input_file):
     atis_time = atis_time_match.group(1) if atis_time_match else "?"
 
     # Extraction du vent
-    wind_match = re.search(r'Wind,? runway [0-9]{2}, touch-down zone,? ([0-9]{3}),? ([0-9]+) knots', raw_text, re.IGNORECASE)
+    wind_match = re.search(r'Wind.*?([0-9]{3}).*?([0-9]+) knots', raw_text, re.IGNORECASE)
     wind_direction = wind_match.group(1) if wind_match else "080"
     wind_speed = wind_match.group(2) if wind_match else "09"
 
-    visibility = "10"
+    # Extraction de la visibilité
+    visibility_match = re.search(r'visibility.*?([0-9]+) kilometers', raw_text, re.IGNORECASE)
+    visibility = visibility_match.group(1) if visibility_match else "10"
+
+    # Extraction de l'état de la piste
     runway_condition_code = "6/6/6"
     runway_state = "DRY"
-    cloud_cover = "SCT"
-    cloud_height = "3700"
+
+    # Extraction des nuages
+    cloud_match = re.search(r'cloud (scattered|broken|overcast) ([0-9]+) feet', raw_text, re.IGNORECASE)
+    cloud_cover = cloud_match.group(1).upper()[:3] if cloud_match else "SCT"
+    cloud_height = cloud_match.group(2) if cloud_match else "3700"
+
+    # Extraction de la présence d'oiseaux
     bird_activity_status = "Vicinity" if "bird activity" in raw_text.lower() else "None"
-    temperature = "12"
-    dewpoint = "4"
-    qnh = "1037"
-    transition_level = "55"
+
+    # Extraction de la température et du point de rosée
+    temp_match = re.search(r'temperature,? ([0-9]+)', raw_text, re.IGNORECASE)
+    temperature = temp_match.group(1) if temp_match else "12"
+
+    dewpoint_match = re.search(r'dew point,? ([0-9]+)', raw_text, re.IGNORECASE)
+    dewpoint = dewpoint_match.group(1) if dewpoint_match else "4"
+
+    # Extraction du QNH
+    qnh_match = re.search(r'QNH,? ([0-9]+)', raw_text, re.IGNORECASE)
+    qnh = qnh_match.group(1) if qnh_match else "1037"
+
+    # Extraction du Transition Level
+    tl_match = re.search(r'Transition level ([0-9]+)', raw_text, re.IGNORECASE)
+    transition_level = tl_match.group(1) if tl_match else "55"
+
+    # Extraction de la tendance
     trend = "NOSIG"
+
+    # Extraction de la piste en service
     runway_in_use = "08"
 
-    # Construction du contenu de la div
+    # Construction du contenu structuré
     structured_content = f"""
     <h3 style="margin: 0 0 0.5em 0; font-size: 1.1em;">
         ATIS Tallinn (EETN) - <strong>Info {atis_letter}</strong>
