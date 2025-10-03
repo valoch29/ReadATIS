@@ -1,7 +1,7 @@
 {
   "atis_letter": "?",
   "atis_time": "?",
-  "wind": "080/09KT",
+  "wind": "08/7KT",
   "visibility": "0KM",
   "clouds": [
     "SCT 3700FT"
@@ -9,7 +9,7 @@
   "bird": "Yes",
   "temp_dew": "12/4",
   "qnh": "1037",
-  "tl": "55",
+  "tl": "60",
   "trend": "NOSIG",
   "runway": "08"
 }
