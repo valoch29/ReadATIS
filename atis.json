@@ -1,8 +1,8 @@
 {
-  "atis_letter": "M",
+  "atis_letter": "?",
   "atis_time": "?",
-  "wind": "08/10KT",
-  "visibility": ">10KM",
+  "wind": "08/8KT",
+  "visibility": "0KM",
   "clouds": [
     "SCT 3700FT"
   ],
