@@ -1,5 +1,5 @@
 {
-  "atis_letter": "A",
+  "atis_letter": "B",
   "atis_time": "?",
   "wind": "080/09KT",
   "visibility": ">10KM",
@@ -9,7 +9,7 @@
   "bird": "Yes",
   "temp_dew": "12/4",
   "qnh": "1037",
-  "tl": "55",
+  "tl": "65",
   "trend": "NOSIG",
   "runway": "08"
 }
