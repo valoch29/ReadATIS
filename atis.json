@@ -1,12 +1,11 @@
 {
-  "atis_letter": "G",
+  "atis_letter": "I",
   "atis_time": "?",
-  "wind": "08/5KT",
-  "visibility": "0KM",
+  "wind": "080/09KT",
+  "visibility": ">10KM",
   "clouds": [
-    "SCA 300FT",
-    "BRO 150FT",
-    "SCA 300FT"
+    "SCA 200FT",
+    "SCA 200FT"
   ],
   "bird": "Yes",
   "temp_dew": "12/4",
