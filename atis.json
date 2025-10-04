@@ -2,11 +2,11 @@
   "atis_letter": "?",
   "atis_time": "?",
   "wind": "26/5KT",
-  "visibility": "550M",
+  "visibility": "600M",
   "clouds": [
     "SCT 3700FT"
   ],
-  "bird": "None",
+  "bird": "Yes",
   "temp_dew": "12/4",
   "qnh": "1037",
   "tl": "60",
