@@ -1,12 +1,12 @@
 {
   "atis_letter": "?",
   "atis_time": "?",
-  "wind": "08/1KT",
-  "visibility": "0KM",
+  "wind": "08/30KT",
+  "visibility": "10KM",
   "clouds": [
     "SCT 3700FT"
   ],
-  "bird": "None",
+  "bird": "Yes",
   "temp_dew": "12/4",
   "qnh": "1037",
   "tl": "55",
