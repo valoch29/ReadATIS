@@ -1,14 +1,13 @@
 {
-  "atis_letter": "F",
-  "atis_time": "1820",
-  "wind": "08/11KT",
+  "atis_letter": "?",
+  "atis_time": "?",
+  "wind": "08/12KT",
   "visibility": "10KM",
   "clouds": [
-    "BRO 2100FT",
-    "BRO 2100FT"
+    "SCT 3700FT"
   ],
   "bird": "Yes",
-  "temp_dew": "7/4",
+  "temp_dew": "7/5",
   "qnh": "1037",
   "tl": "65",
   "trend": "NOSIG",
