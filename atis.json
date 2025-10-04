@@ -1,11 +1,10 @@
 {
-  "atis_letter": "X",
+  "atis_letter": "Y",
   "atis_time": "?",
-  "wind": "08/0KT",
+  "wind": "080/09KT",
   "visibility": "0KM",
   "clouds": [
-    "SCA 1FT",
-    "SCA 1FT"
+    "SCT 3700FT"
   ],
   "bird": "Yes",
   "temp_dew": "7/4",
