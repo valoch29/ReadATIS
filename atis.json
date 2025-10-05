@@ -1,16 +1,14 @@
 {
-  "atis_letter": "?",
-  "atis_time": "?",
-  "wind": "08/5KT",
+  "atis_letter": "T",
+  "atis_time": "1829",
+  "wind": "08/6KT",
   "visibility": "10KM",
   "clouds": [
-    "OVE 500FT",
-    "OVE 400FT",
-    "OVE 500FT"
+    "OVE 400FT"
   ],
   "bird": "Yes",
-  "temp_dew": "12/4",
-  "qnh": "1002",
+  "temp_dew": "9/9",
+  "qnh": "1037",
   "tl": "65",
   "trend": "NOSIG",
   "runway": "08"
