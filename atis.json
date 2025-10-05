@@ -1,15 +1,15 @@
 {
-  "atis_letter": "N",
-  "atis_time": "0520",
-  "wind": "08/8KT",
-  "visibility": "10KM",
+  "atis_letter": "?",
+  "atis_time": "?",
+  "wind": "080/09KT",
+  "visibility": ">10KM",
   "clouds": [
     "SCT 3700FT"
   ],
   "bird": "Yes",
-  "temp_dew": "9/6",
+  "temp_dew": "12/4",
   "qnh": "1037",
-  "tl": "65",
+  "tl": "55",
   "trend": "NOSIG",
   "runway": "08"
 }
