@@ -1,8 +1,8 @@
 {
-  "atis_letter": "Q",
+  "atis_letter": "?",
   "atis_time": "?",
-  "wind": "08/7KT",
-  "visibility": "0KM",
+  "wind": "08/5KT",
+  "visibility": "10KM",
   "clouds": [
     "OVE 500FT",
     "OVE 400FT",
@@ -10,8 +10,8 @@
   ],
   "bird": "Yes",
   "temp_dew": "12/4",
-  "qnh": "1037",
-  "tl": "55",
+  "qnh": "1002",
+  "tl": "65",
   "trend": "NOSIG",
   "runway": "08"
 }
