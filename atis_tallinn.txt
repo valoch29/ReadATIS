@@ -1,0 +1,6 @@
+Go to touch down 5 midpoint, 5 stop end, 5 deposit, touch down 1-0-0% wet, midpoint 1-0-0% wet, stop end 1-0-0% wet
+transition level 65, bird activity in vicinity of airport, wind runway 08 touch down zone, 1-4-0 degrees, 6 knots, stop end, 1-6-0 degrees, 8 knots, visibility runway 08 touch down zone, 3,500 meters, midpoint,
+9 kilometers, stop end, 1-0 kilometers, moderate rain and drizzle, cloud overcast, 400 feet, temperature, 1-0 dew point, 1-0 to an inch, 1-0-0, 7 hectopascals,
+information, uniform out, this is telling airport, special information, uniform, time 0652, expect ILS approach, runway 08 in use, runway 08 condition report time at 0127,
+runway condition report, touch down 5 midpoint, 5 stop end, 5 deposit, touch down 1-0-0% wet, midpoint 1-0-0% wet, stop end 1-0-0% wet,
+transition level 65, bird activity in vicinity of airport, wind runway 08
