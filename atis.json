@@ -1,13 +1,14 @@
 {
-  "atis_letter": "?",
+  "atis_letter": "M",
   "atis_time": "?",
-  "wind": "08/8KT",
-  "visibility": ">10KM",
+  "wind": "08/7KT",
+  "visibility": "0KM",
   "clouds": [
-    "SCT 3700FT"
+    "OVE 500FT",
+    "OVE 500FT"
   ],
   "bird": "Yes",
-  "temp_dew": "12/4",
+  "temp_dew": "9/9",
   "qnh": "1037",
   "tl": "65",
   "trend": "NOSIG",
