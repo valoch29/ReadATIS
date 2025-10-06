@@ -1,8 +1,8 @@
 {
-  "atis_letter": "U",
-  "atis_time": "0000",
-  "wind": "000/6KT",
-  "visibility": "0 kilometers",
+  "atis_letter": "f",
+  "atis_time": "1050",
+  "wind": "190/6KT",
+  "visibility": "10KM",
   "clouds": [
     "SCT"
   ],
