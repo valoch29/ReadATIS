@@ -1,15 +1,15 @@
 {
-  "atis_letter": "U",
+  "atis_letter": "d",
   "atis_time": "0000",
-  "wind": "180/5KT",
+  "wind": "000/5KT",
   "visibility": "10KM",
   "clouds": [
     "OVC004"
   ],
   "bird": "NIL",
-  "temp_dew": "10/10",
+  "temp_dew": "1/1",
   "qnh": "1007",
   "tl": "65",
   "trend": "NOSIG",
-  "runway": "23"
+  "runway": "08"
 }
