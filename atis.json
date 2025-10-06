@@ -1,8 +1,8 @@
 {
-  "atis_letter": "R",
-  "atis_time": "1620",
-  "wind": "000/4KT",
-  "visibility": "0 kilometers",
+  "atis_letter": "U",
+  "atis_time": "0000",
+  "wind": "000/5KT",
+  "visibility": "10KM",
   "clouds": [
     "BKN"
   ],
