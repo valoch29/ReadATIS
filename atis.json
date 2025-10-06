@@ -1,13 +1,13 @@
 {
-  "atis_letter": "g",
-  "atis_time": "2250",
-  "wind": "180/5KT",
-  "visibility": "1.0 kilometers",
+  "atis_letter": "U",
+  "atis_time": "0000",
+  "wind": "000/5KT",
+  "visibility": "10KM",
   "clouds": [
     "OVC004"
   ],
-  "bird": "NIL",
-  "temp_dew": "10/1",
+  "bird": "in vicinity of airport",
+  "temp_dew": "1/10",
   "qnh": "1007",
   "tl": "65",
   "trend": "NOSIG",
