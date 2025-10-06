@@ -1,12 +1,12 @@
 {
-  "atis_letter": "X",
+  "atis_letter": "U",
   "atis_time": "0000",
   "wind": "000/00KT",
   "visibility": "10KM",
   "clouds": [
     "OVC004"
   ],
-  "bird": "in vicinity of airport",
+  "bird": "NIL",
   "temp_dew": "10/10",
   "qnh": "1007",
   "tl": "65",
