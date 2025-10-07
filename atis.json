@@ -1,7 +1,7 @@
 {
   "atis_letter": "U",
   "atis_time": "0000",
-  "wind": "000/6KT",
+  "wind": "200/6KT",
   "visibility": "10KM",
   "clouds": [
     "OVC004"
@@ -11,5 +11,5 @@
   "qnh": "1007",
   "tl": "65",
   "trend": "NOSIG",
-  "runway": "08"
+  "runway": "26"
 }
