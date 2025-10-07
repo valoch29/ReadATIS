@@ -5,10 +5,6 @@
 import os
 
 def update_atis_message():
-    """
-    Met à jour le contenu de la div 'atis-message' dans index.html
-    avec le contenu de atis_structured.html.
-    """
     try:
         # Lire le contenu du fichier atis_structured.html
         with open("atis_structured.html", "r", encoding="utf-8") as atis_file:
@@ -31,7 +27,7 @@ def update_atis_message():
         if end_index == -1:
             raise ValueError("La balise </div> pour 'atis-message' n'a pas été trouvée.")
 
-        # Construire le nouveau contenu de index.html
+        # Remplacer TOUT le contenu entre les balises de la div
         updated_content = (
             index_content[:start_index + len(start_tag)] +
             atis_content +
