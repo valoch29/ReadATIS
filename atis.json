@@ -4,12 +4,12 @@
   "wind": "000/5KT",
   "visibility": "10KM",
   "clouds": [
-    "OVC004"
+    "SCT"
   ],
   "bird": "in vicinity of airport",
-  "temp_dew": "1/10",
+  "temp_dew": "1/1",
   "qnh": "1007",
   "tl": "65",
   "trend": "NOSIG",
-  "runway": "26"
+  "runway": "08"
 }
