@@ -1,14 +1,14 @@
 {
-  "atis_letter": "U",
+  "atis_letter": "Q",
   "atis_time": "0000",
-  "wind": "000\u00b0 / 00 kt",
+  "wind": "000\u00b0 / 11 kt",
   "visibility": "10 km",
-  "runway": "08",
+  "runway": "26",
   "rwy_cond": "6 / 6 / 6 (dry)",
   "clouds": "BROKEN",
   "bird": "in the vicinity of the airport",
   "temp_dew": "1\u00b0C / 1\u00b0C",
   "qnh": "1007",
-  "tl": "65",
+  "tl": "60",
   "trend": "No significant change (NOSIG)"
 }
