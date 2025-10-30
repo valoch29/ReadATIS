@@ -5,10 +5,10 @@
   "visibility": "10 km",
   "runway": "08",
   "rwy_cond": "6 / 6 / 6 (dry)",
-  "clouds": "BROKEN",
+  "clouds": "OVERCAST",
   "bird": "in the vicinity of the airport",
-  "temp_dew": "1\u00b0C / 1\u00b0C",
-  "qnh": "1007",
+  "temp_dew": "5\u00b0C / 5\u00b0C",
+  "qnh": "1004",
   "tl": "65",
   "trend": "No significant change (NOSIG)"
 }
