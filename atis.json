@@ -1,5 +1,5 @@
 {
-  "atis_letter": "N",
+  "atis_letter": "U",
   "atis_time": "0000",
   "wind": "000\u00b0 / 00 kt",
   "visibility": "10 km",
@@ -8,7 +8,7 @@
   "clouds": "BROKEN",
   "bird": "NIL",
   "temp_dew": "1\u00b0C / 1\u00b0C",
-  "qnh": "1011",
+  "qnh": "1007",
   "tl": "65",
   "trend": "No significant change (NOSIG)"
 }
