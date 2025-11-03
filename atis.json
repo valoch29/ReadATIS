@@ -1,9 +1,9 @@
 {
-  "atis_letter": "V",
+  "atis_letter": "Y",
   "atis_time": "0000",
-  "wind": "000\u00b0 / 00 kt",
-  "visibility": "2,000 m",
-  "runway": "23",
+  "wind": "000\u00b0 / 4 kt",
+  "visibility": "10 km",
+  "runway": "26",
   "rwy_cond": "6 / 6 / 6 (dry)",
   "clouds": "BROKEN",
   "bird": "in the vicinity of the airport",
