@@ -1,5 +1,5 @@
 {
-  "atis_letter": "T",
+  "atis_letter": "U",
   "atis_time": "0000",
   "wind": "000\u00b0 / 10 kt",
   "visibility": "10 km",
@@ -8,7 +8,7 @@
   "clouds": "OVERCAST",
   "bird": "in the vicinity of the airport",
   "temp_dew": "1\u00b0C / 1\u00b0C",
-  "qnh": "1007",
+  "qnh": "1013",
   "tl": "65",
   "trend": "No significant change (NOSIG)"
 }
