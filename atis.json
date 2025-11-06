@@ -1,8 +1,8 @@
 {
-  "atis_letter": "Z",
+  "atis_letter": "A",
   "atis_time": "0000",
-  "wind": "000\u00b0 / 6 kt",
-  "visibility": "10 km",
+  "wind": "000\u00b0 / 00 kt",
+  "visibility": "3,000 m",
   "runway": "08",
   "rwy_cond": "6 / 6 / 6 (dry)",
   "clouds": "OVERCAST",
