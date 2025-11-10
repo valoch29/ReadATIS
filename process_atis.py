@@ -1,92 +1,61 @@
 #!/usr/bin/env python3
 # process_atis.py
-# Parses raw ATIS text and generates structured HTML and JSON.
-# If a parameter is missing, it is set to "NaN".
+# Uses an AI model to parse ATIS raw text into structured data.
+# Missing information is set to "NaN".
 
-import re
 import sys
 import json
+import openai  # Assurez-vous d'avoir configuré OPENAI_API_KEY
 
-def parse_atis(raw_text):
-    """Extract structured ATIS data from raw text using flexible regex patterns."""
+def ai_parse_atis(raw_text):
+    """
+    Sends raw ATIS text to an AI model and returns structured data as dict.
+    The AI is instructed to output JSON with fixed keys.
+    """
+    prompt = f"""
+You are an expert in ATIS (Automatic Terminal Information Service) messages.
+Extract all relevant parameters from the following raw ATIS text and return a JSON object.
+If a value is missing, set it to "NaN".
+
+Keys to extract:
+- atis_letter
+- atis_time (format HHMMZ)
+- wind (e.g., 270° / 15 kt, include variability if any)
+- visibility (e.g., 10 km)
+- runway (comma-separated if multiple)
+- rwy_cond
+- clouds
+- bird
+- temp_dew (e.g., 7°C / 7°C)
+- qnh
+- tl
+- trend
+
+ATIS text:
+\"\"\"{raw_text}\"\"\"
+Return only valid JSON.
+"""
+    # Call the AI model
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0
+    )
+
+    # Extract content
+    content = response.choices[0].message.content.strip()
+
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError:
+        print("⚠️ Failed to parse AI output, returning NaN defaults.")
+        keys = ["atis_letter","atis_time","wind","visibility","runway","rwy_cond","clouds","bird","temp_dew","qnh","tl","trend"]
+        data = {k:"NaN" for k in keys}
     
-    # Clean text: replace commas and hyphens with spaces, lowercase for easier matching
-    text = re.sub(r'[,/-]', ' ', raw_text).lower()
-
-    def match(pattern):
-        m = re.search(pattern, text, re.IGNORECASE)
-        return m.group(1).strip() if m else "NaN"
-
-    # ATIS letter
-    atis_letter = match(r'information\s*[a-z]*\s*([A-Z])').upper()
-
-    # ATIS time (4 digits)
-    atis_time = match(r'time\s*(\d{4})')
-
-    # Wind
-    wind_match = re.search(r'wind.*?(\d{1,3})\s*degrees.*?(\d{1,2})\s*knots', text)
-    if wind_match:
-        wind_dir, wind_speed = wind_match.groups()
-        wind = f"{wind_dir}° / {wind_speed} kt"
-    else:
-        wind = "NaN"
-
-    # Visibility
-    visibility = match(r'visibility.*?(\d+\s*(?:km|kilometers|m|meters))')
-
-    # Runway in use
-    runway = match(r'runway\s*(\d{1,2}[lrc]?)')
-
-    # Runway condition
-    rwy_cond = "NaN"
-
-    # Clouds
-    clouds_match = re.search(r'(overcast|few|scattered|broken)', text)
-    clouds = clouds_match.group(1).upper() if clouds_match else "NaN"
-
-    # Bird activity
-    bird_activity = "in the vicinity of the airport" if "bird" in text else "NaN"
-
-    # Temperature / Dew point
-    temp_match = re.search(r'temperature\s*(\d+)', text)
-    dew_match = re.search(r'dew point\s*(\d+)', text)
-    if temp_match and dew_match:
-        temp_dew = f"{temp_match.group(1)}°C / {dew_match.group(1)}°C"
-    else:
-        temp_dew = "NaN"
-
-    # QNH
-    qnh_match = re.search(r'qnh\s*([\d\s]+)', text)
-    if qnh_match:
-        qnh = qnh_match.group(1).replace(" ", "").replace("-", "")
-    else:
-        qnh = "NaN"
-
-    # Transition level
-    tl_match = re.search(r'transition level\s*(\d{1,3})', text)
-    tl = tl_match.group(1) if tl_match else "NaN"
-
-    # Trend
-    trend_match = re.search(r'trend\s*(.*?)(?:\.|$)', text)
-    trend = trend_match.group(1).capitalize() if trend_match else "NaN"
-
-    return {
-        "atis_letter": atis_letter,
-        "atis_time": atis_time,
-        "wind": wind,
-        "visibility": visibility,
-        "runway": runway,
-        "rwy_cond": rwy_cond,
-        "clouds": clouds,
-        "bird": bird_activity,
-        "temp_dew": temp_dew,
-        "qnh": qnh,
-        "tl": tl,
-        "trend": trend
-    }
+    return data
 
 def render_html(data):
-    """Render the structured ATIS data into HTML format."""
+    """Render structured ATIS data into HTML format."""
     return f"""<div id="atis-message">
     <div class="atis-header">
         Information {data['atis_letter']} — <span>{data['atis_time']}Z</span>
@@ -113,11 +82,11 @@ if __name__ == "__main__":
         sys.exit(1)
 
     input_file = sys.argv[1]
-
     with open(input_file, "r", encoding="utf-8") as f:
-        raw = f.read()
+        raw_text = f.read()
 
-    data = parse_atis(raw)
+    # AI-based parsing
+    data = ai_parse_atis(raw_text)
 
     # Export JSON
     with open("atis.json", "w", encoding="utf-8") as f:
