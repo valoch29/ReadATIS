@@ -1,14 +1,3 @@
 {
-  "atis_letter": "NaN",
-  "atis_time": "NaN",
-  "wind": "NaN",
-  "visibility": "NaN",
-  "runway": "NaN",
-  "rwy_cond": "NaN",
-  "clouds": "NaN",
-  "bird": "NaN",
-  "temp_dew": "NaN",
-  "qnh": "NaN",
-  "tl": "NaN",
-  "trend": "NaN"
+  "raw_response": "Here is the parsed ATIS message in JSON format:\n\n```json\n{\n  \"atis_letter\": \"Top end\",\n  \"atis_time\": \"0, 9, 5, 0\",\n  \"wind\": {\n    \"direction\": \"0, 5, 0 degrees\",\n    \"speed\": \"4 knots\",\n    \"zone\": \"runway 2, touch down zone\"\n  },\n  \"visibility\": {\n    \"min\": \"1-0 kilometers\",\n    \"midpoint\": \"1-0 kilometers\",\n    \"max\": \"1-0 kilometers\",\n    \"runway\": \"runway 2, touch down zone\"\n  },\n  \"runway\": \"2, 3\",\n  \"rwy_cond\": {\n    \"touch_down\": \"5\",\n    \"dew_point\": \"5\",\n    \"top_end\": \"5\"\n  },\n  \"clouds\": {\n    \"type\": \"overcast\",\n    \"altitude\": {\n      \"min\": \"400 feet\",\n      \"max\": \"500 feet\"\n    }\n  },\n  \"bird\": \"activity in vicinity of airport\",\n  \"temp_dew\": {\n    \"temperature\": \"7\",\n    \"dew_point\": \"7\"\n  },\n  \"qnh\": \"1-0-1-2\",\n  \"tl\": \"65\",\n  \"trend\": {\n    \"info\": \"Victor\",\n    \"description\": \"Temporary\"\n  },\n  \"runway_conditions_2_3\": {\n    \"qnh\": \"1-0-1-2\",\n    \"expect_higher_weather_approach\": \"yes\"\n  },\n  \"runway_use_2_3\": {\n    \"before_time\": \"0, 3, 4, 0\",\n    \"can_be_used_before_time\": \"yes\"\n  },\n  \"touch_down_percent_wet_2_3\": {\n    \"wet\": \"1-0-0 per cent\"\n  },\n  \"dew_point_2_3\": {\n    \"wet\": \"1-0-0 per cent\",\n    \"top_end\": \"1-0-0 per cent\"\n  }\n}\n```\n\nThis JSON structure groups the ATIS data based on similar fields and provides a clear and easy-to-understand representation of the information."
 }
