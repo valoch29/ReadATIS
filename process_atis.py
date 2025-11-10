@@ -19,7 +19,7 @@ def ai_parse_atis(raw_text):
             "clouds", "bird", "temp_dew", "qnh", "tl", "trend"
         ]}
 
-    model = "mistral-medium-latest"
+    model = "mistral-small-latest"
     client = Mistral(api_key=api_key)
 
     prompt = (
