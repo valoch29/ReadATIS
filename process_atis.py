@@ -39,22 +39,28 @@ def call_mistral_api(prompt):
         "Content-Type": "application/json"
     }
 
-    # Remplace l'URL par l'endpoint Mistral réel que tu utilises
-    url = "https://api.mistral.ai/v1/generate"
+    # ✅ Endpoint officiel Mistral
+    model_id = "mistral-7b-instruct"  # Remplace par le modèle exact disponible sur ton compte
+    url = f"https://api.mistral.ai/models/{model_id}/completions"
 
     payload = {
-        "model": "mistral-7b-instruct",  # exemple de modèle
         "prompt": prompt,
         "max_new_tokens": 500
     }
 
-    response = requests.post(url, headers=headers, json=payload)
-    if response.status_code != 200:
-        print(f"⚠️ Erreur IA : {response.status_code} - {response.text}")
-        return {}
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        if response.status_code != 200:
+            print(f"⚠️ Erreur IA : {response.status_code} - {response.text}")
+            return {}
 
-    raw_text = response.json().get("output", "")
-    return extract_json_from_mistral(raw_text)
+        # Mistral renvoie souvent un champ "output" ou "completion"; à vérifier
+        raw_text = response.json().get("completion", "") or response.json().get("output", "")
+        return extract_json_from_mistral(raw_text)
+
+    except Exception as e:
+        print(f"⚠️ Exception lors de l'appel API Mistral : {e}")
+        return {}
 
 # 🔹 Fonction pour générer HTML
 def render_html(data):
