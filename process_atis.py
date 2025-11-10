@@ -1,66 +1,64 @@
 #!/usr/bin/env python3
 # process_atis.py
-# Uses an AI model to parse ATIS raw text into structured data.
-# Missing information is set to "NaN".
+# Analyse un texte ATIS avec OpenAI GPT-4 et génère JSON + HTML
+# Compatible OpenAI Python >=1.0.0
+# Valeurs manquantes → "NaN"
 
 import sys
 import json
-import openai  # Assurez-vous d'avoir configuré OPENAI_API_KEY
+import os
+import openai
 
 def ai_parse_atis(raw_text):
     """
-    Sends raw ATIS text to an AI model and returns structured data as dict.
-    The AI is instructed to output JSON with fixed keys.
+    Utilise OpenAI GPT pour extraire les paramètres ATIS dans un JSON structuré.
+    Si une valeur est manquante, elle est mise à "NaN".
+    Compatible OpenAI Python >=1.0.0
     """
     prompt = f"""
-You are an expert in ATIS (Automatic Terminal Information Service) messages.
-Extract all relevant parameters from the following raw ATIS text and return a JSON object.
-If a value is missing, set it to "NaN".
-
-Keys to extract:
+Vous êtes un expert ATIS. 
+Analyse ce texte ATIS et retournez un JSON avec ces clés :
 - atis_letter
-- atis_time (format HHMMZ)
-- wind (e.g., 270° / 15 kt, include variability if any)
-- visibility (e.g., 10 km)
-- runway (comma-separated if multiple)
+- atis_time (HHMMZ)
+- wind (ex: 270° / 15 kt, inclure variabilité si présente)
+- visibility (ex: 10 km)
+- runway (liste séparée par des virgules si plusieurs)
 - rwy_cond
 - clouds
 - bird
-- temp_dew (e.g., 7°C / 7°C)
+- temp_dew (ex: 7°C / 7°C)
 - qnh
 - tl
 - trend
 
-ATIS text:
-\"\"\"{raw_text}\"\"\"
-Return only valid JSON.
-"""
-    # Call the AI model
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0
-    )
+Si une information est manquante, utilisez "NaN".
 
-    # Extract content
-    content = response.choices[0].message.content.strip()
+Texte ATIS : 
+\"\"\"{raw_text}\"\"\"
+Retournez uniquement le JSON.
+"""
 
     try:
+        response = openai.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0
+        )
+        content = response.choices[0].message.content.strip()
         data = json.loads(content)
-    except json.JSONDecodeError:
-        print("⚠️ Failed to parse AI output, returning NaN defaults.")
+    except Exception as e:
+        print(f"⚠️ Erreur IA : {e}")
         keys = ["atis_letter","atis_time","wind","visibility","runway","rwy_cond","clouds","bird","temp_dew","qnh","tl","trend"]
         data = {k:"NaN" for k in keys}
-    
+
     return data
 
 def render_html(data):
-    """Render structured ATIS data into HTML format."""
+    """Transforme le JSON ATIS en HTML simple"""
     return f"""<div id="atis-message">
     <div class="atis-header">
         Information {data['atis_letter']} — <span>{data['atis_time']}Z</span>
     </div>
-
     <div class="atis-info">
         <div><strong>Wind:</strong> {data['wind']}</div>
         <div><strong>Visibility:</strong> {data['visibility']}</div>
@@ -78,14 +76,19 @@ def render_html(data):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: process_atis.py <atis_raw_text_file>")
+        print("Usage: python3 process_atis.py <fichier_ATIS.txt>")
         sys.exit(1)
 
-    input_file = sys.argv[1]
-    with open(input_file, "r", encoding="utf-8") as f:
+    atis_file = sys.argv[1]
+
+    if "OPENAI_API_KEY" not in os.environ:
+        print("❌ La variable d'environnement OPENAI_API_KEY n'est pas définie")
+        sys.exit(1)
+
+    with open(atis_file, "r", encoding="utf-8") as f:
         raw_text = f.read()
 
-    # AI-based parsing
+    # Analyse IA
     data = ai_parse_atis(raw_text)
 
     # Export JSON
@@ -96,5 +99,5 @@ if __name__ == "__main__":
     with open("atis_structured.html", "w", encoding="utf-8") as f:
         f.write(render_html(data))
 
-    print("✅ ATIS processed successfully:")
+    print("✅ ATIS traité avec succès")
     print(json.dumps(data, indent=2))
