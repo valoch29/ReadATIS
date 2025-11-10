@@ -22,18 +22,33 @@ def ai_parse_atis(raw_text):
     model = "mistral-medium-latest"
     client = Mistral(api_key=api_key)
 
+    prompt = (
+        f"Extract the ATIS information from the following text and return strictly JSON:\n"
+        f"{raw_text}\n"
+        "If a field is missing, use 'NaN'.\n"
+        "Output JSON with keys: "
+        "atis_letter, atis_time, wind, visibility, runway, rwy_cond, clouds, "
+        "bird, temp_dew, qnh, tl, trend"
+    )
+
     try:
         response = client.chat.complete(
             model=model,
-            messages=[{"role": "user", "content": f"Extract structured ATIS JSON from this text:\n{raw_text}"}]
+            messages=[{"role": "user", "content": prompt}]
         )
-        # Récupère le contenu de la réponse
-        atis_json_str = response["choices"][0]["message"]["content"]
-        # Tente de parser en JSON
+
+        # Le texte généré est dans response.result
+        atis_json_str = response.result.strip()
+
+        # Nettoyage si Mistral ajoute ```json ... ```
+        if atis_json_str.startswith("```json"):
+            atis_json_str = atis_json_str.replace("```json", "").replace("```", "").strip()
+
         data = json.loads(atis_json_str)
         return data
     except Exception as e:
-        print(f"⚠️ Réponse IA non strictement JSON — retour brut utilisé.\n{e}")
+        print(f"⚠️ Réponse IA non strictement JSON ou erreur SDK : {e}")
+        # Retour par défaut pour toutes les clés
         return {k: "NaN" for k in [
             "atis_letter", "atis_time", "wind", "visibility", "runway", "rwy_cond",
             "clouds", "bird", "temp_dew", "qnh", "tl", "trend"
@@ -72,7 +87,7 @@ if __name__ == "__main__":
         raw = f.read()
 
     data = ai_parse_atis(raw)
-    
+
     # Export JSON
     with open("atis.json", "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
