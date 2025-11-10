@@ -1,103 +1,65 @@
 #!/usr/bin/env python3
-# process_atis.py
-# Analyse un texte ATIS avec OpenAI GPT-4 et génère JSON + HTML
-# Compatible OpenAI Python >=1.0.0
-# Valeurs manquantes → "NaN"
+# process_atis.py — version Mistral API
 
-import sys
-import json
 import os
-import openai
+import json
+import sys
+import requests
 
 def ai_parse_atis(raw_text):
-    """
-    Utilise OpenAI GPT pour extraire les paramètres ATIS dans un JSON structuré.
-    Si une valeur est manquante, elle est mise à "NaN".
-    Compatible OpenAI Python >=1.0.0
-    """
-    prompt = f"""
-Vous êtes un expert ATIS. 
-Analyse ce texte ATIS et retournez un JSON avec ces clés :
-- atis_letter
-- atis_time (HHMMZ)
-- wind (ex: 270° / 15 kt, inclure variabilité si présente)
-- visibility (ex: 10 km)
-- runway (liste séparée par des virgules si plusieurs)
-- rwy_cond
-- clouds
-- bird
-- temp_dew (ex: 7°C / 7°C)
-- qnh
-- tl
-- trend
+    """Analyse un message ATIS en utilisant l’API Mistral."""
 
-Si une information est manquante, utilisez "NaN".
+    mistral_api_key = os.getenv("MISTRAL_API_KEY")
+    if not mistral_api_key:
+        print("❌ ERREUR : clé Mistral manquante. Ajoutez MISTRAL_API_KEY dans les secrets GitHub.")
+        return {}
 
-Texte ATIS : 
-\"\"\"{raw_text}\"\"\"
-Retournez uniquement le JSON.
-"""
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {mistral_api_key}"
+    }
+
+    data = {
+        "model": "mistral-tiny",  # ou "mistral-medium" si disponible
+        "messages": [
+            {"role": "system", "content": "You are an aviation assistant. Parse ATIS messages into structured JSON."},
+            {"role": "user", "content": f"Extract structured ATIS data from this message:\n{raw_text}\n\nReturn JSON with fields: atis_letter, atis_time, wind, visibility, runway, rwy_cond, clouds, bird, temp_dew, qnh, tl, trend."}
+        ]
+    }
 
     try:
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0
-        )
-        content = response.choices[0].message.content.strip()
-        data = json.loads(content)
-    except Exception as e:
-        print(f"⚠️ Erreur IA : {e}")
-        keys = ["atis_letter","atis_time","wind","visibility","runway","rwy_cond","clouds","bird","temp_dew","qnh","tl","trend"]
-        data = {k:"NaN" for k in keys}
+        response = requests.post("https://api.mistral.ai/v1/chat/completions", headers=headers, json=data)
+        response.raise_for_status()
+        result = response.json()
+        content = result["choices"][0]["message"]["content"]
 
-    return data
+        try:
+            return json.loads(content)
+        except:
+            print("⚠️ Réponse IA non strictement JSON — retour brut utilisé.")
+            return {"raw_response": content}
 
-def render_html(data):
-    """Transforme le JSON ATIS en HTML simple"""
-    return f"""<div id="atis-message">
-    <div class="atis-header">
-        Information {data['atis_letter']} — <span>{data['atis_time']}Z</span>
-    </div>
-    <div class="atis-info">
-        <div><strong>Wind:</strong> {data['wind']}</div>
-        <div><strong>Visibility:</strong> {data['visibility']}</div>
-        <div><strong>Runway in use:</strong> {data['runway']}</div>
-        <div><strong>Runway condition:</strong> {data['rwy_cond']}</div>
-        <div><strong>Cloud:</strong> {data['clouds']}</div>
-        <div><strong>Bird activity:</strong> {data['bird']}</div>
-        <div><strong>Temperature / Dew point:</strong> {data['temp_dew']}</div>
-        <div><strong>QNH:</strong> {data['qnh']} hPa</div>
-        <div><strong>Transition level:</strong> {data['tl']}</div>
-        <div><strong>Trend:</strong> {data['trend']}</div>
-    </div>
-</div>
-"""
+    except requests.exceptions.RequestException as e:
+        print(f"⚠️ Erreur API Mistral : {e}")
+        return {}
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python3 process_atis.py <fichier_ATIS.txt>")
+        print("Usage: process_atis.py <atis_raw_text_file>")
         sys.exit(1)
 
-    atis_file = sys.argv[1]
-
-    if "OPENAI_API_KEY" not in os.environ:
-        print("❌ La variable d'environnement OPENAI_API_KEY n'est pas définie")
-        sys.exit(1)
-
-    with open(atis_file, "r", encoding="utf-8") as f:
+    input_file = sys.argv[1]
+    with open(input_file, "r", encoding="utf-8") as f:
         raw_text = f.read()
 
-    # Analyse IA
     data = ai_parse_atis(raw_text)
 
-    # Export JSON
+    if not data:
+        # Valeurs par défaut
+        data = {k: "NaN" for k in ["atis_letter", "atis_time", "wind", "visibility", "runway", "rwy_cond", "clouds", "bird", "temp_dew", "qnh", "tl", "trend"]}
+
     with open("atis.json", "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
-    # Export HTML
-    with open("atis_structured.html", "w", encoding="utf-8") as f:
-        f.write(render_html(data))
-
-    print("✅ ATIS traité avec succès")
+    print("✅ ATIS traité avec succès :")
     print(json.dumps(data, indent=2))
