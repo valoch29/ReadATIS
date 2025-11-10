@@ -1,6 +1,12 @@
-Go to touch down 5 midpoint, 5 stop end, 5 deposit, touch down 1-0-0% wet, midpoint 1-0-0% wet, stop end 1-0-0% wet
-transition level 65, bird activity in vicinity of airport, wind runway 08 touch down zone, 1-4-0 degrees, 6 knots, stop end, 1-6-0 degrees, 8 knots, visibility runway 08 touch down zone, 3,500 meters, midpoint,
-9 kilometers, stop end, 1-0 kilometers, moderate rain and drizzle, cloud overcast, 400 feet, temperature, 1-0 dew point, 1-0 to an inch, 1-0-0, 7 hectopascals,
-information, uniform out, this is telling airport, special information, uniform, time 0652, expect ILS approach, runway 08 in use, runway 08 condition report time at 0127,
-runway condition report, touch down 5 midpoint, 5 stop end, 5 deposit, touch down 1-0-0% wet, midpoint 1-0-0% wet, stop end 1-0-0% wet,
-transition level 65, bird activity in vicinity of airport, wind runway 08
+Top end, 1-0 kilometers, cloud overcast, 400 feet, temperature, 7, dew point, 7, QNH, 1-0-1-2, Hexapastel.
+Trend temporary, cloud overcast, 500 feet, information, Victor out.
+This is cabin airport, information, Victor. Time, 0, 9, 5, 0, expect higher weather approach.
+Runway 2, 3, QNH.
+Runway 2, 3, QNH, can be used before time at 0, 3, 4, 0.
+Runway condition code, touch down, 5, dew point, 5, top end, 5, dew point.
+Touch down, 1-0-0 per cent, wet, dew point, 1-0-0 per cent, wet, top end, 1-0-0 per cent, wet.
+Transition level 65, bird activity in vicinity of airport.
+Wind runway 2, 6, touch down zone, 2, 4, 0 degrees, 4 knots, top end.
+2, 5, 0 degrees, 4 knots, variable between 2, 0, 0 degrees, and 2, 8, 0 degrees, visibility runway 2, 6, touch down zone, 1-0 kilometers, midpoint, 1-0 kilometers, top end, 1-0 kilometers.
+Runway 2, cloud overcast, 400 feet, temperature, 7, dew point, 7, QNH, 1, 0, 1, 2, expect higher weather approach.
+Trend temporary, cloud overcast, 500 feet, information.
