@@ -1,14 +1,43 @@
 {
-  "atis_letter": "NaN",
-  "atis_time": "NaN",
-  "wind": "NaN",
-  "visibility": "NaN",
-  "runway": "NaN",
-  "rwy_cond": "NaN",
-  "clouds": "NaN",
-  "bird": "NaN",
-  "temp_dew": "NaN",
-  "qnh": "NaN",
-  "tl": "NaN",
-  "trend": "NaN"
+  "atis_letter": "Top end",
+  "atis_time": "0, 9, 5, 0",
+  "wind": {
+    "direction": "0, 6",
+    "touch_down_zone": "2, 4",
+    "value": "4 knots",
+    "top_end": "top end"
+  },
+  "visibility": {
+    "runway_2_6_touch_down_zone": {
+      "minimum": "1-0 kilometers",
+      "midpoint": "1-0 kilometers",
+      "top_end": "1-0 kilometers"
+    }
+  },
+  "runway": [
+    "2",
+    "3"
+  ],
+  "rwy_cond": {
+    "touch_down": "5",
+    "dew_point": "5",
+    "top_end": "5"
+  },
+  "clouds": {
+    "overcast": {
+      "elevation_1": "400 feet",
+      "elevation_2": "500 feet"
+    }
+  },
+  "bird": "bird activity in vicinity of airport",
+  "temp_dew": {
+    "temperature": "7",
+    "dew_point": "7"
+  },
+  "qnh": "1-0-1-2",
+  "tl": "65",
+  "trend": {
+    "temporary": "Trend temporary",
+    "information": "information"
+  }
 }
