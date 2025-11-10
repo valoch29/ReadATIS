@@ -1,14 +1,14 @@
 {
-  "atis_letter": "R",
+  "atis_letter": "NaN",
   "atis_time": "NaN",
-  "wind": "40\u00b0 / 4 kt",
-  "visibility": "0 km",
-  "runway": "2",
+  "wind": "NaN",
+  "visibility": "NaN",
+  "runway": "NaN",
   "rwy_cond": "NaN",
-  "clouds": "BROKEN",
-  "bird": "in the vicinity of the airport",
+  "clouds": "NaN",
+  "bird": "NaN",
   "temp_dew": "NaN",
   "qnh": "NaN",
-  "tl": "6",
-  "trend": "Temporary"
+  "tl": "NaN",
+  "trend": "NaN"
 }
