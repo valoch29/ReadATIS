@@ -1,42 +1,49 @@
 #!/usr/bin/env python3
-# update_index.py
-# Replaces the entire <div id="atis-message"> block in index.html
-# with the updated version from atis_structured.html
+# update_index.py — met à jour ou crée le bloc ATIS dans index.html
 
+from bs4 import BeautifulSoup
+import json
 import os
-import re
 
-def update_atis_message():
-    try:
-        # Read content of atis_structured.html
-        with open("atis_structured.html", "r", encoding="utf-8") as atis_file:
-            atis_content = atis_file.read().strip()
+def main():
+    if not os.path.exists("atis_structured.html"):
+        print("❌ Fichier atis_structured.html introuvable.")
+        return
 
-        # Read current index.html content
-        with open("index.html", "r", encoding="utf-8") as index_file:
-            index_content = index_file.read()
+    # Lire les fichiers
+    with open("atis_structured.html", "r", encoding="utf-8") as f:
+        atis_html = f.read()
 
-        # Use regex to replace the full <div id="atis-message"> ... </div>
-        updated_content, count = re.subn(
-            r'<div id="atis-message">.*?</div>',
-            atis_content,
-            index_content,
-            flags=re.DOTALL
-        )
+    if os.path.exists("index.html"):
+        with open("index.html", "r", encoding="utf-8") as f:
+            index_html = f.read()
+    else:
+        index_html = "<html><head><title>ATIS</title></head><body><h1>ATIS Dashboard</h1></body></html>"
 
-        if count == 0:
-            raise ValueError("No <div id='atis-message'> block found in index.html.")
+    soup = BeautifulSoup(index_html, "html.parser")
 
-        # Write the updated version back to index.html
-        with open("index.html", "w", encoding="utf-8") as index_file:
-            index_file.write(updated_content)
+    # Rechercher ou créer le bloc ATIS
+    atis_block = soup.find("div", {"id": "atis-message"})
+    if atis_block:
+        atis_block.replace_with(BeautifulSoup(atis_html, "html.parser"))
+        print("✅ Bloc ATIS mis à jour dans index.html.")
+    else:
+        # Ajouter le bloc à la fin du <body>
+        body = soup.find("body")
+        if not body:
+            body = soup.new_tag("body")
+            soup.append(body)
 
-        print("✅ index.html successfully updated with new ATIS structure.")
+        new_block = BeautifulSoup(atis_html, "html.parser")
+        body.append(new_block)
+        print("🆕 Bloc ATIS ajouté à index.html.")
 
-    except FileNotFoundError as e:
-        print(f"❌ Error: File not found - {e.filename}")
-    except Exception as e:
-        print(f"⚠️ Unexpected error: {e}")
+    # Sauvegarder le résultat
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(str(soup))
 
 if __name__ == "__main__":
-    update_atis_message()
+    try:
+        main()
+    except Exception as e:
+        print(f"⚠️ Unexpected error: {e}")
