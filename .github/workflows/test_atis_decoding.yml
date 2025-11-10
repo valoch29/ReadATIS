@@ -48,6 +48,7 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add index.html atis.json atis_structured.html || true
-          if ! git diff-index --quiet HEAD; then
-            git commit -m "Mise à jour ATIS via Mistral API ($(date +'%Y-%m-%d %H:%M:%S'))"
+          git diff-index --quiet HEAD || (
+            git commit -m "Mise à jour ATIS via Mistral API ($(date +'%Y-%m-%d %H:%M:%S'))" &&
             git push https://valoch29:${{ secrets.ATIS_TOKEN }}@github.com/valoch29/ReadATIS.git HEAD:main
+          )
