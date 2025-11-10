@@ -1,14 +1,14 @@
 {
-  "atis_letter": "O",
+  "atis_letter": "R",
   "atis_time": "NaN",
-  "wind": "0\u00b0 / 4 kt",
-  "visibility": "0 kilometers",
+  "wind": "40\u00b0 / 4 kt",
+  "visibility": "0 km",
   "runway": "2",
   "rwy_cond": "NaN",
-  "clouds": "OVERCAST",
+  "clouds": "BROKEN",
   "bird": "in the vicinity of the airport",
-  "temp_dew": "7\u00b0C / 7\u00b0C",
-  "qnh": "1012",
-  "tl": "65",
-  "trend": "Temporary  cloud overcast  500 feet  information  victor out"
+  "temp_dew": "NaN",
+  "qnh": "NaN",
+  "tl": "6",
+  "trend": "Temporary"
 }
