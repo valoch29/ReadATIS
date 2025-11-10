@@ -4,35 +4,50 @@ on:
   workflow_dispatch:
     inputs:
       atis_file:
-        description: 'Nom du fichier ATIS à décoder (ex: atis_tallinn.txt)'
+        description: "Nom du fichier ATIS à décoder (ex: ATIS_tallinn.txt)"
         required: true
-        default: 'ATIS_tallinn.txt'
+        default: "ATIS_tallinn.txt"
 
 jobs:
   decode-atis:
     runs-on: ubuntu-latest
+
+    # 🔑 Injection de la clé Mistral depuis GitHub Secrets
+    env:
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+
     steps:
+      # 1️⃣ Cloner le dépôt
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.ATIS_TOKEN }}
 
+      # 2️⃣ Installer Python et dépendances
       - name: Installer dépendances Python
         run: |
+          python3 -m venv venv
+          source venv/bin/activate
           pip install requests beautifulsoup4
 
+      # 3️⃣ Décoder le message ATIS via Mistral
       - name: Décoder le message ATIS avec Mistral
         run: |
+          source venv/bin/activate
           python3 process_atis.py ${{ github.event.inputs.atis_file }}
 
+      # 4️⃣ Mettre à jour la page HTML
       - name: Mettre à jour index.html
         run: |
+          source venv/bin/activate
           python3 update_index.py
 
+      # 5️⃣ Commit et push des changements
       - name: Commit et push des changements
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add index.html atis.json atis_structured.html
-          git commit -m "Mise à jour manuelle de l'ATIS (test)"
-          git push
+          git add index.html atis.json atis_structured.html || true
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Mise à jour ATIS via Mistral API ($(date +'%Y-%m-%d %H:%M:%S'))"
+            git push https://valoch29:${{ secrets.ATIS_TOKEN }}@github.com/valoch29/ReadATIS.git HEAD:main
