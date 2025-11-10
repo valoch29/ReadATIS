@@ -1,38 +1,101 @@
-name: Test ATIS Decoding (Manual)
+#!/usr/bin/env python3
+# process_atis.py
+# Analyse un texte ATIS avec l'IA OpenAI et génère JSON + HTML
+# Valeurs manquantes → "NaN"
 
-on:
-  workflow_dispatch:
-    inputs:
-      atis_file:
-        description: 'Nom du fichier ATIS à décoder (ex: atis_tallinn.txt)'
-        required: true
-        default: 'ATIS_tallinn.txt'
+import sys
+import json
+import os
+import openai
 
-jobs:
-  decode-atis:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.ATIS_TOKEN }}
+def ai_parse_atis(raw_text):
+    """
+    Utilise OpenAI GPT pour extraire les paramètres ATIS dans un JSON structuré.
+    Si une valeur est manquante, elle est mise à "NaN".
+    """
+    prompt = f"""
+Vous êtes un expert ATIS. 
+Analyse ce texte ATIS et retournez un JSON avec ces clés :
+- atis_letter
+- atis_time (HHMMZ)
+- wind (ex: 270° / 15 kt, inclure variabilité si présente)
+- visibility (ex: 10 km)
+- runway (liste séparée par des virgules si plusieurs)
+- rwy_cond
+- clouds
+- bird
+- temp_dew (ex: 7°C / 7°C)
+- qnh
+- tl
+- trend
 
-      - name: Installer dépendances Python
-        run: |
-          pip install beautifulsoup4
+Si une information est manquante, utilisez "NaN".
 
-      - name: Décoder le message ATIS
-        run: |
-          python3 process_atis.py ${{ github.event.inputs.atis_file }}
+Texte ATIS : 
+\"\"\"{raw_text}\"\"\"
+Retournez uniquement le JSON.
+"""
 
-      - name: Mettre à jour index.html
-        run: |
-          python3 update_index.py
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0
+        )
+        content = response.choices[0].message.content.strip()
+        data = json.loads(content)
+    except Exception as e:
+        print(f"⚠️ Erreur IA : {e}")
+        keys = ["atis_letter","atis_time","wind","visibility","runway","rwy_cond","clouds","bird","temp_dew","qnh","tl","trend"]
+        data = {k:"NaN" for k in keys}
 
-      - name: Commit et push des changements
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add index.html atis.json atis_structured.html
-          git commit -m "Mise à jour manuelle de l'ATIS (test)"
-          git push
+    return data
+
+def render_html(data):
+    """Transforme le JSON ATIS en HTML simple"""
+    return f"""<div id="atis-message">
+    <div class="atis-header">
+        Information {data['atis_letter']} — <span>{data['atis_time']}Z</span>
+    </div>
+    <div class="atis-info">
+        <div><strong>Wind:</strong> {data['wind']}</div>
+        <div><strong>Visibility:</strong> {data['visibility']}</div>
+        <div><strong>Runway in use:</strong> {data['runway']}</div>
+        <div><strong>Runway condition:</strong> {data['rwy_cond']}</div>
+        <div><strong>Cloud:</strong> {data['clouds']}</div>
+        <div><strong>Bird activity:</strong> {data['bird']}</div>
+        <div><strong>Temperature / Dew point:</strong> {data['temp_dew']}</div>
+        <div><strong>QNH:</strong> {data['qnh']} hPa</div>
+        <div><strong>Transition level:</strong> {data['tl']}</div>
+        <div><strong>Trend:</strong> {data['trend']}</div>
+    </div>
+</div>
+"""
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python3 process_atis.py <fichier_ATIS.txt>")
+        sys.exit(1)
+
+    atis_file = sys.argv[1]
+
+    if "OPENAI_API_KEY" not in os.environ:
+        print("❌ La variable d'environnement OPENAI_API_KEY n'est pas définie")
+        sys.exit(1)
+
+    with open(atis_file, "r", encoding="utf-8") as f:
+        raw_text = f.read()
+
+    # Analyse IA
+    data = ai_parse_atis(raw_text)
+
+    # Export JSON
+    with open("atis.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    # Export HTML
+    with open("atis_structured.html", "w", encoding="utf-8") as f:
+        f.write(render_html(data))
+
+    print("✅ ATIS traité avec succès")
+    print(json.dumps(data, indent=2))
