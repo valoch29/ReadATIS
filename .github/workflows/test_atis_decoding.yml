@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       atis_file:
-        description: 'Nom du fichier ATIS à décoder (ex: atis_tallinn.txt)'
+        description: "Nom du fichier ATIS à décoder (ex: ATIS_tallinn.txt)"
         required: true
-        default: 'ATIS_tallinn.txt'
+        default: "ATIS_tallinn.txt"
 
 jobs:
   decode-atis:
     runs-on: ubuntu-latest
     env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}  # <- clé OpenAI depuis les Secrets
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
