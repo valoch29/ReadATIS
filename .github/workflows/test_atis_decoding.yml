@@ -12,23 +12,33 @@ jobs:
   decode-atis:
     runs-on: ubuntu-latest
     steps:
+      # 1️⃣ Récupérer le dépôt
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Installer Python et dépendances
       - name: Installer dépendances Python
         run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
           pip install beautifulsoup4 mistralai
 
-      - name: Décoder le message ATIS avec Mistral
+      # 3️⃣ Décoder le message ATIS via Mistral
+      - name: Décoder le message ATIS
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: |
+          source venv/bin/activate
           python3 process_atis.py ${{ github.event.inputs.atis_file }}
 
+      # 4️⃣ Mettre à jour index.html
       - name: Mettre à jour index.html
         run: |
+          source venv/bin/activate
           python3 update_index.py
 
+      # 5️⃣ Commit et push les modifications
       - name: Commit et push des changements
         run: |
           git config --global user.name "GitHub Actions"
