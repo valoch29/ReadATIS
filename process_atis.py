@@ -1,57 +1,74 @@
 #!/usr/bin/env python3
 # process_atis.py
-# Parses raw ATIS text and generates a simple, single-column English HTML block.
+# Parses raw ATIS text and generates structured HTML and JSON.
+# If a parameter is missing, it is set to "NaN".
 
 import re
 import sys
 import json
 
 def parse_atis(raw_text):
-    """Extract structured ATIS data from raw text using regex patterns."""
+    """Extract structured ATIS data from raw text using flexible regex patterns."""
+    
+    # Clean text: replace commas and hyphens with spaces, lowercase for easier matching
+    text = re.sub(r'[,/-]', ' ', raw_text).lower()
 
-    def match(pattern, text, default=""):
+    def match(pattern):
         m = re.search(pattern, text, re.IGNORECASE)
-        return m.group(1).strip() if m else default
+        return m.group(1).strip() if m else "NaN"
 
     # ATIS letter
-    atis_letter = match(r'information\s+([A-Z])', raw_text, "U").upper()
+    atis_letter = match(r'information\s*[a-z]*\s*([A-Z])').upper()
 
-    # ATIS time
-    atis_time = match(r'(\d{4})Z', raw_text, "0000")
+    # ATIS time (4 digits)
+    atis_time = match(r'time\s*(\d{4})')
 
     # Wind
-    wind_dir = match(r'wind\s+(\d{2,3})', raw_text, "000")
-    wind_speed = match(r'(\d{1,2})\s*(?:kt|knots)', raw_text, "00")
-    wind = f"{wind_dir}° / {wind_speed} kt"
+    wind_match = re.search(r'wind.*?(\d{1,3})\s*degrees.*?(\d{1,2})\s*knots', text)
+    if wind_match:
+        wind_dir, wind_speed = wind_match.groups()
+        wind = f"{wind_dir}° / {wind_speed} kt"
+    else:
+        wind = "NaN"
 
     # Visibility
-    visibility = match(r'visibility\s+([\d,\.]+\s*(?:m|meters|km|kilometers))', raw_text, "10 km")
+    visibility = match(r'visibility.*?(\d+\s*(?:km|kilometers|m|meters))')
 
-    # Runway
-    runway = match(r'runway\s*(\d{2})', raw_text, "08")
+    # Runway in use
+    runway = match(r'runway\s*(\d{1,2}[lrc]?)')
 
     # Runway condition
-    rwy_cond = "6 / 6 / 6 (dry)"
+    rwy_cond = "NaN"
 
     # Clouds
-    clouds = match(r'(overcast|few|scattered|broken)', raw_text, "overcast").upper()
+    clouds_match = re.search(r'(overcast|few|scattered|broken)', text)
+    clouds = clouds_match.group(1).upper() if clouds_match else "NaN"
 
     # Bird activity
-    bird_activity = "in the vicinity of the airport" if "bird" in raw_text.lower() else "NIL"
+    bird_activity = "in the vicinity of the airport" if "bird" in text else "NaN"
 
     # Temperature / Dew point
-    temp = match(r'temperature\s+(-?\d+)', raw_text, "1")
-    dew = match(r'dew\s*point\s+(-?\d+)', raw_text, "1")
-    temp_dew = f"{temp}°C / {dew}°C"
+    temp_match = re.search(r'temperature\s*(\d+)', text)
+    dew_match = re.search(r'dew point\s*(\d+)', text)
+    if temp_match and dew_match:
+        temp_dew = f"{temp_match.group(1)}°C / {dew_match.group(1)}°C"
+    else:
+        temp_dew = "NaN"
 
     # QNH
-    qnh = match(r'qnh\s*(\d{3,4})', raw_text, "1007")
+    qnh_match = re.search(r'qnh\s*([\d\s]+)', text)
+    if qnh_match:
+        qnh = qnh_match.group(1).replace(" ", "").replace("-", "")
+    else:
+        qnh = "NaN"
 
     # Transition level
-    tl = match(r'transition\s*level\s*(\d{2})', raw_text, "65")
+    tl_match = re.search(r'transition level\s*(\d{1,3})', text)
+    tl = tl_match.group(1) if tl_match else "NaN"
 
     # Trend
-    trend = "No significant change (NOSIG)"
+    trend_match = re.search(r'trend\s*(.*?)(?:\.|$)', text)
+    trend = trend_match.group(1).capitalize() if trend_match else "NaN"
 
     return {
         "atis_letter": atis_letter,
@@ -69,7 +86,7 @@ def parse_atis(raw_text):
     }
 
 def render_html(data):
-    """Render the structured ATIS data into the new single-column HTML format."""
+    """Render the structured ATIS data into HTML format."""
     return f"""<div id="atis-message">
     <div class="atis-header">
         Information {data['atis_letter']} — <span>{data['atis_time']}Z</span>
