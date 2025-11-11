@@ -19,21 +19,19 @@ jobs:
         with:
           token: ${{ secrets.ATIS_TOKEN }}
 
-      # 2️⃣ Installer Git
-      - name: Installer Git
-        run: sudo apt-get update && sudo apt-get install -y git
+      # 2️⃣ Installer Git et Python
+      - name: Installer Git et Python
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git python3 python3-pip
 
       # 3️⃣ Configurer l'identité Git
       - name: Configurer Git
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+        run: git config --global user.name "GitHub Actions" && git config --global user.email "actions@github.com"
 
-      # 4️⃣ Installer Python et dépendances
+      # 4️⃣ Installer dépendances Python
       - name: Installer dépendances Python
-        run: |
-          pip install --upgrade pip
-          pip install beautifulsoup4
+        run: pip3 install --upgrade pip beautifulsoup4
 
       # 5️⃣ Décoder et formater le message ATIS
       - name: Décoder et formater le message ATIS
@@ -43,14 +41,8 @@ jobs:
       - name: Mettre à jour index.html
         run: python3 update_index.py
 
-      # 7️⃣ Commit et push des changements
+      # 7️⃣ Commit et push des changements (une seule ligne)
       - name: Commit et push des changements
         env:
           ATIS_TOKEN: ${{ secrets.ATIS_TOKEN }}
-        run: |
-          git add index.html atis.json atis_structured.html
-          if ! git diff-index --quiet HEAD; then
-            git commit -m "🧩 Mise à jour manuelle ATIS ($(date +'%Y-%m-%d %H:%M:%S'))"
-            git push https://valoch29:${ATIS_TOKEN}@github.com/valoch29/ReadATIS.git HEAD:main
-          else
-            echo "Aucun changement détecté — pas de commit."
+        run: git add index.html atis.json atis_structured.html && git diff-index --quiet HEAD || git commit -m "🧩 Mise à jour manuelle ATIS ($(date +'%Y-%m-%d %H:%M:%S'))" && git push https://valoch29:${ATIS_TOKEN}@github.com/valoch29/ReadATIS.git HEAD:main
