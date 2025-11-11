@@ -7,7 +7,7 @@ on:
 
 jobs:
   record-atis:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -27,11 +27,3 @@ jobs:
       - name: Convertir MP3 en WAV mono 16kHz
         run: |
           ffmpeg -i atis_tallinn.mp3 -ac 1 -ar 16000 atis_tallinn.wav
-
-      - name: Upload audio comme artefact
-        uses: actions/upload-artifact@v4
-        with:
-          name: atis-audio
-          path: |
-            atis_tallinn.mp3
-            atis_tallinn.wav
