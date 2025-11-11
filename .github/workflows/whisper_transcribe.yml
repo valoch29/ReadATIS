@@ -2,7 +2,7 @@ name: ATIS Transcription Automatique
 
 on:
   schedule:
-    - cron: '22,52 * * * *'   # toutes les heures aux minutes 0 et 30
+    - cron: '22,52 * * * *'   # toutes les 30 minutes
   workflow_dispatch:          # déclenchement manuel possible
 
 jobs:
@@ -10,33 +10,66 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Récupérer le dépôt
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ATIS_TOKEN }}
 
+      # 2️⃣ Installer dépendances système
       - name: Installer dépendances système
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg curl
 
-      - name: Installer Python et Whisper
+      # 3️⃣ Installer Whisper
+      - name: Installer Whisper
         run: |
-          python3 -m venv venv
-          source venv/bin/activate
           pip install --upgrade pip
           pip install git+https://github.com/openai/whisper.git
 
-      - name: Enregistrer le flux ATIS
+      # 4️⃣ Enregistrer le flux ATIS
+      - name: Enregistrer le flux ATIS (Tallinn)
         run: |
+          echo "🎧 Téléchargement du flux LiveATC Tallinn..."
           curl -s -A "Mozilla/5.0" -e "https://www.liveatc.net/" "https://s1-fmt2.liveatc.net/eetn2_atis" | \
           ffmpeg -i pipe:0 -t 120 -y atis_tallinn.mp3
+          ls -lh atis_tallinn.mp3
 
-      - name: Transcrire l'audio avec Whisper
+      # 5️⃣ Transcrire l’audio avec Whisper (TXT pur)
+      - name: Transcrire avec Whisper
         run: |
-          source venv/bin/activate
+          echo "🗣️ Transcription en cours avec Whisper..."
           whisper atis_tallinn.mp3 --model small --language English --output_format txt --output_dir .
+          mv atis_tallinn.txt ATIS_tallinn.txt || mv atis_tallinn.*.txt ATIS_tallinn.txt
+          echo "✅ Transcription générée :"
+          head -n 10 ATIS_tallinn.txt
 
-      - name: Upload du fichier de transcription
+      # 6️⃣ Nettoyer le texte (enlever timestamps si Whisper en met)
+      - name: Nettoyer la transcription
+        run: |
+          if grep -q "\[00:" ATIS_tallinn.txt; then
+            echo "⚠️ Suppression des timestamps..."
+            sed -E 's/\[[0-9:. -\>]+\]//g' ATIS_tallinn.txt > cleaned.txt
+            mv cleaned.txt ATIS_tallinn.txt
+          fi
+
+      # 7️⃣ Commit et push le fichier mis à jour
+      - name: Commit et push la transcription
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add ATIS_tallinn.txt
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "🔁 Mise à jour automatique de la transcription ATIS ($(date +'%Y-%m-%d %H:%M:%S'))"
+            git push https://valoch29:${{ secrets.ATIS_TOKEN }}@github.com/valoch29/ReadATIS.git HEAD:main
+          else
+            echo "Aucun changement détecté — pas de commit."
+          fi
+
+      # 8️⃣ (Optionnel) Upload artefact pour debug
+      - name: Upload du fichier de transcription (debug)
         uses: actions/upload-artifact@v4
         with:
-          name: transcription-atis
+          name: ATIS_tallinn
           path: ATIS_tallinn.txt
