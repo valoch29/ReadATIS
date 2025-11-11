@@ -1,0 +1,23 @@
+This is report time at 0855. Run the Condition Code at down 5 midpoint, 5 stop end, 5 deposit.
+Touchdown, 100% wet.
+Midpoint, 100% wet.
+Stop end, 100% wet.
+Transition level 65, bird activity in vicinity of airport.
+Wind runway 26, touchdown zone, 160 degrees, 5 knots.
+Variable between 130 degrees and 190 degrees.
+Stop end, 160 degrees, 3 knots.
+Variable between 130 degrees and 190 degrees.
+Visibility runway 26, touchdown zone, 10 kilometers.
+Midpoint, 10 kilometers.
+Stop end, 10 kilometers.
+Cloud scatter, 900 feet.
+Scatter, 2,900 feet.
+Overcast, 4,100 feet.
+Temperature, 7, 0.6.
+To an age, 1013 hectopascal.
+Trend, no seek. Information, subtract out.
+Business island airport, information, subtract.
+Time, 1320, expect ILS approach.
+Runway 26, be used.
+Runway 26, can be used before time at 0855.
+Runway condition code, touchdown, 5 midpoint, 5 stop end.
