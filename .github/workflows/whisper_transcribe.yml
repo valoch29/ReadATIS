@@ -3,8 +3,8 @@ name: Transcription ATIS avec Whisper
 on:
   workflow_dispatch:
     inputs:
-      audio_artifact:
-        description: "Nom de l'artefact audio (.wav)"
+      audio_file:
+        description: "Nom du fichier audio à transcrire (ex: atis_tallinn.wav)"
         required: true
         default: "atis_tallinn.wav"
 
@@ -25,26 +25,31 @@ jobs:
           pip install --upgrade pip
           pip install git+https://github.com/openai/whisper.git
 
-      # 3️⃣ Télécharger l’audio depuis l’artefact
-      - name: Télécharger l’audio
+      # 3️⃣ Télécharger l’artefact audio du workflow d’enregistrement
+      - name: Télécharger l’artefact audio
         uses: actions/download-artifact@v4
         with:
           name: atis-audio
           path: .
 
-      # 4️⃣ Transcrire avec Whisper
+      # 4️⃣ Transcrire l’audio avec Whisper
       - name: Transcrire ATIS
         run: |
           source venv/bin/activate
-          whisper ${{ github.event.inputs.audio_artifact }} \
-                  --model small \
-                  --language English \
-                  --output_format txt \
-                  --output_dir .
+          whisper ${{ github.event.inputs.audio_file }} \
+            --model small \
+            --language English \
+            --output_format txt \
+            --output_dir .
+          
+      # 5️⃣ Renommer la transcription de sortie pour garder un nom fixe
+      - name: Renommer transcription
+        run: |
+          mv "${{ github.event.inputs.audio_file%.wav }}.txt" atis_tallinn.txt
 
-      # 5️⃣ Upload du fichier de transcription
+      # 6️⃣ Upload de la transcription comme artefact
       - name: Upload transcription
         uses: actions/upload-artifact@v4
         with:
-          name: transcription-atis
+          name: atis-transcription
           path: atis_tallinn.txt
