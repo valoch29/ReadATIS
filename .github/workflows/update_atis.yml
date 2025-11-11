@@ -1,63 +1,42 @@
-name: Mise à jour automatique de l'ATIS
+name: ATIS Transcription Automatique
 
 on:
   schedule:
-    - cron: '22,52 * * * *'
-  workflow_dispatch:
+    - cron: '22,52 * * * *'   # toutes les heures aux minutes 0 et 30
+  workflow_dispatch:          # déclenchement manuel possible
 
 jobs:
-  update-atis:
+  transcribe-atis:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.ATIS_TOKEN }}
 
       - name: Installer dépendances système
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends ffmpeg curl
+          sudo apt-get install -y ffmpeg curl
 
-      - name: Cache Whisper model
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/whisper
-          key: whisper-model-small-${{ hashFiles('**/process_atis.py') }}
-
-      - name: Installer dépendances Python
+      - name: Installer Python et Whisper
         run: |
-          pip install git+https://github.com/openai/whisper.git beautifulsoup4
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install git+https://github.com/openai/whisper.git
 
       - name: Enregistrer le flux ATIS
         run: |
           curl -s -A "Mozilla/5.0" -e "https://www.liveatc.net/" "https://s1-fmt2.liveatc.net/eetn2_atis" | \
           ffmpeg -i pipe:0 -t 120 -y atis_tallinn.mp3
 
-      - name: Transcrire avec Whisper
-        run: whisper atis_tallinn.mp3 --model small --language English --output_format txt
+      - name: Transcrire l'audio avec Whisper
+        run: |
+          source venv/bin/activate
+          whisper atis_tallinn.mp3 --model small --language English --output_format txt --output_dir .
 
-      - name: Post-traitement du message ATIS
-        run: python3 process_atis.py atis_tallinn.txt
-
-      - name: Mise à jour index.html
-        run: python3 update_index.py
-
-      - name: Upload fichiers temporaires pour debug
+      - name: Upload du fichier de transcription
         uses: actions/upload-artifact@v4
         with:
-          name: atis-debug
-          path: |
-            atis_tallinn.txt
-            atis_structured.html
-
-      - name: Valider et pousser les modifications
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add index.html atis.json
-          if ! git diff-index --quiet HEAD; then
-            git commit -m "Mise à jour ATIS: $(date +'%Y-%m-%d %H:%M:%S')"
-            git push https://valoch29:${{ secrets.ATIS_TOKEN }}@github.com/valoch29/ReadATIS.git HEAD:main
-          fi
+          name: transcription-atis
+          path: ATIS_tallinn.txt
