@@ -41,11 +41,14 @@ jobs:
             --language English \
             --output_format txt \
             --output_dir .
-          
-      # 5️⃣ Renommer la transcription de sortie pour garder un nom fixe
+
+      # 5️⃣ Renommer la transcription de sortie pour avoir un nom fixe
       - name: Renommer transcription
         run: |
-          mv "${{ github.event.inputs.audio_file%.wav }}.txt" atis_tallinn.txt
+          source venv/bin/activate
+          AUDIO_FILE="${{ github.event.inputs.audio_file }}"
+          TXT_FILE="${AUDIO_FILE%.wav}.txt"
+          mv "$TXT_FILE" atis_tallinn.txt
 
       # 6️⃣ Upload de la transcription comme artefact
       - name: Upload transcription
