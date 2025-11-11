@@ -14,39 +14,45 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Installer dépendances système
+      # 2️⃣ Installer Python 3.10
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+
+      # 3️⃣ Installer dépendances système
       - name: Installer ffmpeg, curl et sox
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg curl sox libsndfile1
 
-      # 3️⃣ Installer DeepSpeech
+      # 4️⃣ Installer DeepSpeech
       - name: Installer DeepSpeech
         run: |
-          python3 -m venv venv
+          python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
           pip install deepspeech
 
-      # 4️⃣ Télécharger le modèle ATC
+      # 5️⃣ Télécharger le modèle ATC
       - name: Télécharger le modèle DeepSpeech ATC
         run: |
           curl -LO https://example.com/models/deepspeech-atis.pbmm
           curl -LO https://example.com/models/deepspeech-atis.scorer
 
-      # 5️⃣ Enregistrer le flux ATIS en mp3
+      # 6️⃣ Enregistrer le flux ATIS en MP3
       - name: Enregistrer flux ATIS
         run: |
           curl -s -A "Mozilla/5.0" -e "https://www.liveatc.net/" \
           "https://s1-fmt2.liveatc.net/eetn2_atis" \
           | ffmpeg -i pipe:0 -t 120 -y atis_tallinn.mp3
 
-      # 6️⃣ Convertir en WAV mono 16kHz
+      # 7️⃣ Convertir en WAV mono 16kHz
       - name: Convertir MP3 en WAV mono 16kHz
         run: |
           ffmpeg -i atis_tallinn.mp3 -ac 1 -ar 16000 atis_tallinn.wav
 
-      # 7️⃣ Transcrire avec DeepSpeech
+      # 8️⃣ Transcrire avec DeepSpeech
       - name: Transcrire ATIS
         run: |
           source venv/bin/activate
@@ -55,7 +61,7 @@ jobs:
                      --audio atis_tallinn.wav \
                      > atis_tll_deepspeech.txt
 
-      # 8️⃣ Upload artefact pour debug
+      # 9️⃣ Upload artefact pour debug
       - name: Upload transcription
         uses: actions/upload-artifact@v4
         with:
