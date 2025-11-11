@@ -1,4 +1,4 @@
-name: Décodage ATIS
+name: Décodage ATIS (manuel)
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Récupérer le dépôt
+      # 1️⃣ Cloner le dépôt
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -36,7 +36,7 @@ jobs:
           python3 update_index.py
 
       # 5️⃣ Commit et push des changements
-      - name: Commit et push des changements
+      - name: Commit et push les changements
         env:
           ATIS_TOKEN: ${{ secrets.ATIS_TOKEN }}
         run: |
