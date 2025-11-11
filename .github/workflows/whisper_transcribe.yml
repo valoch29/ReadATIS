@@ -5,37 +5,35 @@ on:
 
 jobs:
   transcribe-atis:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
-      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Installer Python et Whisper
-      - name: Installer Python et Whisper
+      # Installer ffmpeg et dépendances système
+      - name: Installer ffmpeg
         run: |
-          python3 -m venv venv
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+
+      # Installer Python et créer un environnement virtuel
+      - name: Setup Python et venv
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      - run: |
+          python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
-          pip install git+https://github.com/openai/whisper.git beautifulsoup4
+          pip install openai-whisper
 
-      # 3️⃣ Transcrire l’audio en texte
-      - name: Transcrire ATIS
+      # Transcrire l'audio ATIS
+      - name: Transcrire ATIS avec Whisper
         run: |
           source venv/bin/activate
-          whisper atis_tallinn.wav \
-            --model small \
-            --language English \
-            --output_format txt \
-            --output_dir .
+          whisper atis_tallinn.wav --model small --language fr --output_format txt --output_dir .
 
-      # 4️⃣ Renommer la transcription pour toujours avoir le même fichier
-      - name: Normaliser nom transcription
-        run: |
-          mv atis_tallinn.txt atis_tallinn.txt || true
-
-      # 5️⃣ Afficher la transcription dans les logs pour vérification
-      - name: Afficher transcription
-        run: |
-          cat atis_tallinn.txt
+      # Vérifier le fichier de transcription
+      - name: Afficher le résultat
+        run: cat atis_tallinn.txt
