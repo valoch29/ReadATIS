@@ -27,24 +27,18 @@ jobs:
 
       # 3️⃣ Décoder et formater le message ATIS
       - name: Décoder et formater le message ATIS
-        run: |
-          python3 process_atis.py ${{ github.event.inputs.atis_file }}
+        run: python3 process_atis.py ${{ github.event.inputs.atis_file }}
 
       # 4️⃣ Mettre à jour index.html
       - name: Mettre à jour index.html
-        run: |
-          python3 update_index.py
+        run: python3 update_index.py
 
-      # 5️⃣ Commit et push des changements
-      - name: Commit et push les changements
+      # 5️⃣ Commit et push des changements (une ligne pour éviter les erreurs de fin de fichier)
+      - name: Commit et push des changements
         env:
           ATIS_TOKEN: ${{ secrets.ATIS_TOKEN }}
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add index.html atis.json atis_structured.html
-          if ! git diff-index --quiet HEAD; then
-            git commit -m "🧩 Mise à jour manuelle ATIS ($(date +'%Y-%m-%d %H:%M:%S'))"
-            git push https://valoch29:${ATIS_TOKEN}@github.com/valoch29/ReadATIS.git HEAD:main
-          else
-            echo "Aucun changement détecté — pas de commit."
+        run: git config --global user.name "GitHub Actions" && \
+             git config --global user.email "actions@github.com" && \
+             git add index.html atis.json atis_structured.html && \
+             git diff-index --quiet HEAD || (git commit -m "🧩 Mise à jour manuelle ATIS ($(date +'%Y-%m-%d %H:%M:%S'))" && \
+             git push https://valoch29:${ATIS_TOKEN}@github.com/valoch29/ReadATIS.git HEAD:main)
