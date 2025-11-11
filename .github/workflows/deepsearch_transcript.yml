@@ -1,0 +1,63 @@
+name: ATIS Transcription avec DeepSpeech ATC
+
+on:
+  schedule:
+    - cron: '0,30 * * * *'   # toutes les 30 minutes
+  workflow_dispatch:
+
+jobs:
+  transcribe-atis-deepspeech:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Cloner le dépôt
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Installer dépendances système
+      - name: Installer ffmpeg, curl et sox
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg curl sox libsndfile1
+
+      # 3️⃣ Installer DeepSpeech
+      - name: Installer DeepSpeech
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install deepspeech
+
+      # 4️⃣ Télécharger le modèle ATC
+      - name: Télécharger le modèle DeepSpeech ATC
+        run: |
+          curl -LO https://example.com/models/deepspeech-atis.pbmm
+          curl -LO https://example.com/models/deepspeech-atis.scorer
+
+      # 5️⃣ Enregistrer le flux ATIS en mp3
+      - name: Enregistrer flux ATIS
+        run: |
+          curl -s -A "Mozilla/5.0" -e "https://www.liveatc.net/" \
+          "https://s1-fmt2.liveatc.net/eetn2_atis" \
+          | ffmpeg -i pipe:0 -t 120 -y atis_tallinn.mp3
+
+      # 6️⃣ Convertir en WAV mono 16kHz
+      - name: Convertir MP3 en WAV mono 16kHz
+        run: |
+          ffmpeg -i atis_tallinn.mp3 -ac 1 -ar 16000 atis_tallinn.wav
+
+      # 7️⃣ Transcrire avec DeepSpeech
+      - name: Transcrire ATIS
+        run: |
+          source venv/bin/activate
+          deepspeech --model deepspeech-atis.pbmm \
+                     --scorer deepspeech-atis.scorer \
+                     --audio atis_tallinn.wav \
+                     > atis_tll_deepspeech.txt
+
+      # 8️⃣ Upload artefact pour debug
+      - name: Upload transcription
+        uses: actions/upload-artifact@v4
+        with:
+          name: transcription-atis-deepspeech
+          path: atis_tll_deepspeech.txt
