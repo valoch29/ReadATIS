@@ -1,46 +1,50 @@
-name: Décodage ATIS Manuel
+name: Décodage ATIS
 
 on:
   workflow_dispatch:
     inputs:
       atis_file:
-        description: 'Nom du fichier ATIS à décoder (ex: ATIS_tallinn.txt)'
+        description: "Nom du fichier ATIS à décoder (ex: ATIS_tallinn.txt)"
         required: true
-        default: 'ATIS_tallinn.txt'
+        default: "ATIS_tallinn.txt"
 
 jobs:
   decode-atis:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Récupérer le dépôt
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ATIS_TOKEN }}
 
-      - name: Installer Python et dépendances
+      # 2️⃣ Installer Python et dépendances
+      - name: Installer dépendances Python
         run: |
-          python3 -m venv venv
-          source venv/bin/activate
           pip install --upgrade pip
-          pip install beautifulsoup4 mistralai
+          pip install beautifulsoup4
 
-      - name: Décoder le message ATIS
-        env:
-          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+      # 3️⃣ Décoder et formater le message ATIS
+      - name: Décoder et formater le message ATIS
         run: |
-          source venv/bin/activate
           python3 process_atis.py ${{ github.event.inputs.atis_file }}
 
+      # 4️⃣ Mettre à jour index.html
       - name: Mettre à jour index.html
         run: |
-          source venv/bin/activate
           python3 update_index.py
 
-      - name: Commit et push les changements
+      # 5️⃣ Commit et push des changements
+      - name: Commit et push des changements
         env:
           ATIS_TOKEN: ${{ secrets.ATIS_TOKEN }}
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add index.html atis.json atis_structured.html
-          git commit -m "Mise à jour manuelle ATIS" || echo "No changes to commit"
-          git push https://valoch29:${ATIS_TOKEN}@github.com/valoch29/ReadATIS.git HEAD:main
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "🧩 Mise à jour manuelle ATIS ($(date +'%Y-%m-%d %H:%M:%S'))"
+            git push https://valoch29:${ATIS_TOKEN}@github.com/valoch29/ReadATIS.git HEAD:main
+          else
+            echo "Aucun changement détecté — pas de commit."
