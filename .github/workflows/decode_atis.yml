@@ -1,4 +1,4 @@
-name: Test ATIS Decoding (Manual)
+name: Décodage ATIS Manuel
 
 on:
   workflow_dispatch:
@@ -11,20 +11,18 @@ on:
 jobs:
   decode-atis:
     runs-on: ubuntu-latest
+
     steps:
-      # 1️⃣ Récupérer le dépôt
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Installer Python et dépendances
-      - name: Installer dépendances Python
+      - name: Installer Python et dépendances
         run: |
           python3 -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
           pip install beautifulsoup4 mistralai
 
-      # 3️⃣ Décoder le message ATIS via Mistral
       - name: Décoder le message ATIS
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
@@ -32,19 +30,17 @@ jobs:
           source venv/bin/activate
           python3 process_atis.py ${{ github.event.inputs.atis_file }}
 
-      # 4️⃣ Mettre à jour index.html
       - name: Mettre à jour index.html
         run: |
           source venv/bin/activate
           python3 update_index.py
 
-      # 5️⃣ Commit et push les modifications avec token sécurisé
-      - name: Commit et push des changements
+      - name: Commit et push les changements
         env:
           ATIS_TOKEN: ${{ secrets.ATIS_TOKEN }}
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add index.html atis.json atis_structured.html
-          git commit -m "Mise à jour manuelle de l'ATIS (test)" || echo "No changes to commit"
+          git commit -m "Mise à jour manuelle ATIS" || echo "No changes to commit"
           git push https://valoch29:${ATIS_TOKEN}@github.com/valoch29/ReadATIS.git HEAD:main
