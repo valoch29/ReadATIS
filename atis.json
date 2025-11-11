@@ -1,14 +1,14 @@
 {
   "atis_letter": "NaN",
   "atis_time": "NaN",
-  "wind": "NaN",
-  "visibility": "NaN",
-  "runway": "NaN",
-  "rwy_cond": "NaN",
+  "wind": "160\u00b0/5 kt",
+  "visibility": "10 km",
+  "runway": "26",
+  "rwy_cond": "TDZ 5/MID 5/END 5",
   "clouds": "NaN",
-  "bird": "NaN",
-  "temp_dew": "NaN",
-  "qnh": "NaN",
-  "tl": "NaN",
-  "trend": "NaN"
+  "bird": "Yes",
+  "temp_dew": "7 / 0 \u00b0C",
+  "qnh": "1013",
+  "tl": "65",
+  "trend": "No seek"
 }
