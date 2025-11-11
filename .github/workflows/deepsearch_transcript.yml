@@ -26,12 +26,13 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg curl sox libsndfile1
 
-      # 4️⃣ Créer venv et installer DeepSpeech
+      # 4️⃣ Créer venv et installer DeepSpeech avec NumPy <2
       - name: Installer DeepSpeech
         run: |
           python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
+          pip install "numpy<2"
           pip install deepspeech
 
       # 5️⃣ Télécharger le modèle ATC
