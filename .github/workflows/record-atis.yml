@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Installer ffmpeg et curl
         run: |
@@ -28,17 +30,10 @@ jobs:
         run: |
           ffmpeg -i atis_tallinn.mp3 -ac 1 -ar 16000 atis_tallinn.wav
 
-      - name: Vérifier les fichiers audio
+      - name: Commit et push du fichier audio
         run: |
-          echo "📂 Contenu du répertoire :"
-          ls -lh
-          echo "🎧 Détails sur le fichier WAV :"
-          ffprobe -hide_banner -i atis_tallinn.wav || true
-
-      - name: Upload fichiers audio comme artefacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: atis-audio
-          path: |
-            atis_tallinn.mp3
-            atis_tallinn.wav
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add atis_tallinn.mp3 atis_tallinn.wav
+          git commit -m "Mise à jour de l’audio ATIS ($(date '+%Y-%m-%d %H:%M'))" || echo "Aucune modification à commit"
+          git push
