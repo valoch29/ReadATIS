@@ -11,29 +11,42 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Installer ffmpeg et dépendances système
+      # 1️⃣ Installer ffmpeg (nécessaire pour Whisper)
       - name: Installer ffmpeg
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg
 
-      # Installer Python et créer un environnement virtuel
-      - name: Setup Python et venv
+      # 2️⃣ Configurer Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.12
-      - run: |
+
+      # 3️⃣ Créer un environnement virtuel et installer Whisper
+      - name: Installer Whisper
+        run: |
           python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
-          pip install openai-whisper
+          pip install git+https://github.com/openai/whisper.git
+          # (alternative possible : pip install openai-whisper)
 
-      # Transcrire l'audio ATIS
+      # 4️⃣ Vérifier que le fichier audio existe
+      - name: Vérifier présence du fichier audio
+        run: |
+          if [ ! -f "atis_tallinn.wav" ]; then
+            echo "❌ Le fichier audio 'atis_tallinn.wav' est introuvable !"
+            exit 1
+          fi
+          ls -lh atis_tallinn.wav
+
+      # 5️⃣ Transcrire avec Whisper
       - name: Transcrire ATIS avec Whisper
         run: |
           source venv/bin/activate
           whisper atis_tallinn.wav --model small --language fr --output_format txt --output_dir .
 
-      # Vérifier le fichier de transcription
+      # 6️⃣ Afficher le résultat dans les logs
       - name: Afficher le résultat
         run: cat atis_tallinn.txt
