@@ -9,7 +9,7 @@ jobs:
   record-atis:
     runs-on: ubuntu-22.04
     permissions:
-      contents: write  # 👈 autorise le bot à pousser dans le dépôt
+      contents: write  # autorise le push vers le dépôt
 
     steps:
       - name: Checkout repository
@@ -30,7 +30,8 @@ jobs:
 
       - name: Convertir MP3 en WAV mono 16kHz
         run: |
-          ffmpeg -i atis_tallinn.mp3 -ac 1 -ar 16000 atis_tallinn.wav
+          ffmpeg -y -i atis_tallinn.mp3 -ac 1 -ar 16000 atis_tallinn.wav
+          ls -lh atis_tallinn.*
 
       - name: Commit et push du fichier audio
         run: |
