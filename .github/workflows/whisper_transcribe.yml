@@ -1,4 +1,4 @@
-name: Transcription ATIS rapide
+name: Transcription ATIS avec Whisper
 
 on:
   workflow_dispatch:
@@ -6,8 +6,6 @@ on:
 jobs:
   transcribe-atis:
     runs-on: ubuntu-22.04
-    permissions:
-      contents: write  # nécessaire pour push via GITHUB_TOKEN
 
     steps:
       - name: Checkout repository
@@ -18,26 +16,36 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg python3 python3-pip git
 
-      - name: Installer Whisper et dépendances (cache pip)
+      # --- CACHE 1 : pip (bibliothèques Python) ---
+      - name: Cache pip pour Whisper
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-whisper
           restore-keys: |
             ${{ runner.os }}-pip-
-      - run: |
+
+      # --- CACHE 2 : modèles Whisper (évite re-téléchargement du modèle) ---
+      - name: Cache du modèle Whisper
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/whisper
+          key: ${{ runner.os }}-whisper-model
+          restore-keys: |
+            ${{ runner.os }}-whisper
+
+      # Installer Whisper
+      - name: Installer Whisper
+        run: |
           pip install --upgrade openai-whisper
 
-      - name: Transcrire ATIS avec Whisper (modèle small)
+      # Transcrire ATIS
+      - name: Transcrire ATIS avec Whisper (anglais)
         run: |
-          whisper atis_tallinn.wav \
-            --model small \
-            --language en \
-            --output_format txt \
-            --output_dir . \
-            --verbose
+          whisper atis_tallinn.wav --model small --language en --output_format txt --output_dir .
 
-      - name: Nettoyer la transcription
+      # Nettoyer et corriger la transcription
+      - name: Corriger et nettoyer la transcription
         run: |
           python3 <<'PYCODE'
           import re
@@ -57,11 +65,13 @@ jobs:
               r"\bvisibility (\d+)\s*litres\b": r"visibility \1 metres",
               r"\bQNH\s*0\s*niner\s*niner\s*7\b": "QNH 997",
           }
+
           for pattern, repl in corrections.items():
               text = re.sub(pattern, repl, text, flags=re.IGNORECASE)
 
           text = re.sub(r"\s+", " ", text).strip()
           timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+
           with open(output_file, "w") as f:
               f.write(f"ATIS Tallinn transcription ({timestamp}):\n\n{text}\n")
 
@@ -69,6 +79,7 @@ jobs:
           print(text)
           PYCODE
 
+      # Commit et push la transcription
       - name: Commit et push la transcription
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,5 +88,5 @@ jobs:
           git config user.email "actions@github.com"
           git add atis_tallinn_clean.txt
           git commit -m "Mise à jour transcription ATIS ($(date +'%Y-%m-%d %H:%M'))" || echo "Rien à commit"
-          git remote set-url origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/valoch29/ReadATIS.git
+          git remote set-url origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git push origin main
