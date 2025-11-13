@@ -3,7 +3,7 @@ name: Format ATIS FMS complet avec METAR
 on:
   workflow_dispatch:
   schedule:
-    - cron: '25,55 * * * *'  # toutes les 30 minutes, ajustable
+    - cron: '25,55 * * * *'  # toutes les 30 minutes
 
 jobs:
   format-atis-fms:
@@ -36,7 +36,6 @@ jobs:
           with open(input_file, "r", encoding="utf-8") as f:
               raw = f.read()
 
-          # --- Fonctions utilitaires ---
           def extract(pattern, text, default="XXX"):
               match = re.search(pattern, text, re.IGNORECASE)
               return match.group(1).strip() if match else default
@@ -65,23 +64,21 @@ jobs:
 
           def validate(data, metar):
               try:
-                  # Vent
                   if data["wind"] != "XXX" and metar:
-                      dir_deg, speed = map(int, re.findall(r"\d+", data["wind"]))
-                      if abs(dir_deg - metar["wind_dir"]) > 20 or abs(speed - metar["wind_speed"]) > 10:
-                          data["wind"]="XXX"
-                  # Visibilité
+                      dir_speed = re.findall(r"\d+", data["wind"])
+                      if len(dir_speed) == 2:
+                          dir_deg, speed = map(int, dir_speed)
+                          if abs(dir_deg - metar["wind_dir"]) > 20 or abs(speed - metar["wind_speed"]) > 10:
+                              data["wind"]="XXX"
                   if data["visibility"] != "XXX" and metar:
                       vis = int(re.findall(r"\d+", data["visibility"])[0])
                       if abs(vis - metar["visibility"]) > 2:
                           data["visibility"]="XXX"
-                  # Temp / Dew
                   if data["temperature"] != "XXX" and metar:
                       at = int(data["temperature"])
                       dp = int(data["dewpoint"])
                       if abs(at - metar["temperature"]) > 3 or abs(dp - metar["dewpoint"]) > 3:
                           data["temperature"]="XXX"; data["dewpoint"]="XXX"
-                  # QNH
                   if data["qnh"] != "XXX" and metar:
                       if abs(int(data["qnh"]) - metar["altimeter"]) > 5:
                           data["qnh"]="XXX"
@@ -93,33 +90,20 @@ jobs:
           # --- Extraire données ATIS ---
           atis_letter = extract(r"[iI]nformation\s+([A-Z])", raw)
           atis_time = extract(r"[tT]ime\s+(\d{3,4})", raw)
-
-          # Vent
           wind_dir = extract(r"[wW]ind.*?(\d{1,3})\s*degrees", raw)
           wind_speed = extract(r"[wW]ind.*?(\d{1,3})\s*knots", raw)
           wind = f"{wind_dir}°{wind_speed}KT" if wind_dir!="XXX" and wind_speed!="XXX" else "XXX"
-
-          # Visibilité km
           visibility = extract(r"[vV]isibility.*?(\d+)\s*(?:km|kilometers|metres|litres)", raw)
           visibility = f"{visibility}KM" if visibility!="XXX" else "XXX"
-
-          # Nuages multiples
           cloud_matches = re.findall(r"(overcast|broken|few|scattered|bkn|sct|ovc)[ ,]*(\d+)[ ]*feet", raw, re.IGNORECASE)
           clouds = " ".join([f"{m[0].upper()} {m[1]}" for m in cloud_matches]) if cloud_matches else "XXX"
-
-          # RWY et condition
           runway = extract(r"[rR]unway\s+(\d+)", raw)
           rwy_cond_match = re.search(r"touchdown.*?(\d+)[^\d]+midpoint.*?(\d+)[^\d]+stop end.*?(\d+)", raw, re.IGNORECASE)
           rwy_cond = f"TDZ {rwy_cond_match.group(1)}/MID {rwy_cond_match.group(2)}/END {rwy_cond_match.group(3)}" if rwy_cond_match else "XXX"
-
-          # Température / Dew
           temperature = extract(r"[tT]emperature[, ]+(\d+)", raw)
           dewpoint = extract(r"[dD]ew point[, ]+(\d+)", raw)
-
-          # QNH
           qnh = extract(r"[qQ][nN][hH][ ,]?(\d{3,4})", raw)
 
-          # --- Validation METAR ---
           metar_data = fetch_metar()
           data = {
               "wind": wind,
@@ -130,7 +114,6 @@ jobs:
           }
           data = validate(data, metar_data)
 
-          # --- Construire message FMS ---
           fms_text = (
               f"EETN ATIS INFO {atis_letter} {atis_time}Z. "
               f"{data['wind']} {data['visibility']} {clouds} "
@@ -141,9 +124,20 @@ jobs:
           fms_text += f"TEMP {data['temperature']}/{data['dewpoint']}C. "
           fms_text += f"A{data['qnh']}. "
 
+          # Écrasement du fichier garanti
           with open(output_file, "w", encoding="utf-8") as f:
               f.write(fms_text + "\n")
 
           print("✅ ATIS FMS complet généré :", output_file)
           print(fms_text)
           PYCODE
+
+      - name: Commit et push ATIS FMS
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add atis_tallinn_fms.txt
+          git commit -m "Mise à jour ATIS FMS ($(date +'%Y-%m-%d %H:%M'))" || echo "Rien à commit"
+          git push
