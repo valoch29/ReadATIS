@@ -2,12 +2,14 @@ name: Enregistrement ATIS
 
 on:
   schedule:
-    - cron: '22,52 * * * *'   # toutes les 30 minutes
+    - cron: '22,52 * * * *'
   workflow_dispatch:
 
 jobs:
   record-atis:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write  # 👈 autorise le bot à pousser dans le dépôt
 
     steps:
       - name: Checkout repository
