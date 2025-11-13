@@ -3,75 +3,69 @@ name: Transcription ATIS avec Whisper
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write   # ✅ permet au workflow de créer/modifier des fichiers dans le repo
-
 jobs:
   transcribe-atis:
     runs-on: ubuntu-22.04
 
     steps:
-      # 1️⃣ Cloner le dépôt
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Installer ffmpeg
-      - name: Installer ffmpeg
+      - name: Installer ffmpeg et Python
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg python3 python3-pip git
 
-      # 3️⃣ Configurer Python
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
-
-      # 4️⃣ Installer Whisper
       - name: Installer Whisper
         run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install git+https://github.com/openai/whisper.git
+          pip install --upgrade openai-whisper
 
-      # 5️⃣ Vérifier que le fichier audio existe
-      - name: Vérifier présence du fichier audio
+      - name: Transcrire ATIS avec Whisper (anglais)
         run: |
-          if [ ! -f "atis_tallinn.wav" ]; then
-            echo "❌ Le fichier audio 'atis_tallinn.wav' est introuvable !"
-            exit 1
-          fi
-          ls -lh atis_tallinn.wav
+          whisper atis_tallinn.wav --model medium --language en --output_format txt --output_dir .
 
-      # 6️⃣ Transcrire avec Whisper
-      - name: Transcrire ATIS avec Whisper
+      - name: Corriger et nettoyer la transcription
         run: |
-          source venv/bin/activate
-          whisper atis_tallinn.wav --model small --language fr --output_format txt --output_dir .
+          python3 <<'PYCODE'
+          import re
+          from datetime import datetime
 
-      # 7️⃣ Lister les fichiers générés
-      - name: Lister les fichiers générés
-        run: ls -lh
+          input_file = "atis_tallinn.txt"
+          output_file = "atis_tallinn_clean.txt"
 
-      # 8️⃣ Afficher le résultat dans les logs
-      - name: Afficher le résultat
-        run: cat atis_tallinn.txt || echo "⚠️ Le fichier atis_tallinn.txt n'a pas été trouvé."
+          with open(input_file, "r") as f:
+              text = f.read()
 
-      # 9️⃣ Commit et push du fichier généré
-      - name: Configurer Git pour le push
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          # Corrections typiques pour ATIS
+          corrections = {
+              r"\blitres?\b": "metres",
+              r"\bniner\b": "nine",
+              r"\bENT\b": "Echo November Tango",
+              r"\bBritish Southern\b": "Tallinn",
+              r"\bvisibility (\d+)\s*litres\b": r"visibility \1 metres",
+              r"\bQNH\s*0\s*niner\s*niner\s*7\b": "QNH 997",
+          }
 
-      - name: Commit et push du fichier ATIS_tallinn.txt
-        run: |
-          if [ -f "atis_tallinn.txt" ]; then
-            git add atis_tallinn.txt
-            git commit -m "Mise à jour automatique de la transcription ATIS_tallinn.txt" || echo "Aucune modification à valider"
-            git push
-          else
-            echo "⚠️ Fichier 'atis_tallinn.txt' introuvable, rien à pousser."
-          fi
+          for pattern, repl in corrections.items():
+              text = re.sub(pattern, repl, text, flags=re.IGNORECASE)
+
+          # Nettoyer espaces et répétitions
+          text = re.sub(r"\s+", " ", text).strip()
+          timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+
+          with open(output_file, "w") as f:
+              f.write(f"ATIS Tallinn transcription ({timestamp}):\n\n{text}\n")
+
+          print("\n--- Transcription nettoyée ---\n")
+          print(text)
+          PYCODE
+
+      - name: Commit et push la transcription
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add atis_tallinn_clean.txt
+          git commit -m "Mise à jour transcription ATIS ($(date +'%Y-%m-%d %H:%M'))" || echo "Rien à commit"
+          git push
