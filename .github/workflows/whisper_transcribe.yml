@@ -3,36 +3,39 @@ name: Transcription ATIS avec Whisper
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write   # ✅ permet au workflow de créer/modifier des fichiers dans le repo
+
 jobs:
   transcribe-atis:
     runs-on: ubuntu-22.04
 
     steps:
+      # 1️⃣ Cloner le dépôt
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1️⃣ Installer ffmpeg (nécessaire pour Whisper)
+      # 2️⃣ Installer ffmpeg
       - name: Installer ffmpeg
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg
 
-      # 2️⃣ Configurer Python
+      # 3️⃣ Configurer Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.12
 
-      # 3️⃣ Créer un environnement virtuel et installer Whisper
+      # 4️⃣ Installer Whisper
       - name: Installer Whisper
         run: |
           python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
           pip install git+https://github.com/openai/whisper.git
-          # (alternative possible : pip install openai-whisper)
 
-      # 4️⃣ Vérifier que le fichier audio existe
+      # 5️⃣ Vérifier que le fichier audio existe
       - name: Vérifier présence du fichier audio
         run: |
           if [ ! -f "atis_tallinn.wav" ]; then
@@ -41,12 +44,34 @@ jobs:
           fi
           ls -lh atis_tallinn.wav
 
-      # 5️⃣ Transcrire avec Whisper
+      # 6️⃣ Transcrire avec Whisper
       - name: Transcrire ATIS avec Whisper
         run: |
           source venv/bin/activate
           whisper atis_tallinn.wav --model small --language fr --output_format txt --output_dir .
 
-      # 6️⃣ Afficher le résultat dans les logs
+      # 7️⃣ Lister les fichiers générés
+      - name: Lister les fichiers générés
+        run: ls -lh
+
+      # 8️⃣ Afficher le résultat dans les logs
       - name: Afficher le résultat
-        run: cat atis_tallinn.txt
+        run: cat atis_tallinn.txt || echo "⚠️ Le fichier atis_tallinn.txt n'a pas été trouvé."
+
+      # 9️⃣ Commit et push du fichier généré
+      - name: Configurer Git pour le push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit et push du fichier ATIS_tallinn.txt
+        run: |
+          if [ -f "atis_tallinn.txt" ]; then
+            git add atis_tallinn.txt
+            git commit -m "Mise à jour automatique de la transcription ATIS_tallinn.txt" || echo "Aucune modification à valider"
+            git push
+          else
+            echo "⚠️ Fichier 'atis_tallinn.txt' introuvable, rien à pousser."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
