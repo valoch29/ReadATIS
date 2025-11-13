@@ -24,53 +24,44 @@ jobs:
           METAR_API_TOKEN: ${{ secrets.METAR_API_TOKEN }}
         run: |
           python3 <<'PYCODE'
-          import re, os, sys, requests
+          import re, os, requests
 
           input_file = "atis_tallinn.txt"
           output_file = "atis_tallinn_fms.txt"
 
           if not os.path.exists(input_file):
               print(f"⚠️ Fichier {input_file} introuvable")
-              sys.exit(1)
+              exit(1)
 
           with open(input_file, "r", encoding="utf-8") as f:
               raw = f.read().lower()
 
-          # --- Conversion nombres lettres → chiffres ---
-          num_words = {
-              'zero':'0','one':'1','two':'2','three':'3','four':'4','five':'5',
-              'six':'6','seven':'7','eight':'8','nine':'9'
+          # --- Mapping phonétique ATIS letter ---
+          phonetic_map = {
+              "alpha":"A", "bravo":"B", "charlie":"C", "delta":"D", "echo":"E",
+              "foxtrot":"F", "golf":"G", "hotel":"H", "india":"I", "juliet":"J",
+              "kilo":"K", "lima":"L", "mike":"M", "november":"N", "oscar":"O",
+              "papa":"P", "quebec":"Q", "romeo":"R", "sierra":"S", "tango":"T",
+              "uniform":"U", "victor":"V", "whiskey":"W", "x-ray":"X", "yankee":"Y", "zulu":"Z"
           }
 
-          def words_to_digits(text):
-              # remplacer "seven zero" -> "70", "one six" -> "16", etc.
-              tokens = text.split()
-              result = []
-              i = 0
-              while i < len(tokens):
-                  if tokens[i] in num_words:
-                      digit = num_words[tokens[i]]
-                      # regarder si le mot suivant est aussi un nombre
-                      if i+1 < len(tokens) and tokens[i+1] in num_words:
-                          digit += num_words[tokens[i+1]]
-                          i += 1
-                      result.append(digit)
-                  else:
-                      result.append(tokens[i])
-                  i += 1
-              return " ".join(result)
-
-          raw = words_to_digits(raw)
-
-          # --- Fonctions utilitaires ---
           def extract(pattern, text, default="XXX"):
               match = re.search(pattern, text, re.IGNORECASE)
               return match.group(1).strip() if match else default
 
+          def words_to_number(s):
+              """Convertit les nombres écrits en lettres en chiffres"""
+              mapping = {
+                  "zero":"0","one":"1","two":"2","three":"3","four":"4","five":"5",
+                  "six":"6","seven":"7","eight":"8","nine":"9"
+              }
+              for word, digit in mapping.items():
+                  s = re.sub(r"\b"+word+r"\b", digit, s)
+              return re.sub(r"\s+","",s)
+
           def fetch_metar():
               token = os.environ.get("METAR_API_TOKEN")
               if not token:
-                  print("⚠️ METAR_API_TOKEN non défini, validation désactivée")
                   return {}
               try:
                   url = f"https://avwx.rest/api/metar/EETN?options=info&format=json&token={token}"
@@ -85,75 +76,74 @@ jobs:
                           "temperature": float(data.get("temperature", {}).get("value", 0)),
                           "dewpoint": float(data.get("dewpoint", {}).get("value", 0))
                       }
-              except Exception as e:
-                  print(f"⚠️ Erreur récupération METAR: {e}")
+              except:
+                  return {}
               return {}
 
           def validate(data, metar):
               try:
-                  # Vent
-                  if data["wind"] != "XXX" and metar:
-                      dir_deg, speed = map(int, re.findall(r"\d+", data["wind"]))
-                      if abs(dir_deg - metar["wind_dir"]) > 20 or abs(speed - metar["wind_speed"]) > 10:
-                          data["wind"]="XXX"
-                  # Visibilité
-                  if data["visibility"] != "XXX" and metar:
-                      vis = int(re.findall(r"\d+", data["visibility"])[0])
-                      if abs(vis - metar["visibility"]) > 2:
-                          data["visibility"]="XXX"
-                  # Temp / Dew
-                  if data["temperature"] != "XXX" and metar:
-                      at = int(data["temperature"])
-                      dp = int(data["dewpoint"])
-                      if abs(at - metar["temperature"]) > 3 or abs(dp - metar["dewpoint"]) > 3:
-                          data["temperature"]="XXX"; data["dewpoint"]="XXX"
-                  # QNH
-                  if data["qnh"] != "XXX" and metar:
-                      if abs(int(data["qnh"]) - metar["altimeter"]) > 5:
-                          data["qnh"]="XXX"
+                  if metar:
+                      # Vent
+                      if data["wind"] != "XXX":
+                          dir_deg, speed = map(int, re.findall(r"\d+", data["wind"]))
+                          if abs(dir_deg - metar["wind_dir"]) > 20 or abs(speed - metar["wind_speed"]) > 10:
+                              data["wind"]="XXX"
+                      # Visibilité
+                      if data["visibility"] != "XXX":
+                          vis = int(re.findall(r"\d+", data["visibility"])[0])
+                          if abs(vis - metar["visibility"]) > 2:
+                              data["visibility"]="XXX"
+                      # Temp/Dew
+                      if data["temperature"] != "XXX":
+                          at, dp = int(data["temperature"]), int(data["dewpoint"])
+                          if abs(at - metar["temperature"]) > 3 or abs(dp - metar["dewpoint"]) > 3:
+                              data["temperature"]="XXX"; data["dewpoint"]="XXX"
+                      # QNH
+                      if data["qnh"] != "XXX":
+                          if abs(int(data["qnh"]) - metar["altimeter"]) > 5:
+                              data["qnh"]="XXX"
               except:
                   for key in ["wind","visibility","temperature","dewpoint","qnh"]:
                       data[key]="XXX"
               return data
 
-          # --- Extraire données ATIS ---
-          atis_letter = extract(r"[iI]nformation\s+([A-Z])", raw)
-          atis_time = extract(r"[tT]ime\s+(\d{3,4})", raw)
+          # --- Extraire valeurs ---
+          atis_letter_word = extract(r"information\s+([a-zA-Z\-]+)", raw, "XXX").lower()
+          atis_letter = phonetic_map.get(atis_letter_word, "XXX")
 
-          # Vent
-          wind_dir = extract(r"[wW]ind.*?(\d{1,3})\s*degrees", raw)
-          wind_speed = extract(r"[wW]ind.*?(\d{1,3})\s*knots", raw)
-          wind = f"{wind_dir}°{wind_speed}KT" if wind_dir!="XXX" and wind_speed!="XXX" else "XXX"
+          atis_time_word = extract(r"time\s+([a-z\s]+)", raw, "XXX")
+          atis_time = words_to_number(atis_time_word) if atis_time_word != "XXX" else "XXX"
 
-          # Visibilité km
-          visibility = extract(r"[vV]isibility.*?(\d+)\s*(?:km|kilometers|metres|litres)", raw)
-          visibility = f"{visibility}KM" if visibility!="XXX" else "XXX"
+          # Vent : chercher pattern "(\d+ degrees) (\d+ knots)"
+          wind_match = re.search(r"(\d{1,3})\s*degrees.*?(\d{1,2})\s*knots", raw)
+          wind = f"{wind_match.group(1)}°{wind_match.group(2)}KT" if wind_match else "XXX"
 
-          # Nuages multiples
-          cloud_matches = re.findall(r"(overcast|broken|few|scattered|bkn|sct|ovc)[ ,]*(\d+)[ ]*feet", raw, re.IGNORECASE)
+          # Visibilité en km
+          vis_match = re.search(r"visibility.*?(\d+)", raw)
+          visibility = f"{vis_match.group(1)}KM" if vis_match else "XXX"
+
+          # Nuages
+          cloud_matches = re.findall(r"(overcast|broken|few|scattered|bkn|sct|ovc)[ ,]*(\d+)[ ]*feet", raw)
           clouds = " ".join([f"{m[0].upper()} {m[1]}" for m in cloud_matches]) if cloud_matches else "XXX"
 
-          # RWY et condition
-          runway = extract(r"[rR]unway\s+(\d+)", raw)
-          rwy_cond_match = re.search(r"touchdown.*?(\d+)[^\d]+midpoint.*?(\d+)[^\d]+stop end.*?(\d+)", raw, re.IGNORECASE)
+          # RWY
+          runway = extract(r"runway\s+(\d+)", raw)
+
+          # RWY Condition
+          rwy_cond_match = re.search(r"touchdown.*?(\d+)[^\d]+midpoint.*?(\d+)[^\d]+stop end.*?(\d+)", raw)
           rwy_cond = f"TDZ {rwy_cond_match.group(1)}/MID {rwy_cond_match.group(2)}/END {rwy_cond_match.group(3)}" if rwy_cond_match else "XXX"
 
-          # Température / Dew
-          temperature = extract(r"[tT]emperature[, ]+(\d+)", raw)
-          dewpoint = extract(r"[dD]ew point[, ]+(\d+)", raw)
+          # Temp/Dew
+          temperature = extract(r"temperature[, ]+(\d+)", raw)
+          dewpoint = extract(r"dew point[, ]+(\d+)", raw)
 
           # QNH
-          qnh = extract(r"[qQ][nN][hH][ ,]?(\d{3,4})", raw)
+          qnh = extract(r"qnh[, ]?(\d{3,4})", raw)
 
           # --- Validation METAR ---
           metar_data = fetch_metar()
-          data = {
-              "wind": wind,
-              "visibility": visibility,
-              "temperature": temperature,
-              "dewpoint": dewpoint,
-              "qnh": qnh
-          }
+          data = {"wind": wind, "visibility": visibility, "temperature": temperature,
+                  "dewpoint": dewpoint, "qnh": qnh}
           data = validate(data, metar_data)
 
           # --- Construire message FMS ---
@@ -162,12 +152,11 @@ jobs:
               f"{data['wind']} {data['visibility']} {clouds} "
               f"RWY {runway} IN USE. "
           )
-          if rwy_cond!="XXX":
+          if rwy_cond != "XXX":
               fms_text += f"RWY COND {rwy_cond}. "
           fms_text += f"TEMP {data['temperature']}/{data['dewpoint']}C. "
-          fms_text += f"A{data['qnh']}. "
+          fms_text += f"A{data['qnh']}."
 
-          # Écraser le fichier existant
           with open(output_file, "w", encoding="utf-8") as f:
               f.write(fms_text + "\n")
 
