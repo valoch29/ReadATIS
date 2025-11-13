@@ -1,81 +1,95 @@
-name: Format ATIS pour FMS
+name: Format ATIS FMS
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '23,53 * * * *'  # juste après l'enregistrement/transcription
+    - cron: '25,55 * * * *'  # toutes les 30 minutes, ajustable
 
 jobs:
-  format-atis:
+  format-atis-fms:
     runs-on: ubuntu-22.04
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Installer Python
+      - name: Installer Python et dépendances
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y python3 python3-pip
+          pip install requests
 
-      - name: Formater ATIS en style FMS
+      - name: Générer ATIS format FMS
         run: |
           python3 <<'PYCODE'
           import re
+          import os
+          import sys
           from datetime import datetime
 
           input_file = "atis_tallinn.txt"
           output_file = "atis_tallinn_fms.txt"
 
+          if not os.path.exists(input_file):
+              print(f"⚠️ Fichier {input_file} introuvable")
+              sys.exit(1)
+
           with open(input_file, "r", encoding="utf-8") as f:
-              text = f.read()
+              raw = f.read()
 
-          # 1️⃣ Extraire info principale (simplifié)
-          match_info = re.search(r"[iI]nformation\s+([A-Z])", text)
-          atis_letter = match_info.group(1) if match_info else "X"
+          # Fonctions utilitaires
+          def extract(pattern, text, default="XXX"):
+              match = re.search(pattern, text, re.IGNORECASE)
+              return match.group(1).strip() if match else default
 
-          match_time = re.search(r"[tT]ime\s+(\d{3,4})", text)
-          atis_time = match_time.group(1) if match_time else "0000"
+          def extract_float(pattern, text, default="XXX"):
+              match = re.search(pattern, text, re.IGNORECASE)
+              return f"{float(match.group(1)):.0f}" if match else default
 
-          match_wind = re.search(r"[wW]ind.*?(\d{1,3})\s*degrees[,/ ]+(\d+)\s*knots", text)
-          wind = f"{match_wind.group(1).zfill(3)}{match_wind.group(2).zfill(2)}KT" if match_wind else "00000KT"
+          # Extraire données ATIS
+          atis_letter = extract(r"[iI]nformation\s+([A-Z])", raw)
+          atis_time = extract(r"[tT]ime\s+(\d{3,4})", raw)
 
-          match_vis = re.search(r"[vV]isibility.*?(\d+)\s*kilometers?", text)
-          visibility = f"{int(match_vis.group(1))*0.539957:.0f}SM" if match_vis else "10SM"
+          # Vent
+          wind_dir = extract(r"[wW]ind.*?(\d{1,3})\s*degrees", raw)
+          wind_speed = extract(r"[wW]ind.*?(\d{1,3})\s*knots", raw)
+          wind = f"{wind_dir}°{wind_speed}KT" if wind_dir != "XXX" and wind_speed != "XXX" else "XXX"
 
-          # Exemple très simple pour clouds
-          cloud_matches = re.findall(r"(overcast|broken|scattered|few)[ ,]*(\d+)", text, re.IGNORECASE)
-          clouds = " ".join([f"{m[1]}{m[0][:2].upper()}" for m in cloud_matches]) if cloud_matches else ""
+          # Visibilité en km
+          visibility = extract(r"[vV]isibility.*?(\d+)\s*(?:km|kilometers|metres|litres)", raw)
+          visibility = f"{visibility}KM" if visibility != "XXX" else "XXX"
 
-          # Runway in use
-          match_rwy = re.search(r"[rR]unway\s+(\d+)", text)
-          runway = match_rwy.group(1) if match_rwy else "XX"
+          # Nuages
+          cloud_matches = re.findall(r"(overcast|scatter|few|broken)[ ,]*(\d+)[ ]*feet", raw, re.IGNORECASE)
+          clouds = " ".join([f"{m[0].upper()} {m[1]}" for m in cloud_matches]) if cloud_matches else "XXX"
 
-          # Mettre tout ensemble style FMS
+          # RWY et condition
+          runway = extract(r"[rR]unway\s+(\d+)", raw)
+          rwy_cond_match = re.search(r"touchdown.*?(\d+)[^\d]+midpoint.*?(\d+)[^\d]+stop end.*?(\d+)", raw, re.IGNORECASE)
+          rwy_cond = f"TDZ {rwy_cond_match.group(1)}/MID {rwy_cond_match.group(2)}/END {rwy_cond_match.group(3)}" if rwy_cond_match else "XXX"
+
+          # Temp / Dew
+          temperature = extract(r"[tT]emperature[, ]+(\d+)", raw)
+          dewpoint = extract(r"[dD]ew point[, ]+(\d+)", raw)
+
+          # QNH
+          qnh = extract(r"[qQ][nN][hH][ ,]?(\d{3,4})", raw)
+
+          # Construire message FMS
           fms_text = (
               f"EETN ATIS INFO {atis_letter} {atis_time}Z. "
               f"{wind} {visibility} {clouds} "
               f"RWY {runway} IN USE. "
-              "ADVS YOU HAVE INFO {atis_letter}."
           )
+          if rwy_cond != "XXX":
+              fms_text += f"RWY COND {rwy_cond}. "
+          fms_text += f"TEMP {temperature}/{dewpoint}C. "
+          fms_text += f"A{qnh}. "
 
+          # Sauvegarde
           with open(output_file, "w", encoding="utf-8") as f:
               f.write(fms_text + "\n")
 
-          print("✅ ATIS formaté style FMS :")
+          print("✅ ATIS format FMS généré : ", output_file)
           print(fms_text)
           PYCODE
-
-      - name: Commit et push ATIS FMS
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add atis_tallinn_fms.txt
-          git commit -m "Mise à jour ATIS format FMS ($(date +'%Y-%m-%d %H:%M'))" || echo "Rien à commit"
-          git push
