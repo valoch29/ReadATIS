@@ -25,7 +25,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      # --- CACHE 2 : modèles Whisper (évite re-téléchargement du modèle) ---
+      # --- CACHE 2 : modèles Whisper ---
       - name: Cache du modèle Whisper
         uses: actions/cache@v3
         with:
@@ -52,9 +52,9 @@ jobs:
           from datetime import datetime
 
           input_file = "atis_tallinn.txt"
-          output_file = "atis_tallinn_clean.txt"
+          output_file = "atis_tallinn.txt"
 
-          with open(input_file, "r") as f:
+          with open(input_file, "r", encoding="utf-8") as f:
               text = f.read()
 
           corrections = {
@@ -72,14 +72,14 @@ jobs:
           text = re.sub(r"\s+", " ", text).strip()
           timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 
-          with open(output_file, "w") as f:
+          with open(output_file, "w", encoding="utf-8") as f:
               f.write(f"ATIS Tallinn transcription ({timestamp}):\n\n{text}\n")
 
           print("\n--- Transcription nettoyée ---\n")
           print(text)
           PYCODE
 
-      # Commit et push la transcription
+      # Commit et push la transcription (forcé pour écraser)
       - name: Commit et push la transcription
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -88,5 +88,4 @@ jobs:
           git config user.email "actions@github.com"
           git add atis_tallinn.txt
           git commit -m "Mise à jour transcription ATIS ($(date +'%Y-%m-%d %H:%M'))" || echo "Rien à commit"
-          git remote set-url origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-          git push origin main
+          git push origin main --force
