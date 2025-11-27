@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  record-atis:
+  record_atis:
     runs-on: ubuntu-22.04
     permissions:
       contents: write  # autorise le push vers le dépôt
