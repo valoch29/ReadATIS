@@ -37,6 +37,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add atis_tallinn.mp3 atis_tallinn.wav
+          git add atis_recorded.mp3 atis_recorded.wav
           git commit -m "Mise à jour de l’audio ATIS ($(date '+%Y-%m-%d %H:%M'))" || echo "Aucune modification à commit"
           git push
