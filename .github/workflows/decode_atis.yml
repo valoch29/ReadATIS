@@ -29,8 +29,8 @@ jobs:
           python3 <<'PYCODE'
           import re, os, sys, requests, subprocess
 
-          input_file = "atis_tallinn.txt"
-          output_file = "atis_tallinn_fms.txt"
+          input_file = "atis_transcribed.txt"
+          output_file = "atis_decoded.txt"
 
           if not os.path.exists(input_file):
               print(f"⚠️ Fichier {input_file} introuvable")
