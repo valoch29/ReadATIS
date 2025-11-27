@@ -46,7 +46,7 @@ jobs:
       # Transcrire ATIS
       - name: Transcrire ATIS avec Whisper (anglais)
         run: |
-          whisper atis_tallinn.wav --model small --language en --output_format txt --output_dir .
+          whisper atis_recorded.wav --model small --language en --output_format txt --output_dir .
 
       # Nettoyer et corriger la transcription
       - name: Corriger et nettoyer la transcription
@@ -55,8 +55,8 @@ jobs:
           import re
           from datetime import datetime
 
-          input_file = "atis_tallinn.txt"
-          output_file = "atis_tallinn.txt"
+          input_file = "atis_transcribed.txt"
+          output_file = "atis_transcribed.txt"
 
           with open(input_file, "r", encoding="utf-8") as f:
               text = f.read()
