@@ -26,12 +26,12 @@ jobs:
         run: |
           curl -s -A "Mozilla/5.0" -e "https://www.liveatc.net/" \
           "https://s1-fmt2.liveatc.net/eetn2_atis" \
-          | ffmpeg -i pipe:0 -t 120 -y atis_tallinn.mp3
+          | ffmpeg -i pipe:0 -t 120 -y atis_recorded.mp3
 
       - name: Convertir MP3 en WAV mono 16kHz
         run: |
-          ffmpeg -y -i atis_tallinn.mp3 -ac 1 -ar 16000 atis_tallinn.wav
-          ls -lh atis_tallinn.*
+          ffmpeg -y -i atis_tallinn.mp3 -ac 1 -ar 16000 atis_recorded.wav
+          ls -lh atis_recorded.*
 
       - name: Commit et push du fichier audio
         run: |
