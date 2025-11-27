@@ -1,7 +1,10 @@
-name: Transcription ATIS avec Whisper
+name: 2_transcription
 
 on:
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["record-atis"]
+    types:
+      - completed
 
 jobs:
   transcribe-atis:
