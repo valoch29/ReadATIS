@@ -1,6 +1,7 @@
 name: 3_decode_atis
 
 on:
+  workflow_dispatch:   
   workflow_run:
     workflows: ["whisper_transcribe"]
     types:
