@@ -1,4 +1,4 @@
-name: Format ATIS FMS complet avec METAR
+name: 3_decode_atis
 
 on:
   workflow_dispatch:
