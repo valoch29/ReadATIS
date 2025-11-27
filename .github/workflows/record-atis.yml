@@ -1,4 +1,4 @@
-name: Enregistrement ATIS
+name: 1_enregistrement_ATIS
 
 on:
   schedule:
