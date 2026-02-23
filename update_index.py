@@ -1,49 +1,33 @@
-#!/usr/bin/env python3
-# update_index.py — met à jour ou crée le bloc ATIS dans index.html
-
-from bs4 import BeautifulSoup
-import json
+import datetime
 import os
 
-def main():
-    if not os.path.exists("atis_structured.html"):
-        print("❌ Fichier atis_structured.html introuvable.")
-        return
+atis_text = "En attente de données..."
+if os.path.exists("atis_transcribed.txt"):
+    with open("atis_transcribed.txt", "r") as f:
+        atis_text = f.read()
 
-    # Lire les fichiers
-    with open("atis_structured.html", "r", encoding="utf-8") as f:
-        atis_html = f.read()
+now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
 
-    if os.path.exists("index.html"):
-        with open("index.html", "r", encoding="utf-8") as f:
-            index_html = f.read()
-    else:
-        index_html = "<html><head><title>ATIS</title></head><body><h1>ATIS Dashboard</h1></body></html>"
-
-    soup = BeautifulSoup(index_html, "html.parser")
-
-    # Rechercher ou créer le bloc ATIS
-    atis_block = soup.find("div", {"id": "atis-message"})
-    if atis_block:
-        atis_block.replace_with(BeautifulSoup(atis_html, "html.parser"))
-        print("✅ Bloc ATIS mis à jour dans index.html.")
-    else:
-        # Ajouter le bloc à la fin du <body>
-        body = soup.find("body")
-        if not body:
-            body = soup.new_tag("body")
-            soup.append(body)
-
-        new_block = BeautifulSoup(atis_html, "html.parser")
-        body.append(new_block)
-        print("🆕 Bloc ATIS ajouté à index.html.")
-
-    # Sauvegarder le résultat
-    with open("index.html", "w", encoding="utf-8") as f:
-        f.write(str(soup))
-
-if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print(f"⚠️ Unexpected error: {e}")
+html = f'''
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>EETN ATIS - Live AI</title>
+    <style>
+        body {{ font-family: sans-serif; background: #121212; color: white; padding: 40px; text-align: center; }}
+        .box {{ background: #1e1e1e; padding: 25px; border-radius: 10px; border-left: 5px solid #007bff; display: inline-block; text-align: left; max-width: 80%; line-height: 1.6; }}
+        .time {{ color: #888; font-size: 0.8em; margin-top: 20px; border-top: 1px solid #333; padding-top: 10px; }}
+    </style>
+</head>
+<body>
+    <h1>Tallinn Airport (EETN) - ATIS AI</h1>
+    <div class="box">
+        <p>{atis_text}</p>
+        <p class="time">Dernière mise à jour : {now} UTC</p>
+    </div>
+</body>
+</html>
+'''
+with open("index.html", "w") as f:
+    f.write(html)
