@@ -1,31 +1,38 @@
 import os
 from faster_whisper import WhisperModel
 
+# Modèle Medium pour la fidélité
 model = WhisperModel("medium.en", device="cpu", compute_type="int8")
 
 def transcribe():
-    prompt = "Tallinn Airport ATIS, Information Uniform, Runway 08, QNH 1007, Hectopascals, NOSIG."
+    # Prompt enrichi avec CAVOK pour aider l'IA
+    prompt = "Tallinn Airport ATIS, Information, Runway, QNH, Hectopascals, CAVOK, NOSIG, touchdown."
     segments, _ = model.transcribe("atis_recorded.wav", beam_size=5, initial_prompt=prompt)
     
     full_text = " ".join([s.text for s in segments])
     
-    # --- LOGIQUE DE NETTOYAGE DES RÉPÉTITIONS ---
-    # On cherche le début officiel du message
+    # --- LOGIQUE DE NETTOYAGE ---
     start_marker = "This is Tallinn Airport"
     if start_marker in full_text:
-        # On coupe tout ce qu'il y a avant le premier "This is Tallinn Airport"
         clean_text = start_marker + full_text.split(start_marker)[1]
-        
-        # On cherche la fin du message "Information [Letter] out"
         if " out" in clean_text:
-            # On ne garde que jusqu'au premier "out"
             clean_text = clean_text.split(" out")[0] + " out."
     else:
-        clean_text = full_text # Au cas où le marqueur est mal entendu
+        clean_text = full_text
 
-    # Corrections finales
-    clean_text = clean_text.replace("touchstone", "touchdown")
-    clean_text = clean_text.replace("niner", "9")
+    # --- DICTIONNAIRE DE CORRECTIONS TECHNIQUES ---
+    corrections = {
+        "cable K": "CAVOK",
+        "cable k": "CAVOK",
+        "Cable K": "CAVOK",
+        "touchstone": "touchdown",
+        "niner": "9",
+        "hecto pascals": "hectopascals",
+        "Q and H": "QNH"
+    }
+    
+    for search, replace in corrections.items():
+        clean_text = clean_text.replace(search, replace)
     
     with open("atis_transcribed.txt", "w") as f:
         f.write(clean_text)
