@@ -2,7 +2,7 @@ name: 1_enregistrement_atis
 
 on:
   schedule:
- #   - cron: "22,52 * * * *"
+    #- cron: "22,52 * * * *"
   workflow_dispatch:
 
 jobs:
