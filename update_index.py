@@ -8,20 +8,20 @@ qnh = "----"
 runway = "--"
 
 if os.path.exists("atis_transcribed.txt"):
-    with open("atis_transcribed.txt", "r") as f:
+    with open("atis_transcribed.txt", "r", encoding="utf-8") as f:
         atis_text = f.read()
     
-    # 1. Extraction de la lettre d'information
-    letter_match = re.search(r"Information\s+([a-zA-Z]+)", atis_text, re.IGNORECASE)
+    # 1. Extraction de la lettre (on accepte une virgule ou un espace après 'Information')
+    letter_match = re.search(r"Information,?\s+([a-zA-Z]+)", atis_text, re.IGNORECASE)
     if letter_match:
         info_letter = letter_match.group(1).upper()
 
-    # 2. Extraction du QNH (cherche 4 chiffres après QNH)
-    qnh_match = re.search(r"QNH\s*(\d{4})", atis_text, re.IGNORECASE)
+    # 2. Extraction du QNH (on accepte une virgule ou un espace après 'QNH')
+    qnh_match = re.search(r"QNH,?\s*(\d{4})", atis_text, re.IGNORECASE)
     if qnh_match:
         qnh = qnh_match.group(1)
 
-    # 3. Extraction de la piste (cherche 2 chiffres après Runway)
+    # 3. Extraction de la piste
     rwy_match = re.search(r"Runway\s*(\d{2})", atis_text, re.IGNORECASE)
     if rwy_match:
         runway = rwy_match.group(1)
@@ -38,21 +38,14 @@ html = f'''
     <style>
         body {{ font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; padding: 15px; display: flex; flex-direction: column; align-items: center; }}
         .airport {{ font-size: 1.5rem; color: #888; margin-bottom: 20px; letter-spacing: 2px; }}
-        
         .dashboard {{ display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }}
-        .stat-card {{ 
-            background: #1a1a1a; padding: 15px 25px; border-radius: 12px; border-bottom: 4px solid #333;
-            text-align: center; min-width: 100px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-        }}
+        .stat-card {{ background: #1a1a1a; padding: 15px 25px; border-radius: 12px; border-bottom: 4px solid #333; text-align: center; min-width: 100px; }}
         .stat-card.active {{ border-bottom-color: #007bff; }}
         .stat-label {{ font-size: 0.7rem; color: #007bff; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }}
         .stat-value {{ font-size: 2rem; font-weight: bold; color: #fff; }}
-        
-        .box {{ 
-            background: #161616; padding: 25px; border-radius: 15px; border: 1px solid #222;
-            max-width: 700px; line-height: 1.7; font-size: 1.1rem; color: #bbb;
-        }}
-        .time {{ color: #444; font-size: 0.8rem; margin-top: 25px; font-style: italic; }}
+        .box {{ background: #161616; padding: 25px; border-radius: 15px; border: 1px solid #222; max-width: 700px; line-height: 1.7; font-size: 1.1rem; color: #bbb; margin-bottom: 20px; }}
+        .audio-player {{ background: #1a1a1a; padding: 15px; border-radius: 50px; margin-bottom: 20px; border: 1px solid #333; }}
+        .time {{ color: #444; font-size: 0.8rem; font-style: italic; }}
     </style>
 </head>
 <body>
@@ -71,6 +64,10 @@ html = f'''
             <div class="stat-label">QNH</div>
             <div class="stat-value">{qnh}</div>
         </div>
+    </div>
+
+    <div class="audio-player">
+        <audio controls src="atis_recorded.wav" style="filter: invert(100%); opacity: 0.7;"></audio>
     </div>
 
     <div class="box">
