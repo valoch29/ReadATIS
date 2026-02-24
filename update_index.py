@@ -2,7 +2,7 @@ import datetime
 import os
 import re
 
-atis_text = "En attente de données..."
+atis_text = "Chargement des données..."
 info_letter = "-"
 qnh = "----"
 runway = "--"
@@ -13,65 +13,61 @@ if os.path.exists("atis_transcribed.txt"):
     
     letter_match = re.search(r"Information,?\s+([a-zA-Z]+)", atis_text, re.IGNORECASE)
     if letter_match: info_letter = letter_match.group(1).upper()
-
-    qnh_match = re.search(r"QNH,?\s*(\d{4})", atis_text, re.IGNORECASE)
+    qnh_match = re.search(r"QNH,?\s*(\d{{4}})", atis_text, re.IGNORECASE)
     if qnh_match: qnh = qnh_match.group(1)
-
-    rwy_match = re.search(r"Runway\s*(\d{2})", atis_text, re.IGNORECASE)
+    rwy_match = re.search(r"Runway\s*(\d{{2}})", atis_text, re.IGNORECASE)
     if rwy_match: runway = rwy_match.group(1)
 
-now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
+now = datetime.datetime.now().strftime("%H:%M")
 
-# Découpage du texte en lignes pour une présentation successive
-sentences = atis_text.split('.')
-clean_sentences = [s.strip() for s in sentences if len(s) > 5]
-
-html_lines = "".join([f'<div class="info-line">✈️ {s}</div>' for s in clean_sentences])
+# Découpage propre par points
+sentences = [s.strip() for s in atis_text.split('.') if len(s.strip()) > 5]
+html_lines = "".join([f'<div class="line">{s}.</div>' for s in sentences])
 
 html = f'''
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EETN ATIS Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>EETN ATIS</title>
     <style>
-        body {{ font-family: 'Consolas', monospace; background: #050505; color: #00ff00; padding: 20px; display: flex; flex-direction: column; align-items: center; }}
-        .header {{ text-align: center; border: 2px solid #00ff00; padding: 10px 40px; margin-bottom: 30px; border-radius: 5px; box-shadow: 0 0 15px rgba(0,255,0,0.2); }}
-        .dashboard {{ display: flex; gap: 20px; margin-bottom: 30px; }}
-        .stat-card {{ background: #111; padding: 15px; border: 1px solid #00ff00; text-align: center; min-width: 120px; }}
-        .stat-label {{ font-size: 0.8rem; color: #00ff00; text-transform: uppercase; margin-bottom: 5px; opacity: 0.7; }}
-        .stat-value {{ font-size: 2.2rem; font-weight: bold; color: #00ff00; }}
-        .container {{ width: 100%; max-width: 800px; }}
-        .info-line {{ background: rgba(0,255,0,0.05); border-left: 3px solid #00ff00; margin-bottom: 8px; padding: 12px; font-size: 1.1rem; text-transform: uppercase; }}
-        .time {{ color: #006600; font-size: 0.8rem; margin-top: 30px; }}
+        body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+               background: #000; color: #fff; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }}
+        
+        .header {{ width: 100%; max-width: 500px; text-align: center; margin-top: 10px; border-bottom: 1px solid #333; padding-bottom: 15px; }}
+        .airport {{ font-size: 1.2rem; font-weight: bold; color: #aaa; letter-spacing: 1px; }}
+        
+        .grid {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 500px; margin: 20px 0; }}
+        .card {{ background: #111; padding: 15px 5px; border-radius: 12px; text-align: center; border: 1px solid #222; }}
+        .label {{ font-size: 0.7rem; color: #007bff; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }}
+        .val {{ font-size: 1.8rem; font-weight: bold; }}
+
+        .content {{ width: 100%; max-width: 500px; }}
+        .line {{ background: #161616; margin-bottom: 10px; padding: 15px; border-radius: 10px; 
+                 font-size: 1.1rem; line-height: 1.4; border-left: 4px solid #333; }}
+        
+        .footer {{ margin-top: 20px; font-size: 0.8rem; color: #444; text-align: center; }}
     </style>
 </head>
 <body>
     <div class="header">
-        <h1 style="margin:0; font-size: 1.5rem;">EETN ATIS TALLINN</h1>
+        <div class="airport">TALLINN EETN ATIS</div>
     </div>
 
-    <div class="dashboard">
-        <div class="stat-card">
-            <div class="stat-label">INFO</div>
-            <div class="stat-value">{info_letter}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">RWY</div>
-            <div class="stat-value">{runway}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">QNH</div>
-            <div class="stat-value">{qnh}</div>
-        </div>
+    <div class="grid">
+        <div class="card"><div class="label">INFO</div><div class="val">{info_letter}</div></div>
+        <div class="card"><div class="label">RWY</div><div class="val">{runway}</div></div>
+        <div class="card"><div class="label">QNH</div><div class="val">{qnh}</div></div>
     </div>
 
-    <div class="container">
+    <div class="content">
         {html_lines}
     </div>
 
-    <div class="time">LAST UPDATE: {now} UTC | NO AUDIO RECORDING AVAILABLE</div>
+    <div class="footer">
+        MISE À JOUR : {now} UTC
+    </div>
 </body>
 </html>
 '''
