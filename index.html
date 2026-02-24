@@ -15,32 +15,31 @@
         .value { font-size: 1.6rem; font-weight: bold; color: var(--blue); }
         .section { width: 100%; max-width: 600px; background: var(--card); border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; box-sizing: border-box; }
         .sec-title { color: var(--blue); font-size: 0.8rem; margin-bottom: 12px; border-bottom: 1px solid #222; padding-bottom: 5px; font-weight: bold; }
-        .met-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; background: #000; padding: 10px; border: 1px solid #1a1a1a; }
-        .item { font-size: 0.85rem; line-height: 1.4; color: #999; margin-bottom: 8px; border-left: 3px solid #222; padding-left: 10px; }
+        .met-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 5px; background: #000; padding: 12px; border: 1px solid #1a1a1a; text-align: center; }
+        .raw-text { font-size: 0.75rem; color: #666; line-height: 1.4; padding: 10px; border-top: 1px solid #222; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div class="header">
         <div style="font-weight: bold;">TALLINN/EETN ATIS</div>
-        <div style="color: #444; font-size: 0.8rem;">12:22 UTC</div>
+        <div style="color: #444; font-size: 0.8rem;">13:09 UTC</div>
     </div>
     <div class="grid">
-        <div class="card"><div class="label">INFO</div><div class="value">ZULU</div></div>
+        <div class="card"><div class="label">INFO</div><div class="value">Z</div></div>
         <div class="card"><div class="label">RWY</div><div class="value">08</div></div>
         <div class="card"><div class="label">QNH</div><div class="value">1013</div></div>
     </div>
     <div class="section">
         <div class="sec-title">METEOROLOGICAL DATA</div>
         <div class="met-box">
-            <div><span style="color:#444; font-size:0.6rem;">WIND</span><br>--- / --KT</div>
-            <div><span style="color:#444; font-size:0.6rem;">T / D</span><br>-- / --</div>
+            <div><span style="color:#444; font-size:0.6rem;">WIND</span><br><span style="font-size:1.1rem; font-weight:bold; color:#eee;">050° / 07KT</span></div>
+            <div><span style="color:#444; font-size:0.6rem;">TEMP / DEW</span><br><span style="font-size:1.1rem; font-weight:bold; color:#eee;">-3° / -6°</span></div>
         </div>
-        <div class="item">TEMPERATURE</div><div class="item">MINUS 3 DEWPOINT</div>
     </div>
     <div class="section">
-        <div class="sec-title">RUNWAY STATUS</div>
-        <div class="item">RUNWAY 08 IN USE</div><div class="item">RUNWAY 08 CONDITION REPORT TIME AT 0853 RUNWAY CONDITION CODE</div><div class="item">TOUCHDOWN</div><div class="item">5 MIDPOINT</div><div class="item">MIDPOINT</div><div class="item">STOP-END</div>
+        <div class="sec-title">RAW TRANSCRIPTION</div>
+        <div class="raw-text">TALLINN AIRPORT   INFORMATION ZULU  TIME 1150 EXPECT ILS APPROACH  RUNWAY 08 IN USE.  RUNWAY 08 CONDITION REPORT TIME AT 0853 RUNWAY CONDITION CODE  TOUCHDOWN  5 MIDPOINT  5 TOP END  6 DEPOSIT  TOUCHDOWN  50%  WET  MIDPOINT  50%  WET  TOP END  25%  WET  TRANSITION LEVEL 65.  BIRD ACTIVITY IN VICINITY OF AIRPORT  WIND  RUNWAY 08 TOUCHSTONE ZONE  050 DEGREES  7 KNOTS  VARIABLE BETWEEN 010 DEGREES AND 070 DEGREES  STOP END  060 DEGREES  8 KNOTS  VARIABLE BETWEEN 020 DEGREES AND 080 DEGREES   CAVOK  TEMPERATURE  MINUS 3 DEWPOINT  MINUS 6 QNH 1013 HECTOPASCALSS  TREND  NOSIG  INFORMATION ZULU OUT.</div>
     </div>
-    <div style="font-size: 0.6rem; color: #222; margin-top: 10px;">DATALINK ATIS MONITOR</div>
+    <div style="font-size: 0.6rem; color: #222; margin-top: 10px; letter-spacing: 2px;">DATALINK ATIS MONITOR</div>
 </body>
 </html>
