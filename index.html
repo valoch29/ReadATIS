@@ -6,49 +6,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EETN ATIS PRO</title>
     <style>
-        :root { --blue: #00aaff; --bg: #080808; --card: #151515; --border: #252525; }
-        body { font-family: 'Courier New', Courier, monospace; background: var(--bg); color: #ddd; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }
-        .header { width: 100%; max-width: 650px; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 650px; margin-bottom: 15px; }
+        :root { --blue: #00aaff; --bg: #080808; --card: #121212; --border: #222; }
+        body { font-family: 'Courier New', Courier, monospace; background: var(--bg); color: #ccc; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }
+        .header { width: 100%; max-width: 600px; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 600px; margin-bottom: 15px; }
         .card { background: var(--card); padding: 15px 5px; border-radius: 4px; text-align: center; border: 1px solid var(--border); }
-        .label { font-size: 0.7rem; color: #666; margin-bottom: 5px; }
+        .label { font-size: 0.7rem; color: #555; margin-bottom: 5px; font-weight: bold; }
         .value { font-size: 1.6rem; font-weight: bold; color: var(--blue); }
-        .container { width: 100%; max-width: 650px; }
-        .section { background: var(--card); border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; border-radius: 4px; }
-        .sec-title { color: var(--blue); font-size: 0.8rem; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; font-weight:bold; }
-        .item { font-size: 0.85rem; line-height: 1.4; color: #aaa; margin-bottom: 8px; border-left: 2px solid #333; padding-left: 10px; }
-        .footer { margin-top: 20px; font-size: 0.7rem; color: #333; letter-spacing: 1px; text-align:center; }
-        .met-box { display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px; background:#000; padding:10px; border:1px solid #111; }
+        .section { width: 100%; max-width: 600px; background: var(--card); border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; box-sizing: border-box; }
+        .sec-title { color: var(--blue); font-size: 0.8rem; margin-bottom: 12px; border-bottom: 1px solid #222; padding-bottom: 5px; font-weight: bold; }
+        .met-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; background: #000; padding: 10px; border: 1px solid #1a1a1a; }
+        .item { font-size: 0.85rem; line-height: 1.4; color: #999; margin-bottom: 8px; border-left: 3px solid #222; padding-left: 10px; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div style="font-size: 1.1rem; font-weight: bold;">TALLINN / EETN ATIS</div>
-        <div style="color: #666;">12:14 UTC</div>
+        <div style="font-weight: bold;">TALLINN/EETN ATIS</div>
+        <div style="color: #444; font-size: 0.8rem;">12:22 UTC</div>
     </div>
-
     <div class="grid">
         <div class="card"><div class="label">INFO</div><div class="value">ZULU</div></div>
         <div class="card"><div class="label">RWY</div><div class="value">08</div></div>
         <div class="card"><div class="label">QNH</div><div class="value">1013</div></div>
     </div>
-
-    <div class="container">
-        <div class="section">
-            <div class="sec-title">METEOROLOGICAL DATA</div>
-            <div class="met-box">
-                <div><span style="color:#444; font-size:0.6rem;">WIND:</span><br>--- / --KT</div>
-                <div><span style="color:#444; font-size:0.6rem;">TEMP/DEW:</span><br>-- / --</div>
-            </div>
-            <div class="item">TEMPERATURE</div><div class="item">MINUS 3 DEWPOINT</div>
+    <div class="section">
+        <div class="sec-title">METEOROLOGICAL DATA</div>
+        <div class="met-box">
+            <div><span style="color:#444; font-size:0.6rem;">WIND</span><br>--- / --KT</div>
+            <div><span style="color:#444; font-size:0.6rem;">T / D</span><br>-- / --</div>
         </div>
-
-        <div class="section">
-            <div class="sec-title">RUNWAY STATUS</div>
-            <div class="item">RUNWAY 08 CONDITION REPORT TIME AT 0853 RUNWAY CONDITION CODE</div><div class="item">TOUCHDOWN</div><div class="item">5 MIDPOINT</div>
-        </div>
+        <div class="item">TEMPERATURE</div><div class="item">MINUS 3 DEWPOINT</div>
     </div>
-
-    <div class="footer">DATALINK ATIS SOURCE • EETN MONITOR</div>
+    <div class="section">
+        <div class="sec-title">RUNWAY STATUS</div>
+        <div class="item">RUNWAY 08 IN USE</div><div class="item">RUNWAY 08 CONDITION REPORT TIME AT 0853 RUNWAY CONDITION CODE</div><div class="item">TOUCHDOWN</div><div class="item">5 MIDPOINT</div><div class="item">MIDPOINT</div><div class="item">STOP-END</div>
+    </div>
+    <div style="font-size: 0.6rem; color: #222; margin-top: 10px;">DATALINK ATIS MONITOR</div>
 </body>
 </html>
