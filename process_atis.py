@@ -4,37 +4,31 @@ from faster_whisper import WhisperModel
 model = WhisperModel("medium.en", device="cpu", compute_type="int8")
 
 def transcribe():
-    prompt = "Tallinn Airport ATIS, Information Uniform, Runway 08, QNH 1012, Hectopascals, CAVOK, NOSIG, touchdown, midpoint, stop-end."
+    prompt = "Tallinn Airport ATIS, Information, Runway, QNH, Hectopascals, CAVOK, NOSIG, touchdown, midpoint, stop-end."
     segments, _ = model.transcribe("atis_recorded.wav", beam_size=5, initial_prompt=prompt)
     
-    full_text = " ".join([s.text for s in segments])
+    text = " ".join([s.text for s in segments])
     
-    # Correction des accolades ici : une seule suffit
     corrections = {
         "business travelling airport": "This is Tallinn Airport",
         "meat point": "midpoint",
         "pack down": "touchdown",
         "top end": "stop-end",
         "OK": "CAVOK",
-        "Cable K": "CAVOK",
         "West Phoenix Hill": "vicinity of the",
-        "niner": "9"
+        "niner": "9",
+        "  ": " "
     }
     
-    clean_text = full_text
     for search, replace in corrections.items():
-        clean_text = clean_text.replace(search, replace)
+        text = text.replace(search, replace)
 
-    # Nettoyage des répétitions
-    if "This is Tallinn Airport" in clean_text:
-        parts = clean_text.split("This is Tallinn Airport")
-        # On prend ce qui suit le premier "This is Tallinn Airport"
-        # et on coupe au premier "out" s'il existe
-        reminder = parts[1].split("out")[0]
-        clean_text = "This is Tallinn Airport " + reminder + " out."
+    # On essaye de ne garder qu'un seul message propre
+    if "This is Tallinn Airport" in text:
+        text = "This is Tallinn Airport" + text.split("This is Tallinn Airport")[1].split("out")[0] + " out"
 
     with open("atis_transcribed.txt", "w", encoding="utf-8") as f:
-        f.write(clean_text)
+        f.write(text)
 
 if __name__ == "__main__":
     if os.path.exists("atis_recorded.wav"):
