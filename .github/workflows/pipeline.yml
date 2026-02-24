@@ -3,18 +3,18 @@ on:
   schedule:
     - cron: '25 * * * *'
     - cron: '55 * * * *'
-  workflow_dispatch: # Permet de le lancer manuellement
+  workflow_dispatch:
 
 jobs:
   process:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Autorise le bot à écrire sur votre dépôt
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Récupère tout l'historique pour éviter les erreurs de push
+          fetch-depth: 0
 
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
@@ -39,14 +39,19 @@ jobs:
         run: |
           git config --global user.name 'ATIS-Bot'
           git config --global user.email 'bot@github.com'
+          
+          # On synchronise l'état local avec le serveur pour éviter le rejet
+          git fetch origin main
+          git reset --mixed origin/main
+          
+          # On ajoute les fichiers générés
           git add atis_recorded.wav index.html atis_transcribed.txt
           
-          # On vérifie s'il y a des changements avant de commit
+          # On vérifie s'il y a des changements réels à sauvegarder
           if git diff --staged --quiet; then
-            echo "Pas de changements à commit"
+            echo "Aucun changement à publier."
           else
-            # Synchronisation forcée pour éviter l'erreur "rejected"
-            git pull --rebase origin main
             git commit -m "Update ATIS $(date)"
-            git push origin main
+            # On utilise le push forcé sécurisé pour valider la mise à jour du site
+            git push origin main --force-with-lease
           fi
