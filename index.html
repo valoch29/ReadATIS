@@ -1,39 +1,45 @@
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EETN ATIS</title>
     <style>
-        :root { --neon: #00d4ff; --bg: #050505; --card: #121212; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: #eee; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .header { width: 100%; max-width: 600px; display: flex; justify-content: space-between; margin: 10px 0 20px 0; border-left: 4px solid var(--neon); padding-left: 15px; }
-        .airport-id { font-size: 1.4rem; font-weight: 800; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 600px; margin-bottom: 10px; }
-        .card { background: var(--card); padding: 20px 10px; border-radius: 12px; text-align: center; border: 1px solid #222; }
-        .label { font-size: 0.65rem; color: var(--neon); font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
-        .value { font-size: 1.8rem; font-weight: 700; font-family: monospace; }
-        .sec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 600px; margin-bottom: 20px; }
-        .small-card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.9rem; }
-        .content { width: 100%; max-width: 600px; background: #0a0a0a; border-radius: 16px; border: 1px solid #1a1a1a; }
-        .line { padding: 15px; font-size: 0.95rem; line-height: 1.5; color: #bbb; border-bottom: 1px solid #1a1a1a; text-transform: uppercase; }
-        .line span { color: var(--neon); margin-right: 10px; }
-        .footer { margin-top: 20px; font-size: 0.7rem; color: #444; }
+        :root { --blue: #007aff; --bg: #000; --card: #111; --text: #eee; }
+        body { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .header { width: 100%; max-width: 600px; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 600px; margin-bottom: 20px; }
+        .card { background: var(--card); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #222; }
+        .label { font-size: 0.7rem; color: #666; font-weight: bold; margin-bottom: 5px; }
+        .value { font-size: 1.6rem; font-weight: bold; color: var(--blue); }
+        .container { width: 100%; max-width: 600px; }
+        .section { margin-bottom: 25px; }
+        .sec-title { font-size: 0.8rem; color: #444; border-bottom: 1px solid #222; padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; }
+        .item { font-size: 0.95rem; line-height: 1.6; color: #bbb; margin-bottom: 5px; }
+        .footer { margin-top: 30px; font-size: 0.7rem; color: #333; }
     </style>
 </head>
 <body>
-    <div class="header"><div class="airport-id">TALLINN <span style="color:var(--neon)">EETN</span></div><div style="font-size:0.8rem;color:#666;">12:05 UTC</div></div>
+    <div class="header">
+        <div style="font-weight:bold; letter-spacing:1px;">EETN / TALLINN ATIS</div>
+        <div style="font-size:0.8rem; color:#666;">12:08 UTC</div>
+    </div>
     <div class="grid">
-        <div class="card"><div class="label">INFORMATION</div><div class="value">ZULU</div></div>
-        <div class="card"><div class="label">RUNWAY</div><div class="value">08</div></div>
+        <div class="card"><div class="label">INFO</div><div class="value">ZULU</div></div>
+        <div class="card"><div class="label">RWY</div><div class="value">08</div></div>
         <div class="card"><div class="label">QNH</div><div class="value">1013</div></div>
     </div>
-    <div class="sec-grid">
-        <div class="small-card"><span class="label">WIND</span>050° / 07KT</div>
-        <div class="small-card"><span class="label">TEMP/DEW</span>-3° / -6°</div>
+    <div class="container">
+        <div class="section">
+            <div class="sec-title">METEOROLOGICAL DATA</div>
+            <div class="item">WIND: --- / --KT</div>
+            <div class="item">TEMP/DEW: -- / --</div>
+            <div class="item">BIRD ACTIVITY IN VICINITY OF AIRPORT, WIND, RUNWAY 08TOUCHSTONE ZONE, 050 DEGREES, 7 KNOTS, VARIABLE BETWEEN 010 DEGREES AND 070 DEGREES, STOP-END, 060 DEGREES, 8 KNOTS, VARIABLE BETWEEN 020 DEGREES AND 080 DEGREES,  CAVOK, TEMPERATURE, MINUS 3DEWPOINT, MINUS 6QNH 1013HECTOPASCALSS, TREND, NOSIG, INFORMATION ZULU OUT.</div>
+        </div>
+        <div class="section"><div class="sec-title">RUNWAY STATUS</div><div class="item">TALLINN AIRPORT , INFORMATION ZULU, TIME 1150EXPECT ILS APPROACH, RUNWAY 08 IN USE.</div><div class="item">RUNWAY 08CONDITION REPORT TIME AT 0853RUNWAY CONDITION CODE, TOUCHDOWN, 5MIDPOINT, 5TOP-END, 6DEPOSIT, TOUCHDOWN, 50%, WET, MIDPOINT, 50%, WET, TOP-END, 25%, WET, TRANSITION LEVEL 65.</div><div class="item">BIRD ACTIVITY IN VICINITY OF AIRPORT, WIND, RUNWAY 08TOUCHSTONE ZONE, 050 DEGREES, 7 KNOTS, VARIABLE BETWEEN 010 DEGREES AND 070 DEGREES, STOP-END, 060 DEGREES, 8 KNOTS, VARIABLE BETWEEN 020 DEGREES AND 080 DEGREES,  CAVOK, TEMPERATURE, MINUS 3DEWPOINT, MINUS 6QNH 1013HECTOPASCALSS, TREND, NOSIG, INFORMATION ZULU OUT.</div></div>
+        
     </div>
-    <div class="content"><div class="line"><span>•</span> Tallinn Airport , information, Zulu, time, 1150expect ILS approach, Runway 08 in use, Runway 08condition report time at 0853Runway condition code touchdown, 5midpoint, 5top-end, 6deposit, touchdown, 50%, wet, midpoint, 50%, wet, top-end, 25%, wet, transition level 65bird activity in vicinity of airport,  wind, Runway 08touchdown zone, 050 degrees, 7 knots, variable, between 010 degrees and 070 degrees, stop-end, 060 degrees, 8 knots, variable, between 020 degrees and 080 degrees, CAVOK,  temperature, minus 3dewpoint, minus 6QNH 1013Hectopascalss, Trend, NOSIG, information, Zulu, out.</div></div>
-    <div class="footer">EETN ATIS MONITOR • AUTO-UPDATED</div>
+    <div class="footer">TERMINAL INFORMATION SERVICE • AUTOMATED DATA</div>
 </body>
 </html>
