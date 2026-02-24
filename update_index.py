@@ -2,15 +2,19 @@ import datetime
 import os
 import re
 
+# Valeurs par défaut
 atis_text = "WAITING FOR DATA..."
 info, qnh, rwy, wind, temp_dew, vis, rcc, contamination = "-", "----", "--", "--- / --KT", "-- / --", "---", "-/-/-", "UNKNOWN"
 
 if os.path.exists("atis_transcribed.txt"):
     with open("atis_transcribed.txt", "r", encoding="utf-8") as f:
         raw = f.read().upper()
+        # Nettoyage : on force les espaces entre chiffres et lettres
         atis_text = re.sub(r'(\d)([A-Z])', r'\1 \2', raw)
         atis_text = re.sub(r'([A-Z])(\d)', r'\1 \2', atis_text)
         clean_text = atis_text.replace("-", " ").replace(",", " ").replace(".", " ")
+
+    # --- LOGIQUE D'EXTRACTION PAR ANCRES ---
 
     def extract_after(anchor, text, length=10, is_digit=True):
         match = re.search(f"{anchor}\s*(.{{1,{length}}})", text)
@@ -22,37 +26,57 @@ if os.path.exists("atis_transcribed.txt"):
             return val.strip().split()[0]
         return None
 
+    # 1. INFO, RUNWAY & QNH
     info = extract_after("INFORMATION", clean_text, is_digit=False) or "-"
     rwy = extract_after("RUNWAY", clean_text, length=5) or "--"
     if len(rwy) > 2: rwy = rwy[:2]
+    
     qnh = extract_after("QNH", clean_text, length=15) or "----"
     if len(qnh) > 4: qnh = qnh[:4]
 
-    if "CAVOK" in clean_text: vis = "CAVOK"
+    # 2. VISIBILITÉ
+    if "CAVOK" in clean_text:
+        vis = "CAVOK"
     else:
         v_m = re.search(r"VISIBILITY\s*(\d+)", clean_text)
         vis = v_m.group(1) + "M" if v_m else "---"
 
+    # 3. VENT
     w_m = re.search(r"(\d{3})\s*DEGREES\s*(\d+)", clean_text)
-    if w_m: wind = f"{w_m.group(1)}° / {w_m.group(2).zfill(2)}KT"
+    if w_m:
+        wind = f"{w_m.group(1)}° / {w_m.group(2).zfill(2)}KT"
 
+    # 4. TEMP / DEW
     t_c = re.search(r"TEMPERATURE\s*(.*?)\s*(\d+)", clean_text)
     d_c = re.search(r"DEWPOINT\s*(.*?)\s*(\d+)", clean_text)
     t_v = ("-" if t_c and "MINUS" in t_c.group(1) else "") + (t_c.group(2) if t_c else "--")
     d_v = ("-" if d_c and "MINUS" in d_c.group(1) else "") + (d_c.group(2) if d_c else "--")
     temp_dew = f"{t_v}° / {d_v}°"
 
-    rcc_matches = re.findall(r"(?:CODE|CONDITION)\s*.*?(\d)", clean_text)
+    # 5. RCC (Runway Condition Code) - COLLECTE ROBUSTE
+    # On regarde ce qu'il y a après "CONDITION" ou "CODE"
+    rwy_context = ""
+    if "CONDITION" in clean_text:
+        rwy_context = clean_text.split("CONDITION")[1]
+    
+    # On cherche tous les chiffres isolés de 0 à 6 dans cette zone
+    rcc_matches = re.findall(r'\b([0-6])\b', rwy_context)
     if len(rcc_matches) >= 3:
         rcc = f"{rcc_matches[0]}/{rcc_matches[1]}/{rcc_matches[2]}"
-    
+    elif len(rcc_matches) > 0:
+        rcc = f"{rcc_matches[0]}/{rcc_matches[0]}/{rcc_matches[0]}"
+
+    # 6. CONTAMINATION
     contaminants = []
     for word in ["WET", "DRY", "WATER", "ICE", "SNOW", "SLUSH"]:
-        if word in clean_text: contaminants.append(word)
+        if word in clean_text:
+            contaminants.append(word)
     if contaminants:
-        while len(contaminants) < 3: contaminants.append(contaminants[0])
+        while len(contaminants) < 3:
+            contaminants.append(contaminants[0])
         contamination = f"{contaminants[0]}/{contaminants[1]}/{contaminants[2]}"
 
+# --- GÉNÉRATION HTML ---
 now = datetime.datetime.now().strftime("%H:%M")
 
 html = f'''
@@ -104,7 +128,7 @@ html = f'''
         </div>
     </div>
     <div class="section">
-        <div class="sec-title">RAW TEXT</div>
+        <div class="sec-title">RAW TEXT ANALYZED</div>
         <div class="raw-text">{atis_text}</div>
     </div>
     <div class="footer">EETN DIGITAL ATIS MONITOR</div>
