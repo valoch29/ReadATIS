@@ -3,53 +3,66 @@ import os
 import re
 
 atis_text = "WAITING FOR DATA..."
-info, qnh, rwy, wind, temp_dew = "-", "----", "--", "--- / --KT", "-- / --"
+info, qnh, rwy, wind, temp_dew, vis, rcc, contamination = "-", "----", "--", "--- / --KT", "-- / --", "---", "-/-/-", "UNKNOWN"
 
 if os.path.exists("atis_transcribed.txt"):
     with open("atis_transcribed.txt", "r", encoding="utf-8") as f:
-        # On simplifie le texte : MAJUSCULES et suppression des bruits
-        raw = f.read().upper().replace("-", " ").replace(",", " ")
-        # On s'assure que les chiffres sont bien séparés du texte
+        raw = f.read().upper()
+        # Séparation chiffres/lettres et nettoyage
         atis_text = re.sub(r'(\d)([A-Z])', r'\1 \2', raw)
         atis_text = re.sub(r'([A-Z])(\d)', r'\1 \2', atis_text)
+        clean_text = atis_text.replace("-", " ").replace(",", " ").replace(".", " ")
 
-    # --- LOGIQUE D'EXTRACTION PAR PROXIMITÉ ---
+    # --- EXTRACTION PAR ANCRES ---
 
-    # 1. INFO : Ce qui suit le mot "INFORMATION"
-    m_info = re.search(r"INFORMATION\s+([A-Z])", atis_text)
-    if m_info: info = m_info.group(1)
+    def extract_after(anchor, text, length=10, is_digit=True):
+        match = re.search(f"{anchor}\s*(.{{1,{length}}})", text)
+        if match:
+            val = match.group(1)
+            if is_digit:
+                digits = re.sub(r'\D', '', val)
+                return digits if digits else None
+            return val.strip().split()[0]
+        return None
 
-    # 2. RUNWAY : Les 2 chiffres après "RUNWAY" ou "RUNWAY 0"
-    m_rwy = re.search(r"RUNWAY\s*(?:0)?(\d{2})", atis_text)
-    if m_rwy: rwy = m_rwy.group(1)
+    info = extract_after("INFORMATION", clean_text, is_digit=False) or "-"
+    rwy = extract_after("RUNWAY", clean_text, length=5) or "--"
+    if len(rwy) > 2: rwy = rwy[:2]
+    qnh = extract_after("QNH", clean_text, length=15) or "----"
+    if len(qnh) > 4: qnh = qnh[:4]
 
-    # 3. QNH : Les 4 chiffres après "QNH" (on ignore les espaces/points entre les chiffres)
-    # On cherche "QNH" puis on capture tout ce qui ressemble à 4 chiffres dans les 15 caractères suivants
-    m_qnh_context = re.search(r"QNH\s*(.{1,15})", atis_text)
-    if m_qnh_context:
-        digits = re.sub(r'\D', '', m_qnh_context.group(1))
-        if len(digits) >= 4: qnh = digits[:4]
+    # VISIBILITÉ
+    if "CAVOK" in clean_text: vis = "CAVOK"
+    else:
+        v_m = re.search(r"VISIBILITY\s*(\d+)", clean_text)
+        vis = v_m.group(1) + "M" if v_m else "---"
 
-    # 4. VENT : On cherche "DEGREES" et on prend ce qu'il y a avant et après
-    # Exemple : "050 DEGREES 7 KNOTS"
-    m_wind = re.search(r"(\d{3})\s*DEGREES\s*(\d+)", atis_text)
-    if m_wind:
-        wind = f"{m_wind.group(1)}° / {m_wind.group(2).zfill(2)}KT"
+    # VENT
+    w_m = re.search(r"(\d{3})\s*DEGREES\s*(\d+)", clean_text)
+    if w_m: wind = f"{w_m.group(1)}° / {w_m.group(2).zfill(2)}KT"
 
-    # 5. TEMP/DEW : Proximité avec "TEMPERATURE" et "DEWPOINT"
-    m_temp = re.search(r"TEMPERATURE\s*(.*?)\s*(\d+)", atis_text)
-    m_dew = re.search(r"DEWPOINT\s*(.*?)\s*(\d+)", atis_text)
+    # TEMP / DEW
+    t_c = re.search(r"TEMPERATURE\s*(.*?)\s*(\d+)", clean_text)
+    d_c = re.search(r"DEWPOINT\s*(.*?)\s*(\d+)", clean_text)
+    t_v = ("-" if t_c and "MINUS" in t_c.group(1) else "") + (t_c.group(2) if t_c else "--")
+    d_v = ("-" if d_c and "MINUS" in d_c.group(1) else "") + (d_c.group(2) if d_c else "--")
+    temp_dew = f"{t_v}° / {d_v}°"
+
+    # --- EXTRACTION RCC (Runway Condition Code) ---
+    # On cherche les 3 chiffres du code (Touchdown, Midpoint, Stop-end)
+    rcc_matches = re.findall(r"(?:CODE|CONDITION)\s*.*?(\d)", clean_text)
+    if len(rcc_matches) >= 3:
+        rcc = f"{rcc_matches[0]}/{rcc_matches[1]}/{rcc_matches[2]}"
     
-    t_val, d_val = "--", "--"
-    if m_temp:
-        prefix = "-" if "MINUS" in m_temp.group(1) else ""
-        t_val = prefix + m_temp.group(2)
-    if m_dew:
-        prefix = "-" if "MINUS" in m_dew.group(1) else ""
-        d_val = prefix + m_dew.group(2)
-    temp_dew = f"{t_val}° / {d_val}°"
+    # --- EXTRACTION CONTAMINATION ---
+    contaminants = []
+    for word in ["WET", "DRY", "WATER", "ICE", "SNOW", "SLUSH"]:
+        if word in clean_text: contaminants.append(word)
+    if contaminants:
+        # On essaie d'en garder 3 pour le format X/X/X, sinon on répète le premier
+        while len(contaminants) < 3: contaminants.append(contaminants[0])
+        contamination = f"{contaminants[0]}/{contaminants[1]}/{contaminants[2]}"
 
-# --- MISE EN PAGE ---
 now = datetime.datetime.now().strftime("%H:%M")
 
 html = f'''
@@ -60,23 +73,24 @@ html = f'''
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EETN ATIS PRO</title>
     <style>
-        :root {{ --blue: #00aaff; --bg: #080808; --card: #121212; --border: #222; }}
-        body {{ font-family: 'Courier New', Courier, monospace; background: var(--bg); color: #ccc; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }}
-        .header {{ width: 100%; max-width: 600px; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }}
-        .grid {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 600px; margin-bottom: 15px; }}
-        .card {{ background: var(--card); padding: 15px 5px; border-radius: 4px; text-align: center; border: 1px solid var(--border); }}
-        .label {{ font-size: 0.7rem; color: #555; margin-bottom: 5px; font-weight: bold; }}
-        .value {{ font-size: 1.6rem; font-weight: bold; color: var(--blue); }}
-        .section {{ width: 100%; max-width: 600px; background: var(--card); border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; box-sizing: border-box; }}
-        .sec-title {{ color: var(--blue); font-size: 0.8rem; margin-bottom: 12px; border-bottom: 1px solid #222; padding-bottom: 5px; font-weight: bold; }}
-        .met-box {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 5px; background: #000; padding: 12px; border: 1px solid #1a1a1a; text-align: center; }}
-        .raw-text {{ font-size: 0.75rem; color: #666; line-height: 1.4; padding: 10px; border-top: 1px solid #222; margin-top: 10px; }}
+        :root {{ --blue: #00aaff; --bg: #050505; --card: #111; --border: #222; }}
+        body {{ font-family: 'Courier New', Courier, monospace; background: var(--bg); color: #ccc; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }}
+        .header {{ width: 100%; max-width: 600px; border-bottom: 2px solid var(--border); padding: 10px 0; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }}
+        .grid {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 600px; margin-bottom: 10px; }}
+        .card {{ background: var(--card); padding: 12px 5px; border-radius: 4px; text-align: center; border: 1px solid var(--border); }}
+        .label {{ font-size: 0.65rem; color: #555; margin-bottom: 4px; font-weight: bold; }}
+        .value {{ font-size: 1.5rem; font-weight: bold; color: var(--blue); }}
+        .section {{ width: 100%; max-width: 600px; background: var(--card); border: 1px solid var(--border); padding: 15px; margin-bottom: 10px; box-sizing: border-box; }}
+        .sec-title {{ color: var(--blue); font-size: 0.75rem; margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 5px; font-weight: bold; }}
+        .met-box {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; background: #000; padding: 10px; border: 1px solid #1a1a1a; text-align: center; margin-bottom: 10px; }}
+        .rcc-box {{ display: flex; justify-content: space-between; align-items: center; background: #001a33; padding: 10px; border-radius: 4px; border: 1px solid #003366; }}
+        .raw-text {{ font-size: 0.7rem; color: #444; line-height: 1.3; text-align: justify; margin-top:10px; }}
     </style>
 </head>
 <body>
     <div class="header">
         <div style="font-weight: bold;">TALLINN/EETN ATIS</div>
-        <div style="color: #444; font-size: 0.8rem;">{now} UTC</div>
+        <div style="color: #444; font-size: 0.75rem;">{now} UTC</div>
     </div>
     <div class="grid">
         <div class="card"><div class="label">INFO</div><div class="value">{info}</div></div>
@@ -86,15 +100,23 @@ html = f'''
     <div class="section">
         <div class="sec-title">METEOROLOGICAL DATA</div>
         <div class="met-box">
-            <div><span style="color:#444; font-size:0.6rem;">WIND</span><br><span style="font-size:1.1rem; font-weight:bold; color:#eee;">{wind}</span></div>
-            <div><span style="color:#444; font-size:0.6rem;">TEMP / DEW</span><br><span style="font-size:1.1rem; font-weight:bold; color:#eee;">{temp_dew}</span></div>
+            <div><span style="color:#444; font-size:0.55rem;">WIND</span><br><span style="color:#eee; font-size:0.9rem;">{wind}</span></div>
+            <div><span style="color:#444; font-size:0.55rem;">VIS</span><br><span style="color:#eee; font-size:0.9rem;">{vis}</span></div>
+            <div><span style="color:#444; font-size:0.55rem;">T/D</span><br><span style="color:#eee; font-size:0.9rem;">{temp_dew}</span></div>
         </div>
     </div>
     <div class="section">
-        <div class="sec-title">RAW TRANSCRIPTION</div>
+        <div class="sec-title">RUNWAY CONDITION REPORT</div>
+        <div class="rcc-box">
+            <div><span style="color:#00aaff; font-size:0.6rem; font-weight:bold;">RCC:</span> <span style="font-size:1.1rem; color:#fff;">{rcc}</span></div>
+            <div><span style="color:#00aaff; font-size:0.6rem; font-weight:bold;">STATE:</span> <span style="font-size:0.8rem; color:#fff;">{contamination}</span></div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="sec-title">RAW DATA ANALYZED</div>
         <div class="raw-text">{atis_text}</div>
     </div>
-    <div style="font-size: 0.6rem; color: #222; margin-top: 10px; letter-spacing: 2px;">DATALINK ATIS MONITOR</div>
+    <div style="font-size: 0.55rem; color: #222; margin-top: 5px; letter-spacing: 2px;">EETN DIGITAL ATIS MONITOR</div>
 </body>
 </html>
 '''
