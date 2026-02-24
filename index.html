@@ -6,25 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EETN ATIS</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #000; color: #fff; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .header { width: 100%; max-width: 500px; text-align: center; border-bottom: 1px solid #222; padding: 10px 0; margin-bottom: 15px; color:#888; font-weight:bold; letter-spacing:2px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 500px; margin-bottom: 20px; }
-        .card { background: #111; padding: 15px 5px; border-radius: 12px; text-align: center; border: 1px solid #333; }
-        .label { font-size: 0.7rem; color: #007bff; font-weight: bold; margin-bottom: 5px; }
-        .val { font-size: 1.6rem; font-weight: bold; }
-        .content { width: 100%; max-width: 500px; }
-        .line { background: #161616; margin-bottom: 8px; padding: 12px; border-radius: 8px; font-size: 1rem; line-height: 1.4; border-left: 4px solid #007bff; text-transform: uppercase; }
-        .footer { margin-top: 20px; font-size: 0.8rem; color: #444; }
+        :root { --neon: #00d4ff; --bg: #050505; --card: #121212; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: #eee; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .header { width: 100%; max-width: 600px; display: flex; justify-content: space-between; margin: 10px 0 20px 0; border-left: 4px solid var(--neon); padding-left: 15px; }
+        .airport-id { font-size: 1.4rem; font-weight: 800; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 600px; margin-bottom: 10px; }
+        .card { background: var(--card); padding: 20px 10px; border-radius: 12px; text-align: center; border: 1px solid #222; }
+        .label { font-size: 0.65rem; color: var(--neon); font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
+        .value { font-size: 1.8rem; font-weight: 700; font-family: monospace; }
+        .sec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 600px; margin-bottom: 20px; }
+        .small-card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.9rem; }
+        .content { width: 100%; max-width: 600px; background: #0a0a0a; border-radius: 16px; border: 1px solid #1a1a1a; }
+        .line { padding: 15px; font-size: 0.95rem; line-height: 1.5; color: #bbb; border-bottom: 1px solid #1a1a1a; text-transform: uppercase; }
+        .line span { color: var(--neon); margin-right: 10px; }
+        .footer { margin-top: 20px; font-size: 0.7rem; color: #444; }
     </style>
 </head>
 <body>
-    <div class="header">TALLINN EETN ATIS</div>
+    <div class="header"><div class="airport-id">TALLINN <span style="color:var(--neon)">EETN</span></div><div style="font-size:0.8rem;color:#666;">12:05 UTC</div></div>
     <div class="grid">
-        <div class="card"><div class="label">INFO</div><div class="val">ZULU</div></div>
-        <div class="card"><div class="label">RWY</div><div class="val">08</div></div>
-        <div class="card"><div class="label">QNH</div><div class="val">1013</div></div>
+        <div class="card"><div class="label">INFORMATION</div><div class="value">ZULU</div></div>
+        <div class="card"><div class="label">RUNWAY</div><div class="value">08</div></div>
+        <div class="card"><div class="label">QNH</div><div class="value">1013</div></div>
     </div>
-    <div class="content"><div class="line">✈️ Tallinn Airport, information, Zulu, time, 1150, expect ILS approach, Runway 08 in use.</div><div class="line">✈️ Runway 08, condition report time at 0853, Runway condition code, touchdown, 5, midpoint, 5, stop-end, 6, deposit, touchdown, 50%, wet, midpoint, 50%, wet, stop-end, 25%, wet.</div><div class="line">✈️ Transition level 65, bird activity in Leusenity Airport, wind, Runway 08, touchdown zone, 050°, 7 knots variable, between 010° and 070°, stop-end, 060°, 8 knots variable,  between 020° and 080°, CAVOK, temperature, minus 3, dewpoint, minus 6, QNH, 1013, Hectopascalss, trend, NOSIG, information, Zulu,  out.</div></div>
-    <div class="footer">MAJ : 12:04 UTC</div>
+    <div class="sec-grid">
+        <div class="small-card"><span class="label">WIND</span>050° / 07KT</div>
+        <div class="small-card"><span class="label">TEMP/DEW</span>-3° / -6°</div>
+    </div>
+    <div class="content"><div class="line"><span>•</span> Tallinn Airport , information, Zulu, time, 1150expect ILS approach, Runway 08 in use, Runway 08condition report time at 0853Runway condition code touchdown, 5midpoint, 5top-end, 6deposit, touchdown, 50%, wet, midpoint, 50%, wet, top-end, 25%, wet, transition level 65bird activity in vicinity of airport,  wind, Runway 08touchdown zone, 050 degrees, 7 knots, variable, between 010 degrees and 070 degrees, stop-end, 060 degrees, 8 knots, variable, between 020 degrees and 080 degrees, CAVOK,  temperature, minus 3dewpoint, minus 6QNH 1013Hectopascalss, Trend, NOSIG, information, Zulu, out.</div></div>
+    <div class="footer">EETN ATIS MONITOR • AUTO-UPDATED</div>
 </body>
 </html>
