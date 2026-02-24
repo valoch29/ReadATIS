@@ -1,35 +1,43 @@
 import os
+import re
 from faster_whisper import WhisperModel
 
+# Chargement du modèle
 model = WhisperModel("medium.en", device="cpu", compute_type="int8")
 
 def transcribe():
-    prompt = "Tallinn Airport ATIS, Information, Runway, QNH, Hectopascals, CAVOK, NOSIG, touchdown, midpoint, stop-end."
+    # Prompt pour guider l'IA vers le vocabulaire aéronautique
+    prompt = "Tallinn Airport ATIS, Information Yankee, Runway 08, QNH 1013, Hectopascals, CAVOK, NOSIG, touchdown, midpoint, stop-end, vicinity of the airport."
     segments, _ = model.transcribe("atis_recorded.wav", beam_size=5, initial_prompt=prompt)
     
     text = " ".join([s.text for s in segments])
     
+    # --- NETTOYAGE ---
     corrections = {
-        "business, Tallinn Airport": "Tallinn Airport",
-        "business Tallinn Airport": "Tallinn Airport",
+        "West Hennessy Airport": "vicinity of the airport",
+        "West Phoenix Hill": "vicinity of the airport",
         "CAVCAVOK": "CAVOK",
         "CAV OK": "CAVOK",
-        "Meat point": "Midpoint",
-        "meat point": "midpoint",
         "Hectopascal": "Hectopascals",
-        "niner": "9",
-        "NOS, ": "", 
-        "0, 8, 5, 3": "0853",
-        "1, 1, 2, 0": "1120"
+        "condition report, sorry, Matt": "condition report time",
+        "climb": "time",
+        "Meat point": "Midpoint",
+        "meat point": "midpoint"
     }
     
     for search, replace in corrections.items():
         text = text.replace(search, replace)
 
+    # Correction des chiffres espacés : "1, 0, 1, 3" -> "1013"
+    text = re.sub(r'(\d),\s*', r'\1', text) 
+
+    # On ne garde qu'une seule itération du message
     if "Tallinn Airport" in text:
         parts = text.split("Tallinn Airport")
-        if len(parts) > 1:
-            text = "Tallinn Airport" + parts[1].split("out")[0] + " out"
+        text = "Tallinn Airport " + parts[1].split("out")[0].strip() + " out."
+    elif "Information" in text:
+        parts = text.split("Information")
+        text = "Information " + parts[1].split("out")[0].strip() + " out."
 
     with open("atis_transcribed.txt", "w", encoding="utf-8") as f:
         f.write(text)
