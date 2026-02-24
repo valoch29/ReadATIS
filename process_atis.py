@@ -10,22 +10,26 @@ def transcribe():
     text = " ".join([s.text for s in segments])
     
     corrections = {
-        "business travelling airport": "This is Tallinn Airport",
+        "business, Tallinn Airport": "Tallinn Airport",
+        "business Tallinn Airport": "Tallinn Airport",
+        "CAVCAVOK": "CAVOK",
+        "CAV OK": "CAVOK",
+        "Meat point": "Midpoint",
         "meat point": "midpoint",
-        "pack down": "touchdown",
-        "top end": "stop-end",
-        "OK": "CAVOK",
-        "West Phoenix Hill": "vicinity of the",
+        "Hectopascal": "Hectopascals",
         "niner": "9",
-        "  ": " "
+        "NOS, ": "", 
+        "0, 8, 5, 3": "0853",
+        "1, 1, 2, 0": "1120"
     }
     
     for search, replace in corrections.items():
         text = text.replace(search, replace)
 
-    # On essaye de ne garder qu'un seul message propre
-    if "This is Tallinn Airport" in text:
-        text = "This is Tallinn Airport" + text.split("This is Tallinn Airport")[1].split("out")[0] + " out"
+    if "Tallinn Airport" in text:
+        parts = text.split("Tallinn Airport")
+        if len(parts) > 1:
+            text = "Tallinn Airport" + parts[1].split("out")[0] + " out"
 
     with open("atis_transcribed.txt", "w", encoding="utf-8") as f:
         f.write(text)
