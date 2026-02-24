@@ -7,23 +7,24 @@
     <title>EETN ATIS PRO</title>
     <style>
         :root { --blue: #00aaff; --bg: #080808; --card: #151515; --border: #252525; }
-        body { font-family: 'Courier New', Courier, monospace; background: var(--bg); color: #ddd; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }
+        body { font-family: 'Courier New', Courier, monospace; background: var(--bg); color: #ddd; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }
         .header { width: 100%; max-width: 650px; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; width: 100%; max-width: 650px; margin-bottom: 20px; }
-        .card { background: var(--card); padding: 15px; border-radius: 4px; text-align: center; border: 1px solid var(--border); }
-        .label { font-size: 0.75rem; color: #777; margin-bottom: 5px; }
-        .value { font-size: 1.8rem; font-weight: bold; color: var(--blue); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 650px; margin-bottom: 15px; }
+        .card { background: var(--card); padding: 15px 5px; border-radius: 4px; text-align: center; border: 1px solid var(--border); }
+        .label { font-size: 0.7rem; color: #666; margin-bottom: 5px; }
+        .value { font-size: 1.6rem; font-weight: bold; color: var(--blue); }
         .container { width: 100%; max-width: 650px; }
         .section { background: var(--card); border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; border-radius: 4px; }
-        .sec-title { color: var(--blue); font-size: 0.8rem; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-        .item { font-size: 0.9rem; line-height: 1.5; color: #aaa; margin-bottom: 8px; border-left: 2px solid #333; padding-left: 10px; }
-        .footer { margin-top: 30px; font-size: 0.7rem; color: #444; letter-spacing: 1px; }
+        .sec-title { color: var(--blue); font-size: 0.8rem; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; font-weight:bold; }
+        .item { font-size: 0.85rem; line-height: 1.4; color: #aaa; margin-bottom: 8px; border-left: 2px solid #333; padding-left: 10px; }
+        .footer { margin-top: 20px; font-size: 0.7rem; color: #333; letter-spacing: 1px; text-align:center; }
+        .met-box { display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px; background:#000; padding:10px; border:1px solid #111; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div style="font-size: 1.2rem; font-weight: bold;">TALLINN / EETN ATIS</div>
-        <div style="color: #666;">12:10 UTC</div>
+        <div style="font-size: 1.1rem; font-weight: bold;">TALLINN / EETN ATIS</div>
+        <div style="color: #666;">12:14 UTC</div>
     </div>
 
     <div class="grid">
@@ -35,19 +36,19 @@
     <div class="container">
         <div class="section">
             <div class="sec-title">METEOROLOGICAL DATA</div>
-            <div style="display:flex; justify-content:space-around; margin-bottom:15px; background:#000; padding:10px;">
-                <div><span style="color:#555; font-size:0.7rem;">WIND:</span> --- / --KT</div>
-                <div><span style="color:#555; font-size:0.7rem;">T/D:</span> -- / --</div>
+            <div class="met-box">
+                <div><span style="color:#444; font-size:0.6rem;">WIND:</span><br>--- / --KT</div>
+                <div><span style="color:#444; font-size:0.6rem;">TEMP/DEW:</span><br>-- / --</div>
             </div>
-            <div class="item">TEMPERATURE</div><div class="item">MINUS 3DEWPOINT</div>
+            <div class="item">TEMPERATURE</div><div class="item">MINUS 3 DEWPOINT</div>
         </div>
 
         <div class="section">
-            <div class="sec-title">RUNWAY STATUS & FACILITIES</div>
-            <div class="item">RUNWAY 08 IN USE.  RUNWAY 08CONDITION REPORT TIME AT 0853RUNWAY CONDITION CODE</div><div class="item">TOUCHDOWN</div><div class="item">TOUCHDOWN</div><div class="item">RUNWAY 08TOUCHSTONE ZONE</div>
+            <div class="sec-title">RUNWAY STATUS</div>
+            <div class="item">RUNWAY 08 CONDITION REPORT TIME AT 0853 RUNWAY CONDITION CODE</div><div class="item">TOUCHDOWN</div><div class="item">5 MIDPOINT</div>
         </div>
     </div>
 
-    <div class="footer">DATALINK ATIS SOURCE • TALLINN ESTONIA</div>
+    <div class="footer">DATALINK ATIS SOURCE • EETN MONITOR</div>
 </body>
 </html>
