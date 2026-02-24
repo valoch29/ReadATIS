@@ -3,51 +3,59 @@ import os
 import re
 
 atis_text = "WAITING FOR DATA..."
-info, qnh, rwy, wind, temp_dew = "-", "----", "--", "--- / --KT", "-- / --"
+info, qnh, rwy, wind, temp_dew, vis, trans = "-", "----", "--", "--- / --KT", "-- / --", "---", "---"
 
 if os.path.exists("atis_transcribed.txt"):
     with open("atis_transcribed.txt", "r", encoding="utf-8") as f:
-        # 1. On récupère le texte et on force les espaces entre chiffres et lettres
         raw = f.read().upper()
+        # On nettoie les caractères parasites pour l'analyse
         atis_text = re.sub(r'(\d)([A-Z])', r'\1 \2', raw)
         atis_text = re.sub(r'([A-Z])(\d)', r'\1 \2', atis_text)
+        clean_text = atis_text.replace("-", " ").replace(",", " ").replace(".", " ")
 
-    # 2. Nettoyage spécifique pour les badges (on enlève tirets/virgules)
-    search_text = re.sub(r'(\d)[-,\s]+(?=\d)', r'\1', atis_text)
+    # --- LOGIQUE D'EXTRACTION PAR ANCRES ---
 
-    # 3. Extraction Badges (Regex plus souple)
-    def get_match(pattern, text):
-        m = re.search(pattern, text, re.IGNORECASE)
-        return m.group(1).upper() if m else None
+    def extract_after(anchor, text, length=10, is_digit=True):
+        match = re.search(f"{anchor}\s*(.{{1,{length}}})", text)
+        if match:
+            val = match.group(1)
+            if is_digit:
+                digits = re.sub(r'\D', '', val)
+                return digits if digits else None
+            return val.strip().split()[0]
+        return None
 
-    info = get_match(r"INFORMATION\s+([A-Z]+)", search_text) or "-"
-    qnh = get_match(r"QNH\s*(\d{4})", search_text) or "----"
-    rwy = get_match(r"RUNWAY\s*(\d{2})", search_text) or "--"
-    
-    # 4. Extraction Vent (cherche "XXX DEGREES X KNOTS" ou juste "XXX/XX")
-    w_m = re.search(r"(\d{3})\s*(?:DEGREES)?\s*(\d+)\s*KNOTS", search_text)
-    if w_m:
-        wind = f"{w_m.group(1)}° / {w_m.group(2).zfill(2)}KT"
-    
-    # 5. Extraction Temp/Dew (plus robuste aux mots collés)
-    t_m = re.search(r"TEMPERATURE\s*(?:MINUS\s*)?(\d+)", search_text)
-    d_m = re.search(r"DEWPOINT\s*(?:MINUS\s*)?(\d+)", search_text)
-    if t_m and d_m:
-        t_val = t_m.group(1)
-        d_val = d_m.group(1)
-        # Vérifie si "MINUS" est présent avant le chiffre
-        t_prefix = "-" if "MINUS" in atis_text.split("TEMPERATURE")[1].split("DEWPOINT")[0] else ""
-        d_prefix = "-" if "MINUS" in atis_text.split("DEWPOINT")[1] else ""
-        temp_dew = f"{t_prefix}{t_val}° / {d_prefix}{d_val}°"
+    # 1. INFO & RUNWAY
+    info = extract_after("INFORMATION", clean_text, is_digit=False) or "-"
+    rwy = extract_after("RUNWAY", clean_text, length=5) or "--"
+    if len(rwy) > 2: rwy = rwy[:2]
 
-# 6. Découpage et Tri
-sentences = [s.strip() for s in atis_text.replace('.', ',').split(',') if len(s.strip()) > 5]
-unique_sentences = []
-for s in sentences:
-    if s not in unique_sentences: unique_sentences.append(s)
+    # 2. QNH (Ancre QNH)
+    qnh = extract_after("QNH", clean_text, length=15) or "----"
+    if len(qnh) > 4: qnh = qnh[:4]
 
-rwy_data = [s for s in unique_sentences if any(x in s for x in ["CONDITION", "TOUCHDOWN", "MIDPOINT", "WET", "STOP-END", "IN USE"])]
-met_data = [s for s in unique_sentences if any(x in s for x in ["WIND", "CAVOK", "TEMPERATURE", "NOSIG", "DEWPOINT", "DEGREES"])]
+    # 3. VISIBILITÉ (Ancre CAVOK ou VISIBILITY)
+    if "CAVOK" in clean_text:
+        vis = "CAVOK"
+    else:
+        v_match = re.search(r"VISIBILITY\s*(\d+)", clean_text)
+        vis = v_match.group(1) + "M" if v_match else "---"
+
+    # 4. VENT (Ancre DEGREES)
+    w_match = re.search(r"(\d{3})\s*DEGREES\s*(\d+)", clean_text)
+    if w_match:
+        wind = f"{w_match.group(1)}° / {w_match.group(2).zfill(2)}KT"
+
+    # 5. TEMP / DEW (Ancres dédiées)
+    t_context = re.search(r"TEMPERATURE\s*(.*?)\s*(\d+)", clean_text)
+    d_context = re.search(r"DEWPOINT\s*(.*?)\s*(\d+)", clean_text)
+    t_val = ("-" if t_context and "MINUS" in t_context.group(1) else "") + (t_context.group(2) if t_context else "--")
+    d_val = ("-" if d_context and "MINUS" in d_context.group(1) else "") + (d_context.group(2) if d_context else "--")
+    temp_dew = f"{t_val}° / {d_val}°"
+
+    # 6. NIVEAU DE TRANSITION (Ancre TRANSITION)
+    trans_match = re.search(r"TRANSITION LEVEL\s*(\d+)", clean_text)
+    trans = "FL" + trans_match.group(1) if trans_match else "---"
 
 now = datetime.datetime.now().strftime("%H:%M")
 
@@ -59,23 +67,23 @@ html = f'''
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EETN ATIS PRO</title>
     <style>
-        :root {{ --blue: #00aaff; --bg: #080808; --card: #121212; --border: #222; }}
-        body {{ font-family: 'Courier New', Courier, monospace; background: var(--bg); color: #ccc; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }}
-        .header {{ width: 100%; max-width: 600px; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }}
-        .grid {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 600px; margin-bottom: 15px; }}
-        .card {{ background: var(--card); padding: 15px 5px; border-radius: 4px; text-align: center; border: 1px solid var(--border); }}
-        .label {{ font-size: 0.7rem; color: #555; margin-bottom: 5px; font-weight: bold; }}
-        .value {{ font-size: 1.6rem; font-weight: bold; color: var(--blue); }}
-        .section {{ width: 100%; max-width: 600px; background: var(--card); border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; box-sizing: border-box; }}
-        .sec-title {{ color: var(--blue); font-size: 0.8rem; margin-bottom: 12px; border-bottom: 1px solid #222; padding-bottom: 5px; font-weight: bold; }}
-        .met-box {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; background: #000; padding: 10px; border: 1px solid #1a1a1a; }}
-        .item {{ font-size: 0.85rem; line-height: 1.4; color: #999; margin-bottom: 8px; border-left: 3px solid #222; padding-left: 10px; }}
+        :root {{ --blue: #00aaff; --bg: #050505; --card: #111; --border: #222; }}
+        body {{ font-family: 'Courier New', Courier, monospace; background: var(--bg); color: #ccc; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }}
+        .header {{ width: 100%; max-width: 600px; border-bottom: 2px solid var(--border); padding: 10px 0; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }}
+        .grid {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 600px; margin-bottom: 10px; }}
+        .card {{ background: var(--card); padding: 12px 5px; border-radius: 4px; text-align: center; border: 1px solid var(--border); }}
+        .label {{ font-size: 0.65rem; color: #555; margin-bottom: 4px; font-weight: bold; }}
+        .value {{ font-size: 1.5rem; font-weight: bold; color: var(--blue); }}
+        .section {{ width: 100%; max-width: 600px; background: var(--card); border: 1px solid var(--border); padding: 15px; margin-bottom: 10px; box-sizing: border-box; }}
+        .sec-title {{ color: var(--blue); font-size: 0.75rem; margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 5px; font-weight: bold; }}
+        .met-box {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; background: #000; padding: 10px; border: 1px solid #1a1a1a; text-align: center; margin-bottom: 10px; }}
+        .raw-text {{ font-size: 0.7rem; color: #444; line-height: 1.3; text-align: justify; }}
     </style>
 </head>
 <body>
     <div class="header">
         <div style="font-weight: bold;">TALLINN/EETN ATIS</div>
-        <div style="color: #444; font-size: 0.8rem;">{now} UTC</div>
+        <div style="color: #444; font-size: 0.75rem;">{now} UTC</div>
     </div>
     <div class="grid">
         <div class="card"><div class="label">INFO</div><div class="value">{info}</div></div>
@@ -85,16 +93,17 @@ html = f'''
     <div class="section">
         <div class="sec-title">METEOROLOGICAL DATA</div>
         <div class="met-box">
-            <div><span style="color:#444; font-size:0.6rem;">WIND</span><br>{wind}</div>
-            <div><span style="color:#444; font-size:0.6rem;">T / D</span><br>{temp_dew}</div>
+            <div><span style="color:#444; font-size:0.55rem;">WIND</span><br><span style="color:#eee; font-size:0.9rem;">{wind}</span></div>
+            <div><span style="color:#444; font-size:0.55rem;">VIS</span><br><span style="color:#eee; font-size:0.9rem;">{vis}</span></div>
+            <div><span style="color:#444; font-size:0.55rem;">T/D</span><br><span style="color:#eee; font-size:0.9rem;">{temp_dew}</span></div>
         </div>
-        {"".join([f'<div class="item">{s}</div>' for s in met_data if "DEGREES" not in s])}
+        <div style="font-size: 0.8rem; color: #888;">TRANSITION LEVEL: <span style="color:var(--blue)">{trans}</span></div>
     </div>
     <div class="section">
-        <div class="sec-title">RUNWAY STATUS</div>
-        {"".join([f'<div class="item">{s}</div>' for s in rwy_data])}
+        <div class="sec-title">RAW DATA ANALYZED</div>
+        <div class="raw-text">{atis_text}</div>
     </div>
-    <div style="font-size: 0.6rem; color: #222; margin-top: 10px;">DATALINK ATIS MONITOR</div>
+    <div style="font-size: 0.55rem; color: #222; margin-top: 5px; letter-spacing: 2px;">EETN DIGITAL ATIS MONITOR</div>
 </body>
 </html>
 '''
