@@ -2,46 +2,40 @@ import datetime
 import os
 import re
 
-atis_text = "Waiting for data..."
+atis_text = "WAITING FOR DATA..."
 info, qnh, rwy, wind, temp_dew = "-", "----", "--", "--- / --KT", "-- / --"
 
 if os.path.exists("atis_transcribed.txt"):
     with open("atis_transcribed.txt", "r", encoding="utf-8") as f:
-        atis_text = f.read()
+        atis_text = f.read().upper() # Tout en majuscules pour le look Pro
     
-    # Nettoyage profond pour la recherche : on enlève les tirets et virgules dans les chiffres
+    # Nettoyage pour les badges
     search_text = re.sub(r'(\d)[-,\s]+(?=\d)', r'\1', atis_text)
 
-    # Extraction des données
+    # Extraction
     def get_match(pattern, text):
         m = re.search(pattern, text, re.IGNORECASE)
         return m.group(1).upper() if m else None
 
-    info = get_match(r"Information\s+([a-zA-Z]+)", search_text) or "-"
+    info = get_match(r"INFORMATION\s+([A-Z]+)", search_text) or "-"
     qnh = get_match(r"QNH\s*(\d{4})", search_text) or "----"
-    rwy = get_match(r"Runway\s*(\d{2})", search_text) or "--"
+    rwy = get_match(r"RUNWAY\s*(\d{2})", search_text) or "--"
     
     # Vent et Temp
-    w_m = re.search(r"(\d{3})\s*degrees\s*(\d+)\s*knots", search_text, re.IGNORECASE)
+    w_m = re.search(r"(\d{3})\s*DEGREES\s*(\d+)\s*KNOTS", search_text)
     if w_m: wind = f"{w_m.group(1)} / {w_m.group(2).zfill(2)}KT"
     
-    t_m = re.search(r"temperature\s*(?:minus\s*)?(\d+)", search_text, re.IGNORECASE)
-    d_m = re.search(r"dewpoint\s*(?:minus\s*)?(\d+)", search_text, re.IGNORECASE)
+    t_m = re.search(r"TEMPERATURE\s*(?:MINUS\s*)?(\d+)", search_text)
+    d_m = re.search(r"DEWPOINT\s*(?:MINUS\s*)?(\d+)", search_text)
     if t_m and d_m:
-        t = f"-{t_m.group(1)}" if "minus" in atis_text.lower().split("temperature")[1] else t_m.group(1)
-        d = f"-{d_m.group(1)}" if "minus" in atis_text.lower().split("dewpoint")[1] else d_m.group(1)
+        t = f"-{t_m.group(1)}" if "MINUS" in atis_text.split("TEMPERATURE")[1] else t_m.group(1)
+        d = f"-{d_m.group(1)}" if "MINUS" in atis_text.split("DEWPOINT")[1] else d_m.group(1)
         temp_dew = f"{t} / {d}"
 
-# Séparation par catégories
-lines = [s.strip().upper() for s in atis_text.split('.') if len(s.strip()) > 5]
-rwy_lines = [l for l in lines if any(x in l for x in ["RUNWAY", "CONDITION", "WET", "CODE"])]
-met_lines = [l for l in lines if any(x in l for x in ["WIND", "CAVOK", "TEMPERATURE", "NOSIG", "DEWPOINT"])]
-misc_lines = [l for l in lines if l not in rwy_lines and l not in met_lines]
-
-def format_section(title, content):
-    if not content: return ""
-    items = "".join([f'<div class="item">{item}.</div>' for item in content])
-    return f'<div class="section"><div class="sec-title">{title}</div>{items}</div>'
+# Tri par blocs logiques
+sentences = [s.strip() for s in atis_text.split(',') if len(s.strip()) > 5]
+rwy_data = [s for s in sentences if any(x in s for x in ["RUNWAY", "CONDITION", "WET", "CODE", "TOUCHDOWN"])]
+met_data = [s for s in sentences if any(x in s for x in ["WIND", "CAVOK", "TEMPERATURE", "NOSIG", "DEWPOINT", "VISIBILITY"])]
 
 now = datetime.datetime.now().strftime("%H:%M")
 
@@ -51,43 +45,51 @@ html = f'''
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EETN ATIS</title>
+    <title>EETN ATIS PRO</title>
     <style>
-        :root {{ --blue: #007aff; --bg: #000; --card: #111; --text: #eee; }}
-        body {{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }}
-        .header {{ width: 100%; max-width: 600px; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }}
-        .grid {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 600px; margin-bottom: 20px; }}
-        .card {{ background: var(--card); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #222; }}
-        .label {{ font-size: 0.7rem; color: #666; font-weight: bold; margin-bottom: 5px; }}
-        .value {{ font-size: 1.6rem; font-weight: bold; color: var(--blue); }}
-        .container {{ width: 100%; max-width: 600px; }}
-        .section {{ margin-bottom: 25px; }}
-        .sec-title {{ font-size: 0.8rem; color: #444; border-bottom: 1px solid #222; padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; }}
-        .item {{ font-size: 0.95rem; line-height: 1.6; color: #bbb; margin-bottom: 5px; }}
-        .footer {{ margin-top: 30px; font-size: 0.7rem; color: #333; }}
+        :root {{ --blue: #00aaff; --bg: #080808; --card: #151515; --border: #252525; }}
+        body {{ font-family: 'Courier New', Courier, monospace; background: var(--bg); color: #ddd; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }}
+        .header {{ width: 100%; max-width: 650px; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }}
+        .grid {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; width: 100%; max-width: 650px; margin-bottom: 20px; }}
+        .card {{ background: var(--card); padding: 15px; border-radius: 4px; text-align: center; border: 1px solid var(--border); }}
+        .label {{ font-size: 0.75rem; color: #777; margin-bottom: 5px; }}
+        .value {{ font-size: 1.8rem; font-weight: bold; color: var(--blue); }}
+        .container {{ width: 100%; max-width: 650px; }}
+        .section {{ background: var(--card); border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; border-radius: 4px; }}
+        .sec-title {{ color: var(--blue); font-size: 0.8rem; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }}
+        .item {{ font-size: 0.9rem; line-height: 1.5; color: #aaa; margin-bottom: 8px; border-left: 2px solid #333; padding-left: 10px; }}
+        .footer {{ margin-top: 30px; font-size: 0.7rem; color: #444; letter-spacing: 1px; }}
     </style>
 </head>
 <body>
     <div class="header">
-        <div style="font-weight:bold; letter-spacing:1px;">EETN / TALLINN ATIS</div>
-        <div style="font-size:0.8rem; color:#666;">{now} UTC</div>
+        <div style="font-size: 1.2rem; font-weight: bold;">TALLINN / EETN ATIS</div>
+        <div style="color: #666;">{now} UTC</div>
     </div>
+
     <div class="grid">
         <div class="card"><div class="label">INFO</div><div class="value">{info}</div></div>
         <div class="card"><div class="label">RWY</div><div class="value">{rwy}</div></div>
         <div class="card"><div class="label">QNH</div><div class="value">{qnh}</div></div>
     </div>
+
     <div class="container">
         <div class="section">
             <div class="sec-title">METEOROLOGICAL DATA</div>
-            <div class="item">WIND: {wind}</div>
-            <div class="item">TEMP/DEW: {temp_dew}</div>
-            {"".join([f'<div class="item">{l}.</div>' for l in met_lines])}
+            <div style="display:flex; justify-content:space-around; margin-bottom:15px; background:#000; padding:10px;">
+                <div><span style="color:#555; font-size:0.7rem;">WIND:</span> {wind}</div>
+                <div><span style="color:#555; font-size:0.7rem;">T/D:</span> {temp_dew}</div>
+            </div>
+            {"".join([f'<div class="item">{s}</div>' for s in met_data if "WIND" not in s])}
         </div>
-        {format_section("RUNWAY STATUS", rwy_lines)}
-        {format_section("OTHER INFORMATION", misc_lines)}
+
+        <div class="section">
+            <div class="sec-title">RUNWAY STATUS & FACILITIES</div>
+            {"".join([f'<div class="item">{s}</div>' for s in rwy_data])}
+        </div>
     </div>
-    <div class="footer">TERMINAL INFORMATION SERVICE • AUTOMATED DATA</div>
+
+    <div class="footer">DATALINK ATIS SOURCE • TALLINN ESTONIA</div>
 </body>
 </html>
 '''
