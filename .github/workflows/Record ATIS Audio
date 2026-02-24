@@ -1,0 +1,29 @@
+name: 1. Record ATIS Audio
+on:
+  schedule:
+    - cron: '25 * * * *'
+    - cron: '55 * * * *'
+  workflow_dispatch:
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Record Audio (180s)
+        run: ffmpeg -i https://icecast.kobly.com/eetn2_atis -t 180 -acodec pcm_s16le -ar 16000 atis_recorded.wav -y
+
+      - name: Commit Audio
+        run: |
+          git config --global user.name 'ATIS-Recorder'
+          git config --global user.email 'bot@github.com'
+          git add atis_recorded.wav
+          git commit -m "New Audio Recording" || exit 0
+          git push origin main
