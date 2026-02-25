@@ -1,21 +1,45 @@
 
         <!DOCTYPE html>
-        <html>
+        <html lang="fr">
         <head>
-            <title>ATIS TALLINN</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>ATIS TALLINN LIVE</title>
             <style>
-                body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
-                .box { border: 1px solid #0f0; padding: 20px; max-width: 800px; margin: auto; }
-                .msg { font-size: 1.5em; margin: 20px 0; color: #fff; }
-                .raw { color: #444; font-size: 0.8em; }
+                :root { --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --accent: #ffffff; --border: #333; }
+                body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
+                .container { max-width: 800px; width: 100%; }
+                header { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: baseline; }
+                h1 { font-size: 1.2rem; letter-spacing: 2px; color: var(--accent); margin: 0; }
+                .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
+                .stat-card { background: var(--card); padding: 15px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
+                .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; margin-bottom: 5px; }
+                .stat-value { font-size: 1.4rem; font-weight: bold; color: var(--accent); }
+                .main-msg { background: var(--card); padding: 25px; border-radius: 12px; line-height: 1.6; font-size: 1.1rem; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.3); white-space: pre-wrap; }
+                .raw-zone { margin-top: 30px; font-size: 0.75rem; color: #555; font-family: monospace; }
+                .footer { margin-top: 40px; font-size: 0.7rem; color: #444; text-align: center; text-transform: uppercase; }
             </style>
         </head>
         <body>
-            <div class="box">
-                <h1>TALLINN ATIS LIVE</h1>
-                <div class="msg">THIS IS STARWING AIRPORT. INFORMATION, UNICORN. TIME, 09.20, EXPECT ILS APPROACH.  RUNWAY 08 IN USE. RUNWAY 08, CONDITION REPORT TIME AT 08.56.  RUN THE CONDITION CODE PACHYDOWN, 6 MIDPOINT, 6 STOP END, 6 DEPOSIT.  PACHYDOWN, 25% WET.  MIDPOINT, 25% WET.  STOP END, 25% WET.  TRANSITION LEVEL, 6-0, BIRD ACTIVITY IN WET FINISH OF AIRPORT.  WIND RUNWAY, 08 PACHYDOWN ZONE, 110 DEGREES, 5 KNOTS, STOP END, 100 DEGREES, 4 KNOTS, KVK.  TEMPERATURE, MINUS 6, DEW POINT, MINUS 9, QNH, 1026 HECTOPASCAL.  TREND, NO FIT, INFORMATION, UNIFORM, OUT.  THIS IS STARWING AIRPORT, INFORMATION, UNIFORM.  TIME, 09.20, EXPECT ILS APPROACH.  RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT 08.56.  RUN THE CONDITION CODE PACHYDOWN, 6 MIDPOINT, 6 STOP END, 6 DEPOSIT.  PACHYDOWN, 25% WET.  MIDPOINT, 25% WET.  STOP END, 25% WET.  TRANSITION LEVEL, 6-0, BIRD ACTIVITY IN WET FINISH OF AIRPORT.  WIND RUNWAY, 08 PACHYDOWN ZONE.</div>
-                <div class="raw">Brut: THIS IS STARWING AIRPORT. INFORMATION, UNICORN. TIME, 09.20, EXPECT ILS APPROACH.  RUNWAY 08 IN USE. RUNWAY 08, CONDITION REPORT TIME AT 08.56.  RUN THE CONDITION CODE PACHYDOWN, 6 MIDPOINT, 6 STOP END, 6 DEPOSIT.  PACHYDOWN, 25% WET.  MIDPOINT, 25% WET.  STOP END, 25% WET.  TRANSITION LEVEL, 6-0, BIRD ACTIVITY IN WET FINISH OF AIRPORT.  WIND RUNWAY, 08 PACHYDOWN ZONE, 110 DEGREES, 5 KNOTS, STOP END, 100 DEGREES, 4 KNOTS, KVK.  TEMPERATURE, MINUS 6, DEW POINT, MINUS 9, QNH, 1026 HECTOPASCAL.  TREND, NO FIT, INFORMATION, UNIFORM, OUT.  THIS IS STARWING AIRPORT, INFORMATION, UNIFORM.  TIME, 09.20, EXPECT ILS APPROACH.  RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT 08.56.  RUN THE CONDITION CODE PACHYDOWN, 6 MIDPOINT, 6 STOP END, 6 DEPOSIT.  PACHYDOWN, 25% WET.  MIDPOINT, 25% WET.  STOP END, 25% WET.  TRANSITION LEVEL, 6-0, BIRD ACTIVITY IN WET FINISH OF AIRPORT.  WIND RUNWAY, 08 PACHYDOWN ZONE.</div>
-                <div style="text-align:right">09:28 UTC</div>
+            <div class="container">
+                <header>
+                    <h1>TALLINN ATIS</h1>
+                    <div style="font-size: 0.8rem; color: #888;">10:07 UTC</div>
+                </header>
+
+                <div class="grid">
+                    <div class="stat-card"><div class="stat-label">Information</div><div class="stat-value">V</div></div>
+                    <div class="stat-card"><div class="stat-label">QNH</div><div class="stat-value">1026</div></div>
+                    <div class="stat-card"><div class="stat-label">Runway</div><div class="stat-value">08</div></div>
+                </div>
+
+                <div class="main-msg">4 KKNOTSS, CARGO OKAY. TEMPERATURE MINUS 5 DEW POINT MINUS 9ER QNH 1026 HECTOPASCAL.  TREND NO THICK, INFORMATION VICTOR OUT. THIS IS TELLING AIRPORT, INFORMATION VICTOR.  TIME 0, 9ER 50, EXPECT ILS APPROACH RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT 0856.  RUNWAY CONDITION CODE, TOUCH DOWN, 6 MIDPOINT, 6 TOP END, 6 DEPOSITS.  TOUCH DOWN, 25% WET.  MIDPOINT, 25% WET.  TOP END, 25% WET.  TRANSITION LEVEL, 6-0, BIRD ACTIVITY IN VICINITY OF AIRPORT.  WIND RUNWAY, 08, TOUCH DOWN Z1, 0, 9ER, 0 DEGREES, 5 KKNOTSS.  TOP END, 08, 0 DEGREES, 4 KKNOTSS.  TEMPERATURE MINUS 5 DEW POINT MINUS 9ER QNH 1026 HECTOPASCAL.  TREND NO THICK, INFORMATION VICTOR OUT. THIS IS TELLING AIRPORT, INFORMATION VICTOR.  TIME 0, 9ER 50, EXPECT ILS APPROACH RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT 0856.  RUNWAY CONDITION CODE, TOUCH DOWN, 6 MIDPOINT, 6 TOP END, 6 DEPOSITS.  TOUCH DOWN, 25% WET.</div>
+
+                <div class="raw-zone">
+                    <strong>RAW DATA:</strong><br>4 KNOTS, CARGO OKAY. TEMPERATURE MINUS 5 DEW POINT MINUS 9ER QNH 1026 HECTOPASCAL.  TREND NO THICK, INFORMATION VICTOR OUT. THIS IS TELLING AIRPORT, INFORMATION VICTOR.  TIME 0, 9ER 50, EXPECT ILS APPROACH RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT 0856.  RUNWAY CONDITION CODE, TOUCH DOWN, 6 MIDPOINT, 6 TOP END, 6 DEPOSIT.  TOUCH DOWN, 25% WET.  MIDPOINT, 25% WET.  TOP END, 25% WET.  TRANSITION LEVEL, 6-0, BIRD ACTIVITY IN VICINITY OF AIRPORT.  WIND RUNWAY, 08, TOUCH DOWN ZONE, 0, 9ER, 0 DEGREES, 5 KNOTS.  TOP END, 08, 0 DEGREES, 4 KNOTS.  TEMPERATURE MINUS 5 DEW POINT MINUS 9ER QNH 1026 HECTOPASCAL.  TREND NO THICK, INFORMATION VICTOR OUT. THIS IS TELLING AIRPORT, INFORMATION VICTOR.  TIME 0, 9ER 50, EXPECT ILS APPROACH RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT 0856.  RUNWAY CONDITION CODE, TOUCH DOWN, 6 MIDPOINT, 6 TOP END, 6 DEPOSIT.  TOUCH DOWN, 25% WET.
+                </div>
+
+                <div class="footer">Automatic Transcription System • EETN ATIS</div>
             </div>
         </body>
         </html>
