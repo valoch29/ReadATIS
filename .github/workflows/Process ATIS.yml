@@ -1,38 +1,41 @@
-name: 2. Process ATIS (AI)
+name: Process ATIS
+
 on:
   workflow_run:
-    workflows: ["1. Record ATIS Audio"]
-    types: [completed]
+    workflows: ["Record ATIS Audio"]
+    types:
+      - completed
   workflow_dispatch:
 
 jobs:
   process:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip'
 
-      - name: Install AI Tools
-        run: pip install faster-whisper
-
-      - name: Run AI & Update HTML
+      - name: Install dependencies
         run: |
-          python process_atis.py
-          python update_index.py
+          pip install faster-whisper
 
-      - name: Commit & Push Results
+      - name: Run ATIS Pipeline (IA + HTML)
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python main.py
+
+      - name: Commit and Push changes
         run: |
-          git config --global user.name 'ATIS-Processor'
-          git config --global user.email 'bot@github.com'
-          git fetch origin main
-          git reset --mixed origin/main
-          git add index.html atis_transcribed.txt
-          git commit -m "Update Dashboard $(date)" || exit 0
-          git push origin main --force-with-lease
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add index.html
+          # On ne commit que s'il y a un changement pour éviter les erreurs
+          git commit -m "Update ATIS Dashboard: $(date -u +'%H:%M') UTC" || exit 0
+          git push
