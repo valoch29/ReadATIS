@@ -1,6 +1,7 @@
-# dictionary.py
 replacement_dict = {
     # --- Identification Aéroport ---
+    "BUSINESS TALENT AIRPORT": "TALLINN AIRPORT",
+    "BUSINESS TALENT": "THIS IS TALLINN",
     "STARLIN": "TALLINN",
     "TELLING": "TALLINN",
     "STALIN": "TALLINN",
@@ -16,6 +17,7 @@ replacement_dict = {
     "MADE POINT": "MIDPOINT",
     "DEPOSE IT": "DEPOSITS",
     "BEFORE IT": "DEPOSITS",
+    "DEPOSIT": "DEPOSITS",
     "WETERN": "VICINITY",
     "WEST": "WET",
     "WASTE": "WET",
@@ -26,6 +28,8 @@ replacement_dict = {
     "CABLE K": "CAVOK",
     "KVK": "CAVOK",
     "CARGO OKAY": "CAVOK",
+    "CABO K": "CAVOK",
+    "CABO OK": "CAVOK",
     "NO SEAT": "NOSIG",
     "NO SEEK": "NOSIG",
     "NO SICK": "NOSIG",
@@ -47,6 +51,8 @@ replacement_dict = {
     "KKNOTSS": "KNOTS",
     "KKNOTS": "KNOTS",
     "NOTS": "KNOTS",
+    "GULF": "G",
+    "HOTEL": "H",
     
     # --- Procédures ---
     "EXPECTED LS": "EXPECT ILS",
