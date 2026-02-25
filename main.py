@@ -1,5 +1,4 @@
 import os
-import sys
 import re
 
 try:
@@ -20,23 +19,22 @@ if os.path.exists("dictionary.py"):
 
 def run_atis_system():
     audio_file = "atis_recorded.wav"
-    if not os.path.exists(audio_file): 
-        print("Audio file not found.")
-        return
+    if not os.path.exists(audio_file): return
 
     try:
-        # Initialisation Whisper
         model = WhisperModel("medium", device="cpu", compute_type="int8")
         segments, _ = model.transcribe(audio_file, beam_size=5)
         raw_text = " ".join([s.text for s in segments]).upper().strip()
         
-        # 1. Application du dictionnaire
+        # 1. Application du dictionnaire (Nettoyage phonétique)
         processed_text = raw_text
         for word, replacement in sorted(replacement_dict.items(), key=lambda x: len(x[0]), reverse=True):
             processed_text = processed_text.replace(word.upper(), replacement)
 
-        # 2. Nettoyage des chiffres
-        processed_text = re.sub(r'(\d)[\s,]+(?=\d)', r'\1', processed_text)
+        # 2. Suppression des espaces entre les chiffres pour coller les nombres (ex: 1 0 2 6 -> 1026)
+        # On le fait deux fois pour s'assurer que les suites de 4 chiffres sont bien collées
+        for _ in range(3):
+            processed_text = re.sub(r'(\d)\s+(?=\d)', r'\1', processed_text)
 
         # --- FONCTIONS D'EXTRACTION ---
         def extract_last(pattern, text, default="---"):
@@ -48,7 +46,7 @@ def run_atis_system():
         val_rwy = extract_last(r"RUNWAY[\s,]+(\d+)", processed_text, "08")
         val_qnh = extract_last(r"QNH[\s,]+(\d{4})", processed_text, "----")
         
-        # Logique Vent
+        # Logique Vent (Accepte les chiffres collés ou non)
         wind_m = re.search(r"(\d{3})[\s,]*DEGREES[\s,].*?(\d+)[\s,]*K*NOTS", processed_text)
         if "CALM" in processed_text:
             val_wind = "CALM"
@@ -57,7 +55,7 @@ def run_atis_system():
         else:
             val_wind = "--- / --KT"
         
-        # Logique Température
+        # Logique Température (Gestion MINUS et DEW POINT)
         temp_m = re.search(r"TEMPERATURE[\s,]+(?:MINUS[\s,]+)?(\d+)[\s,]+DEW[\s,]*POINT[\s,]+(?:MINUS[\s,]+)?(\d+)", processed_text)
         if temp_m:
             t_sgn = "-" if re.search(r"TEMPERATURE[\s,]+MINUS", processed_text) else ""
@@ -72,7 +70,7 @@ def run_atis_system():
         
         timestamp = os.popen('date -u +"%H:%M UTC"').read().strip()
 
-        # Génération du HTML
+        # Génération du HTML (Inchangé mais on s'assure qu'il utilise les bonnes variables)
         html = f"""
         <!DOCTYPE html>
         <html lang="fr">
@@ -112,7 +110,6 @@ def run_atis_system():
         """
         with open("index.html", "w", encoding="utf-8") as f:
             f.write(html)
-        print("Success.")
             
     except Exception as e: 
         print(f"Error: {e}")
