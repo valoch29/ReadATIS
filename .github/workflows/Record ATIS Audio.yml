@@ -9,7 +9,7 @@ jobs:
   record:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Force l'autorisation d'écriture
+      contents: write
     
     steps:
       - name: Checkout repository
@@ -20,7 +20,8 @@ jobs:
 
       - name: Record Audio
         run: |
-          ffmpeg -i "http://dhr.tallinn-airport.ee:8000/atis" -t 120 -c:a pcm_s16le -ar 16000 -ac 1 atis_recorded.wav
+          # Utilisation du nouveau flux Kobly
+          ffmpeg -y -i "https://icecast.kobly.com/eetn2_atis" -t 120 -c:a pcm_s16le -ar 16000 -ac 1 atis_recorded.wav
 
       - name: Commit and Push Audio
         run: |
