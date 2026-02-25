@@ -8,7 +8,6 @@ except ImportError:
     os.system('pip install faster-whisper')
     from faster_whisper import WhisperModel
 
-# Chargement dictionnaire
 replacement_dict = {}
 if os.path.exists("dictionary.py"):
     try:
@@ -32,16 +31,19 @@ def run_atis_system():
         for word, replacement in sorted(replacement_dict.items(), key=lambda x: len(x[0]), reverse=True):
             processed_text = processed_text.replace(word.upper(), replacement)
 
-        # 2. NETTOYAGE DES CHIFFRES (Crucial pour QNH 1, 0, 2, 6 -> 1026)
-        # Supprime les virgules et espaces entre les chiffres
+        # 2. Nettoyage des chiffres (enlève virgules entre les chiffres)
         processed_text = re.sub(r'(\d)[\s,]+(?=\d)', r'\1', processed_text)
 
-        # 3. Nettoyage de l'itération (On cherche TALLINN)
-        if "THIS IS TALLINN" in processed_text:
-            parts = processed_text.split("THIS IS TALLINN")
-            processed_text = "THIS IS TALLINN" + parts[-1]
-            if "OUT" in processed_text:
-                processed_text = processed_text.split("OUT")[0] + "OUT."
+        # 3. Découpage : on garde uniquement la première itération complète
+        # On cherche "THIS IS TALLINN" ou "INFORMATION [lettre]"
+        split_markers = ["THIS IS TALLINN", "THIS IS TALLIN", "TALLINN AIRPORT"]
+        for marker in split_markers:
+            if marker in processed_text:
+                parts = processed_text.split(marker)
+                processed_text = marker + parts[-1]
+                if "OUT" in processed_text:
+                    processed_text = processed_text.split("OUT")[0] + "OUT."
+                break
 
         # 4. Extraction sécurisée
         def extract(pattern, text, default="---"):
@@ -52,26 +54,30 @@ def run_atis_system():
         val_rwy = extract(r"RUNWAY[\s,]+(\d+)", processed_text, "08")
         val_qnh = extract(r"QNH[\s,]+(\d{4})", processed_text, "----")
         
-        # Vent
-        wind_m = re.search(r"(\d{3})[\s,]*DEGREES[\s,]*(\d+)[\s,]*KNOTS", processed_text)
-        val_wind = f"{wind_m.group(1)}° / {wind_m.group(2)}KT" if wind_m else "--- / --KT"
+        # Vent : Gestion du vent CALM
+        if "CALM" in processed_text:
+            val_wind = "CALM"
+        else:
+            wind_m = re.search(r"(\d{3})[\s,]*DEGREES[\s,]*(\d+)[\s,]*KNOTS", processed_text)
+            val_wind = f"{wind_m.group(1)}° / {wind_m.group(2)}KT" if wind_m else "--- / --KT"
         
-        # Températures
-        temp_m = re.search(r"TEMPERATURE[\s,]+(?:MINUS\s+)?(\d+)[\s,]+DEW[\s,]*POINT[\s,]+(?:MINUS\s+)?(\d+)", processed_text)
+        # Températures : Gestion améliorée du MINUS avec virgules
+        temp_m = re.search(r"TEMPERATURE[\s,]+(?:MINUS[\s,]+)?(\d+)[\s,]+DEW[\s,]*POINT[\s,]+(?:MINUS[\s,]+)?(\d+)", processed_text)
         if temp_m:
-            t_sgn = "-" if "TEMPERATURE MINUS" in processed_text else ""
-            d_sgn = "-" if "DEW POINT MINUS" in processed_text else ""
+            # On regarde si "MINUS" est présent juste avant le chiffre de la température
+            t_sgn = "-" if re.search(r"TEMPERATURE[\s,]+MINUS", processed_text) else ""
+            # On regarde si "MINUS" est présent juste avant le chiffre du point de rosée
+            d_sgn = "-" if re.search(r"DEW[\s,]*POINT[\s,]+MINUS", processed_text) else ""
             val_temp = f"{t_sgn}{temp_m.group(1)}° / {d_sgn}{temp_m.group(2)}°"
         else:
             val_temp = "-- / --"
 
-        # Condition de piste
         cond_m = re.search(r"TOUCHDOWN[\s,]+(\d)[\s,]+MIDPOINT[\s,]+(\d)[\s,]+STOP[\s,]*END[\s,]+(\d)", processed_text)
         val_cond = f"{cond_m.group(1)} / {cond_m.group(2)} / {cond_m.group(3)}" if cond_m else "6 / 6 / 6"
         
         timestamp = os.popen('date -u +"%H:%M UTC"').read().strip()
 
-        # HTML (Design Anthracite)
+        # HTML
         html = f"""
         <!DOCTYPE html>
         <html lang="fr">
@@ -113,8 +119,7 @@ def run_atis_system():
             f.write(html)
         print("Success.")
             
-    except Exception as e:
-        print(f"Error: {e}")
+    except Exception as e: print(f"Error: {e}")
 
 if __name__ == "__main__":
     run_atis_system()
