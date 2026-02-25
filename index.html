@@ -1,36 +1,30 @@
 
         <!DOCTYPE html>
-        <html lang="fr">
+        <html>
         <head>
             <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
-                body { background: #0c0c0c; color: #d0d0d0; font-family: 'Segoe UI', sans-serif; padding: 20px; }
-                .container { max-width: 650px; margin: auto; border: 1px solid #222; padding: 25px; background: #141414; border-radius: 4px; }
-                .header { text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: bold; font-size: 1.1rem; color: #fff; letter-spacing: 2px; }
-                .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
-                .item { background: #1a1a1a; padding: 12px; border-radius: 3px; border-left: 3px solid #444; }
-                .label { color: #777; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 4px; }
-                .val { font-size: 1.15rem; color: #efefef; font-weight: 600; font-family: monospace; }
-                .transcription { margin-top: 25px; line-height: 1.5; color: #999; font-size: 0.95rem; background: #0f0f0f; padding: 15px; border-radius: 3px; border: 1px solid #1a1a1a; white-space: pre-wrap; }
-                .footer { margin-top: 30px; font-size: 0.65rem; color: #333; text-align: center; }
+                body { background: #050505; color: #e0e0e0; font-family: 'Monaco', monospace; display: flex; justify-content: center; padding: 20px; }
+                .box { width: 100%; max-width: 600px; border: 2px solid #333; background: #000; padding: 20px; box-shadow: 0 0 20px rgba(0,255,0,0.05); }
+                .row { display: flex; justify-content: space-between; border-bottom: 1px solid #111; padding: 10px 0; }
+                .lbl { color: #666; font-size: 12px; }
+                .val { color: #00FF00; font-size: 18px; font-weight: bold; }
+                .msg { margin-top: 20px; font-size: 13px; color: #888; line-height: 1.6; border-top: 1px solid #333; padding-top: 10px; }
+                .status { font-size: 10px; color: #444; text-align: right; margin-top: 10px; }
             </style>
         </head>
         <body>
-            <div class="container">
-                <div class="header">TALLINN EETN ATIS &nbsp; 15:35 UTC</div>
-                <div class="grid">
-                    <div class="item"><div class="label">INFO</div><div class="val">J</div></div>
-                    <div class="item"><div class="label">RWY</div><div class="val">08</div></div>
-                    <div class="item"><div class="label">QNH</div><div class="val">---- hPa</div></div>
-                    <div class="item"><div class="label">WIND</div><div class="val">--- / --KT</div></div>
-                    <div class="item"><div class="label">VISIBILITY</div><div class="val">CAVOK</div></div>
-                    <div class="item"><div class="label">TEMP / DEW</div><div class="val">-- / --</div></div>
-                    <div class="item"><div class="label">RWY CONDITION</div><div class="val">6 / 6 / 6</div></div>
-                    <div class="item"><div class="label">SURFACE</div><div class="val">FROST / WET</div></div>
-                </div>
-                <div class="transcription"><strong>MESSAGE:</strong><br><br>MINUS 1, 0, QNH, 1, 0, 2, 6 HECTOPASCAL.  TREND, NO SEEK.  INFORMATION, J OUT.  THIS IS TALLINN AIRPORT.  INFORMATION, J.  TIME, 1, 4, 5, 0.  EXPECT ILS APPROACH.  RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT  08, 5, 6.  RUNWAY CONDITION CODE TOUCHDOWN, 6.  MEET POINT, 6.  STOP END, 6.  DEPOSITS, TOUCHDOWN, 2, 5 PERCENT WET.  MEET POINT, 2, 5 PERCENT WET.  STOP END, 2, 5 PERCENT WET.  TRANSITION LEVEL 6, 0.  BIRD ACTIVITY IN VICINITY OF AIRPORT.  WIND RUNWAY 08, TOUCHDOWN Z1,  1, 5, 0 DEGREES, 3 KNOTS.  VARIABLE BETWEEN 1, 2, 0 DEGREES  AND 1, 8, 0 DEGREES.  STOP END, 1, 6, 0 DEGREES, 4 KNOTS.  CAVOK, TEMPERATURE, MINUS 1.  VIEW POINT, MINUS 1, 0, QNH,  1, 0, 2, 6 HECTOPASCAL.  TREND, NO SEEK.  INFORMATION, J, OUT.  THIS IS TALLINN AIRPORT.  INFORMATION, J.  TIME, 1, 4, 5, 0.  EXPECT ILS APPROACH.  RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT  08, 5, 6.  RUNWAY CONDITION CODE TOUCHDOWN, 6.  MEET POINT, 6.  STOP END, 6.  DEPOSITS, TOUCHDOWN, 2, 5 PERCENT WET.  MEET POINT, 2, 5 PERCENT WET.  STOP END, 2, 5 PERCENT WET.  TRANSITION LEVEL 6, 0.  BIRD ACTIVITY IN VICINITY OF AIRPORT.  WIND RUNWAY 08, TOUCHDOWN Z1,  1, 5, 0 DEGREES, 3 KNOTS.  VARIABLE BETWEEN 1, 2, 0 DEGREES  AND 1, 8, 0 DEGREES.  STOP END, 1, 6, 0 DEGREES, 4 KNOTS.  CAVOK, TEMPERATURE, MINUS 1.  VIEW POINT, MINUS 1, 0, QNH,  1, 0, 2, 6 HECTOPASCAL.  TREND, NO SEEK.  INFLATION, J, OUT.  THIS IS TALLINN AIRPORT.  INFLATION, J.  TIME, 1, 4, 5, 0.</div>
-                <div class="footer">Automatic Decoder • Whisper Medium</div>
+            <div class="box">
+                <div style="text-align:center; color:#fff; margin-bottom:20px;">EETN ATIS MONITOR</div>
+                <div class="row"><span class="lbl">INFORMATION</span><span class="val" style="color:#ffcc00">M</span></div>
+                <div class="row"><span class="lbl">ACTIVE RWY</span><span class="val">08</span></div>
+                <div class="row"><span class="lbl">WIND</span><span class="val">160° / 4KT</span></div>
+                <div class="row"><span class="lbl">VISIBILITY / CLOUDS</span><span class="val">CAVOK</span></div>
+                <div class="row"><span class="lbl">TEMP / DEW</span><span class="val">-2° / -10°</span></div>
+                <div class="row"><span class="lbl">QNH</span><span class="val">1026 hPa</span></div>
+                <div class="row"><span class="lbl">RWY COND</span><span class="val">6 / 6 / 6</span></div>
+                <div class="msg">RAW DATA:<br>TREND NO 6 INFORMATION MIC OUT THIS IS TALLINN AIRPORT INFORMATION MIC TIME 1550 EXPECT ILS APPROACH RUNWAY 08 IN USE RUNWAY 08 CONDITION REPORT TIME AT 1526 RUNWAY CONDITION CODE PATCH DOWN 5 MIDPOINT 52P END 5 DEPOSIT PATCH DOWN 50 WET MIDPOINT 50 WET 2P END 50 WET TRANSITION LEVEL 60 BIRD ACTIVITY IN VICINITY OF AIRPORT WIND RUNWAY 082UCHDOWN Z1160 DEGREES 4 KNOTS 2P END 170 DEGREES 4 KNOTS CAPITAL K TEMPERATURE MINUS 2 DEWPOINT MINUS 10 QNH 1026 HPA TREND NO 6 INFORMATION MIC OUT THIS IS TALLINN AIRPORT INFORMATION MIC TIME 1550 EXPECT ILS APPROACH RUNWAY 08 IN USE RUNWAY 08 CONDITION REPORT TIME AT 1526 RUNWAY CONDITION CODE PATCH DOWN 5 MIDPOINT 52P END 5 DEPOSIT PATCH DOWN 50 WET MIDPOINT 50 WET 2P END 50 WET TRANSITION LEVEL 60 BIRD ACTIVITY IN VICINITY OF AIRPORT WIND RUNWAY 082UCHDOWN Z1160 DEGREES 4 KNOTS 2P END 170 DEGREES 4 KNOTS CAPITAL K TEMPERATURE MINUS 2 DEWPOINT MINUS 10 QNH 1026 HPA TREND NO 6 INFORMATION MIC OUT THIS IS TALLINN AIRPORT INFORMATION MIC TIME 1550 EXPECT ILS APPROACH RUNWAY 08 IN USE RUNWAY 08 CONDITION REPORT TIME AT 1526 RUNWAY CONDITION CODE PATCH DOWN 5 MIDPOINT 52P END 5 DEPOSIT PATCH DOWN</div>
+                <div class="status">LAST UPDATED: 16:20 UTC | WHISPER MEDIUM INT8</div>
             </div>
         </body>
         </html>
