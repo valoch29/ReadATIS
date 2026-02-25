@@ -21,7 +21,7 @@ jobs:
       - name: Record Audio
         run: |
           # Utilisation du nouveau flux Kobly
-          ffmpeg -y -i "https://icecast.kobly.com/eetn2_atis" -t 120 -c:a pcm_s16le -ar 16000 -ac 1 atis_recorded.wav
+          ffmpeg -y -i "https://icecast.kobly.com/eetn2_atis" -t 180 -c:a pcm_s16le -ar 16000 -ac 1 atis_recorded.wav
 
       - name: Commit and Push Audio
         run: |
