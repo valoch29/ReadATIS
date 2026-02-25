@@ -1,16 +1,19 @@
 name: Process ATIS
 
 on:
-  push:
-    paths:
-      - 'atis_recorded.wav'
+  workflow_run:
+    workflows: ["Record ATIS Audio"]
+    types:
+      - completed
   workflow_dispatch:
 
 jobs:
   process:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Force l'autorisation d'écriture
+      contents: write
+    # On ne lance le process que si le record a réussi
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     
     steps:
       - name: Checkout repository
