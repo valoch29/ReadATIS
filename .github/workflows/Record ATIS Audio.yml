@@ -17,7 +17,6 @@ jobs:
 
       - name: Record Audio
         run: |
-          # On enregistre 120 secondes du flux
           ffmpeg -i "http://dhr.tallinn-airport.ee:8000/atis" -t 120 -c:a pcm_s16le -ar 16000 -ac 1 atis_recorded.wav
 
       - name: Commit and Push Audio
@@ -25,6 +24,5 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add atis_recorded.wav
-          # Le "|| exit 0" évite que le workflow plante s'il n'y a pas de changement (peu probable ici)
           git commit -m "Update ATIS Audio Recording" || exit 0
           git push
