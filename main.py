@@ -1,100 +1,75 @@
 import os
 import sys
-from faster_whisper import WhisperModel
 
-# --- CHARGEMENT SÉCURISÉ DU DICTIONNAIRE ---
-replacement_dict = {}
+# On force l'installation au cas où le workflow ferait défaut (Sécurité ultime)
 try:
-    # On ajoute le répertoire courant au chemin de recherche Python
-    sys.path.append(os.getcwd())
-    import dictionary
-    replacement_dict = getattr(dictionary, 'replacement_dict', {})
-    print("Dictionnaire chargé via import standard.")
+    from faster_whisper import WhisperModel
 except ImportError:
-    print("Import standard échoué, lecture directe du fichier...")
-    if os.path.exists("dictionary.py"):
-        try:
-            with open("dictionary.py", "r", encoding="utf-8") as f:
-                # On exécute le contenu du fichier dans un environnement local
-                local_vars = {}
-                exec(f.read(), {}, local_vars)
-                replacement_dict = local_vars.get('replacement_dict', {})
-                print("Dictionnaire chargé via lecture directe.")
-        except Exception as e:
-            print(f"Erreur lors de la lecture du fichier dictionnaire : {e}")
+    os.system('pip install faster-whisper')
+    from faster_whisper import WhisperModel
+
+# Chargement du dictionnaire
+replacement_dict = {}
+if os.path.exists("dictionary.py"):
+    try:
+        with open("dictionary.py", "r", encoding="utf-8") as f:
+            local_vars = {}
+            exec(f.read(), {}, local_vars)
+            replacement_dict = local_vars.get('replacement_dict', {})
+    except Exception as e:
+        print(f"Erreur dictionnaire : {e}")
 
 def run_atis_system():
     audio_file = "atis_recorded.wav"
     
-    # 1. Vérification de l'existence de l'audio
     if not os.path.exists(audio_file):
-        print(f"ERREUR : {audio_file} introuvable. Le workflow Record a-t-il réussi ?")
+        print("Audio introuvable.")
         return
 
-    # 2. Transcription avec Whisper (Optimisé CPU)
-    print("Chargement du modèle IA (small / cpu / int8)...")
     try:
+        print("Initialisation IA...")
         model = WhisperModel("small", device="cpu", compute_type="int8")
         
-        print("Transcription en cours...")
+        print("Transcription...")
         segments, info = model.transcribe(audio_file, beam_size=5)
         
-        full_text = ""
-        for segment in segments:
-            full_text += segment.text + " "
+        full_text = " ".join([segment.text for segment in segments]).upper().strip()
         
-        full_text = full_text.upper().strip()
-        print(f"Texte brut IA : {full_text}")
-
-        # 3. Application du dictionnaire de remplacement
+        # Application du dictionnaire
         processed_text = full_text
-        if replacement_dict:
-            # On trie par longueur de mot (décroissant) pour éviter de remplacer des morceaux de mots
-            sorted_words = sorted(replacement_dict.keys(), key=len, reverse=True)
-            for word in sorted_words:
-                replacement = replacement_dict[word]
-                processed_text = processed_text.replace(word.upper(), replacement)
-        else:
-            print("Attention : Aucun dictionnaire de remplacement trouvé.")
+        for word, replacement in sorted(replacement_dict.items(), key=lambda x: len(x[0]), reverse=True):
+            processed_text = processed_text.replace(word.upper(), replacement)
 
-        # 4. Génération du fichier HTML
-        timestamp = os.popen('date -u +"%d/%m/%Y %H:%M UTC"').read().strip()
-        
-        html_content = f"""
+        # Génération HTML
+        timestamp = os.popen('date -u +"%H:%M UTC"').read().strip()
+        html = f"""
         <!DOCTYPE html>
-        <html lang="fr">
+        <html>
         <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>ATIS Tallinn Dashboard</title>
+            <title>ATIS TALLINN</title>
             <style>
-                body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0e14; color: #e0e6ed; padding: 20px; line-height: 1.6; }}
-                .container {{ border: 1px solid #30363d; padding: 30px; border-radius: 12px; max-width: 900px; margin: auto; background-color: #161b22; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }}
-                h1 {{ text-align: center; color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 15px; margin-top: 0; }}
-                .message {{ background: #0d1117; padding: 20px; border-left: 4px solid #238636; font-family: 'Courier New', monospace; font-size: 1.3em; color: #7ee787; white-space: pre-wrap; margin: 20px 0; }}
-                .raw-text {{ color: #8b949e; font-size: 0.85em; margin-top: 30px; padding: 10px; border-top: 1px dashed #30363d; }}
-                .footer {{ text-align: right; font-size: 0.8em; color: #484f58; margin-top: 10px; }}
+                body {{ background: #000; color: #0f0; font-family: monospace; padding: 20px; }}
+                .box {{ border: 1px solid #0f0; padding: 20px; max-width: 800px; margin: auto; }}
+                .msg {{ font-size: 1.5em; margin: 20px 0; color: #fff; }}
+                .raw {{ color: #444; font-size: 0.8em; }}
             </style>
         </head>
         <body>
-            <div class="container">
+            <div class="box">
                 <h1>TALLINN ATIS LIVE</h1>
-                <p><strong>Dernière transcription décodée :</strong></p>
-                <div class="message">{processed_text}</div>
-                <div class="raw-text">Flux brut (IA) : {full_text}</div>
-                <div class="footer">Mis à jour le : {timestamp}</div>
+                <div class="msg">{processed_text}</div>
+                <div class="raw">Brut: {full_text}</div>
+                <div style="text-align:right">{timestamp}</div>
             </div>
         </body>
         </html>
         """
-
         with open("index.html", "w", encoding="utf-8") as f:
-            f.write(html_content)
-        
-        print("Succès : index.html généré avec succès.")
+            f.write(html)
+        print("Terminé avec succès.")
 
     except Exception as e:
-        print(f"Erreur fatale pendant le traitement : {e}")
+        print(f"Erreur : {e}")
 
 if __name__ == "__main__":
     run_atis_system()
