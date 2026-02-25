@@ -5,23 +5,23 @@
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
-                body { background: #0c0c0c; color: #d0d0d0; font-family: 'Segoe UI', sans-serif; padding: 20px; }
-                .container { max-width: 650px; margin: auto; border: 1px solid #222; padding: 25px; background: #141414; border-radius: 4px; }
-                .header { text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: bold; font-size: 1.1rem; color: #fff; letter-spacing: 2px; }
+                body { background: #0c0c0c; color: #d0d0d0; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+                .container { max-width: 650px; margin: auto; border: 1px solid #222; padding: 25px; background: #141414; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+                .header { text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: bold; font-size: 1.1rem; letter-spacing: 2px; color: #fff; }
                 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
                 .item { background: #1a1a1a; padding: 12px; border-radius: 3px; border-left: 3px solid #444; }
-                .label { color: #777; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 4px; }
-                .val { font-size: 1.15rem; color: #efefef; font-weight: 600; font-family: monospace; }
-                .transcription { margin-top: 25px; line-height: 1.5; color: #999; font-size: 0.9rem; background: #0f0f0f; padding: 15px; border-radius: 3px; white-space: pre-wrap; }
-                .footer { margin-top: 30px; font-size: 0.65rem; color: #333; text-align: center; }
+                .label { color: #777; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px; }
+                .val { font-size: 1.15rem; color: #efefef; font-weight: 600; font-family: 'Courier New', monospace; }
+                .transcription { margin-top: 25px; line-height: 1.5; color: #999; font-size: 0.95rem; background: #0f0f0f; padding: 15px; border-radius: 3px; border: 1px solid #1a1a1a; white-space: pre-wrap; }
+                .footer { margin-top: 30px; font-size: 0.65rem; color: #333; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
             </style>
         </head>
         <body>
             <div class="container">
-                <div class="header">TALLINN EETN ATIS &nbsp; 11:36 UTC</div>
+                <div class="header">TALLINN EETN ATIS &nbsp; 11:42 UTC</div>
                 <div class="grid">
-                    <div class="item"><div class="label">INFO</div><div class="val">C</div></div>
-                    <div class="item"><div class="label">RWY</div><div class="val">08</div></div>
+                    <div class="item"><div class="label">INFO</div><div class="val">---</div></div>
+                    <div class="item"><div class="label">RWY</div><div class="val">0</div></div>
                     <div class="item"><div class="label">QNH</div><div class="val">---- hPa</div></div>
                     <div class="item"><div class="label">WIND</div><div class="val">--- / --KT</div></div>
                     <div class="item"><div class="label">VISIBILITY</div><div class="val">CAVOK</div></div>
@@ -29,8 +29,8 @@
                     <div class="item"><div class="label">RWY CONDITION</div><div class="val">6 / 6 / 6</div></div>
                     <div class="item"><div class="label">SURFACE</div><div class="val">FROST / WET</div></div>
                 </div>
-                <div class="transcription"><strong>MESSAGE:</strong><br><br>MINUS 3 DEW POINT, MINUS 9 HUMAN MATE, 1026 HEKTAR PASCAL  TREND NO SEEK, INFORMATION CHARLIE OUT  WHICH IS DARLING AIRPORT, INFORMATION CHARLIE  TIME, 1, 1, 2, 0, EXPECT ILS APPROACH  RUNWAY 08 IN USE  RUNWAY 08, CONDITION REPORT SOIL MATE  08, 5, 6  RUNWAY CONDITION CODE TOUCH DOWN  6, MIDPOINT  6, SSTOP END  6, DEPLOY  TOUCH DOWN  25% WET  MIDPOINT  25% WET  SSTOP END  25% WET  TRANSITION LEVEL 6, 0  BIRD ACTIVITY IN VICINITY OF AIRPORT  WIND RUNWAY 08, TOUCH DOWN Z1  VARIABLE BETWEEN 0, 7, 0 DEGREES  AND 1, 3, 0 DEGREES  2, NOT SSTOP END  1, 0, 0 DEGREES  4, NOT CAPITAL K  TEMPERATURE MINUS 3, DEW POINT  MINUS 9 HUMAN MATE  1026 HEKTAR PASCAL  TREND NO SEEK, INFORMATION CHARLIE OUT  WHICH IS DARLING AIRPORT  INFORMATION CHARLIE  TIME, 1, 1, 2, 0, EXPECT ILS APPROACH  RUNWAY 08 IN USE  RUNWAY 08, CONDITION REPORT SOIL MATE  08, 5, 6  RUNWAY CONDITION CODE TOUCH DOWN  6, MIDPOINT  6, SSTOP END  6, DEPLOY  TOUCH DOWN  25% WET</div>
-                <div class="footer">EETN AUTOMATIC DECODER</div>
+                <div class="transcription"><strong>MESSAGE:</strong><br><br>MINUS 3, DEW POINT, MINUS 9R, QNH, 1, 0, 2, 6, HECTO PASCAL.  TREND, NO SEEK. INFORMATION, CHARLIE, OUT.  THIS IS CHARLIE AIRPORT.  INFORMATION, CHARLIE.  CLIMB, 1, 1, 2, 0, EXPECT ILS APPROACH.  RUNWAY 0 8, IN USE.  RUNWAY 0 8, CONDITION REPORT.  CLIMB AT 0 8, 5, 6.  RUNWAY CONDITION CODE, TOUCHDOWN, 6, MIDPOINT, 6, STOP END, 6.  DEPOSE IT.  TOUCHDOWN, 2, 5 PERCENT, WET.  MIDPOINT, 2, 5 PERCENT, WET.  STOP END, 2, 5 PERCENT, WET.  TRANSITION LEVEL 6, 0.  BIRD ACTIVITY IN WETERN ITALY AIRPORT.  WIND RUNWAY 0 8, TOUCHDOWN Z1.  VARIABLE BETWEEN 0 7 0 DEGREES AND 1 3 0 DEGREES, 2 KNOTS.  STOP END, 1 0 0 DEGREES, 4 KNOTS.  TEMPERATURE, MINUS 3, DEW POINT, MINUS 9R, QNH, 1, 0, 2, 6, HECTO PASCAL.  TREND, NO SEEK.  INFORMATION, CHARLIE, OUT.  THIS IS CHARLIE AIRPORT.  INFORMATION, CHARLIE.  CLIMB, 1, 1, 2, 0, EXPECT ILS APPROACH.  RUNWAY 0 8, IN USE.  RUNWAY 0 8, CONDITION REPORT TIME AT 0 8, 5, 6.  RUNWAY CONDITION CODE, TOUCHDOWN, 6, MIDPOINT, 6, STOP END, 6.  DEPOSE IT.  TOUCHDOWN, 2, 5 PERCENT, WET.</div>
+                <div class="footer">Automatic Decoder • Whisper Medium</div>
             </div>
         </body>
         </html>
