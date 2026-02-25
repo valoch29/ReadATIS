@@ -18,7 +18,7 @@ def transcribe():
         "FIVE": "5", "SEVEN": "7", "EIGHT": "8", "NINE": "9",
         
         # Météo & Vent
-        "THRUST": "FROST", "TRUST": "FROST", "FORST": "FROST", "FROSTED": "FROST",
+        "THRUST": "FROST", "TRUST": "FROST", "FORST": "FROST", "FROSTED": "FROST", "FRONT": "FROST",
         "NOS": "KNOTS", "NOTS": "KNOTS", "NOT": "KNOTS", "KNOT": "KNOTS",
         "CABLE K": "CAVOK", "CABO K": "CAVOK", "COVER K": "CAVOK", "KO": "CAVOK", "CAV OK": "CAVOK",
         "DEGREES": "DEGREES", "DEGREE": "DEGREES",
