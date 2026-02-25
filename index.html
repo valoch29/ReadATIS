@@ -1,44 +1,22 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EETN ATIS</title>
-    <style>
-        :root { --bg: #121212; --card: #1a1a1a; --text: #ffffff; --dim: #777; }
-        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }
-        .container { width: 100%; max-width: 480px; }
-        .header { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--dim); margin: 15px 0; font-weight: bold; letter-spacing: 1px; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .card { background: var(--card); padding: 18px 5px; border-radius: 10px; text-align: center; border: 1px solid #222; }
-        .label { font-size: 0.6rem; color: var(--dim); margin-bottom: 5px; display: block; }
-        .value { font-size: 1.6rem; font-weight: 800; }
-        .sec { background: var(--card); border-radius: 10px; padding: 5px 20px; margin-bottom: 10px; border: 1px solid #222; }
-        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #252525; }
-        .row:last-child { border: none; }
-        .row span:first-child { color: var(--dim); font-size: 0.75rem; font-weight: bold; }
-        .raw { font-size: 0.65rem; color: #333; margin-top: 25px; text-transform: none; text-align: justify; font-style: italic; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header"><span>TALLINN EETN ATIS</span><span>02:58 UTC</span></div>
-        <div class="grid">
-            <div class="card"><span class="label">INFO</span><span class="value">-</span></div>
-            <div class="card"><span class="label">RWY</span><span class="value">08</span></div>
-            <div class="card"><span class="label">QNH</span><span class="value">1022</span></div>
-        </div>
-        <div class="sec">
-            <div class="row"><span>WIND</span><span>--- / --KT</span></div>
-            <div class="row"><span>VISIBILITY</span><span>---</span></div>
-            <div class="row"><span>TEMP / DEW</span><span>-6° / -8°</span></div>
-        </div>
-        <div class="sec">
-            <div class="row"><span>RWY CONDITION</span><span>5/5/5</span></div>
-            <div class="row"><span>SURFACE</span><span>FROST/FROST/FROST</span></div>
-        </div>
-        <div class="raw">ANALYZED: HEAT CONDITION REPORT TIME AT 2336. RUNWAY CONDITION CODE TOUCHDOWN 5, MIDPOINT 5, STOP END 5, DEPOSIT, TOUCHDOWN 100%, FROST, MIDPOINT 100%, FROST, STOP END 100%, FRONT, TRANSITION LEVEL 60, BIRD ACTIVITY IN VICINITY OF AIRPORT, WIND, RUNWAY 08, TOUCHDOWN ZONE, 050, DEGREES, 6 KNOTS, STOP END 050, DEGREES, 7 KNOTS, VISIBILITY, RUNWAY 08, TOUCHDOWN ZONE 7 KM, MIDPOINT 10 KM, STOP END 10 KM, CLOUD, NIL SIGNIFICANT CLOUD, TEMPERATURE MINUS 6, DEWPOINT MINUS 8, QNH 1022, HECTOPASCALS, INFORMATION, FOXTROT OUT, THIS IS TALLINN AIRPORT, INFORMATION, FOXTROT, TIME 0250, EXPECT ILS APPROACH, RUNWAY 08 IN USE, RUNWAY 08, CONDITION REPORT TIME AT 2336, RUNWAY CONDITION CODE TOUCHDOWN 5, MIDPOINT 5, STOP END 5, DEPOSIT, TOUCHDOWN 100%, FROST, MIDPOINT 100%, FROST, STOP END 100%, FROST, TRANSITION LEVEL 60, BIRD ACTIVITY IN VICINITY OF AIRPORT, WIND, RUNWAY 08, TOUCHDOWN ZONE 050, DEGREES, 6 KNOTS, STOP END 050, DEGREES, 7 KNOTS, VISIBILITY, RUNWAY 08, TOUCHDOWN ZONE 7 KM, MIDPOINT 10 KM, STOP END 10 KM, CLOUD, NIL SIGNIFICANT CLOUD, TEMPERATURE MINUS 6, DEWPOINT MINUS 8, QNH 1022, HECTOPASCALS, INFORMATION, FOXTROT OUT, THIS IS TALLINN AIRPORT, INFORMATION, FOXTROT, TIME 0250, EXPECT ILS APPROACH, RUNWAY 08 IN USE, RUNWAY 08, CONDITION REPORT TIME AT 2336, RUNWAY 08, CONDITION REPORT TIME AT 2336,</div>
-    </div>
-</body>
-</html>
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>ATIS TALLINN</title>
+            <style>
+                body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
+                .box { border: 1px solid #0f0; padding: 20px; max-width: 800px; margin: auto; }
+                .msg { font-size: 1.5em; margin: 20px 0; color: #fff; }
+                .raw { color: #444; font-size: 0.8em; }
+            </style>
+        </head>
+        <body>
+            <div class="box">
+                <h1>TALLINN ATIS LIVE</h1>
+                <div class="msg">THIS IS STARWING AIRPORT. INFORMATION, UNICORN. TIME, 09.20, EXPECT ILS APPROACH.  RUNWAY 08 IN USE. RUNWAY 08, CONDITION REPORT TIME AT 08.56.  RUN THE CONDITION CODE PACHYDOWN, 6 MIDPOINT, 6 STOP END, 6 DEPOSIT.  PACHYDOWN, 25% WET.  MIDPOINT, 25% WET.  STOP END, 25% WET.  TRANSITION LEVEL, 6-0, BIRD ACTIVITY IN WET FINISH OF AIRPORT.  WIND RUNWAY, 08 PACHYDOWN ZONE, 110 DEGREES, 5 KNOTS, STOP END, 100 DEGREES, 4 KNOTS, KVK.  TEMPERATURE, MINUS 6, DEW POINT, MINUS 9, QNH, 1026 HECTOPASCAL.  TREND, NO FIT, INFORMATION, UNIFORM, OUT.  THIS IS STARWING AIRPORT, INFORMATION, UNIFORM.  TIME, 09.20, EXPECT ILS APPROACH.  RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT 08.56.  RUN THE CONDITION CODE PACHYDOWN, 6 MIDPOINT, 6 STOP END, 6 DEPOSIT.  PACHYDOWN, 25% WET.  MIDPOINT, 25% WET.  STOP END, 25% WET.  TRANSITION LEVEL, 6-0, BIRD ACTIVITY IN WET FINISH OF AIRPORT.  WIND RUNWAY, 08 PACHYDOWN ZONE.</div>
+                <div class="raw">Brut: THIS IS STARWING AIRPORT. INFORMATION, UNICORN. TIME, 09.20, EXPECT ILS APPROACH.  RUNWAY 08 IN USE. RUNWAY 08, CONDITION REPORT TIME AT 08.56.  RUN THE CONDITION CODE PACHYDOWN, 6 MIDPOINT, 6 STOP END, 6 DEPOSIT.  PACHYDOWN, 25% WET.  MIDPOINT, 25% WET.  STOP END, 25% WET.  TRANSITION LEVEL, 6-0, BIRD ACTIVITY IN WET FINISH OF AIRPORT.  WIND RUNWAY, 08 PACHYDOWN ZONE, 110 DEGREES, 5 KNOTS, STOP END, 100 DEGREES, 4 KNOTS, KVK.  TEMPERATURE, MINUS 6, DEW POINT, MINUS 9, QNH, 1026 HECTOPASCAL.  TREND, NO FIT, INFORMATION, UNIFORM, OUT.  THIS IS STARWING AIRPORT, INFORMATION, UNIFORM.  TIME, 09.20, EXPECT ILS APPROACH.  RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT 08.56.  RUN THE CONDITION CODE PACHYDOWN, 6 MIDPOINT, 6 STOP END, 6 DEPOSIT.  PACHYDOWN, 25% WET.  MIDPOINT, 25% WET.  STOP END, 25% WET.  TRANSITION LEVEL, 6-0, BIRD ACTIVITY IN WET FINISH OF AIRPORT.  WIND RUNWAY, 08 PACHYDOWN ZONE.</div>
+                <div style="text-align:right">09:28 UTC</div>
+            </div>
+        </body>
+        </html>
+        
