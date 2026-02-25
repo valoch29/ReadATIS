@@ -1,36 +1,20 @@
 # dictionary.py
 replacement_dict = {
-    # Identification de l'aéroport
-    "TELLING AIRPORT": "TALLINN AIRPORT",
-    "THIS IS TELLING": "THIS IS TALLINN",
-    "STARWING AIRPORT": "TALLINN AIRPORT",
-    "THIS IS STARWING": "THIS IS TALLINN",
+    # Erreurs d'identification
+    "CHARLIE AIRPORT": "TALLINN AIRPORT",
+    "THIS IS CHARLIE": "THIS IS TALLINN",
+    "WETERN ITALY AIRPORT": "VICINITY OF AIRPORT",
+    "DEPOSE IT": "DEPOSITS",
+    "WETERN": "VICINITY",
     
-    # Phonétique & Chiffres
+    # Correction des chiffres épelés avec virgules
+    "0 8": "08",
+    "9R": "9",
     "9ER": "9",
-    "KKNOTSS": "KNOTS",
-    "KKNOTS": "KNOTS",
-    "ZERO": "0", "ONE": "1", "TWO": "2", "THREE": "3", "FOUR": "4", 
-    "FIVE": "5", "SIX": "6", "SEVEN": "7", "EIGHT": "8", "NINE": "9",
+    "6, 0": "60",
     
-    # Météo & Visibilité
-    "CARGO OKAY": "CAVOK",
-    "NO THICK": "NOSIG",
-    "NO FIT": "NOSIG",
-    "KVK": "CAVOK",
-    "CABLE K": "CAVOK",
-    
-    # Piste & Zones (Spécifique Tallinn)
-    "PACHYDOWN": "TOUCHDOWN",
-    "TOUCH DOWN Z1, 0": "TOUCHDOWN ZONE",
-    "Z1, 0": "ZONE",
-    "TOP END": "STOP END",
-    "DEPOSIT": "DEPOSITS",
-    "RUN THE CONDITION": "RUNWAY CONDITION",
-    "WEST": "WET",
-    "WET FINISH": "VICINITY",
-    
-    # Divers
-    "HECTOPASCALSS": "HECTOPASCALS",
-    "HECTO PASCALS": "HECTOPASCALS"
+    # Météo
+    "NO SEEK": "NOSIG",
+    "HECTO PASCAL": "HECTOPASCALS",
+    "HECTOPASCAL": "HECTOPASCALS"
 }
