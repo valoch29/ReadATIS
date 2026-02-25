@@ -8,6 +8,9 @@ on:
 jobs:
   record:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Force l'autorisation d'écriture
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
