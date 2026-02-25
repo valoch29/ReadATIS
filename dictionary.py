@@ -1,62 +1,37 @@
 replacement_dict = {
     # --- Identification Aéroport ---
+    "DARWIN AIRPORT": "TALLINN AIRPORT",
     "BUSINESS TALENT AIRPORT": "TALLINN AIRPORT",
     "BUSINESS TALENT": "THIS IS TALLINN",
     "STARLIN": "TALLINN",
     "TELLING": "TALLINN",
     "STALIN": "TALLINN",
-    "DARLING AIRPORT": "TALLINN AIRPORT",
     
     # --- Piste & État de surface ---
+    "SSTOP END": "STOP END",
+    "SSTOP": "STOP",
     "PATCH DOWN": "TOUCHDOWN",
-    "PACHYDOWN": "TOUCHDOWN",
     "TOUCH DOWN": "TOUCHDOWN",
-    "TOP END": "STOP END",
-    "STUPEND": "STOP END",
     "MEAT POINT": "MIDPOINT",
-    "MADE POINT": "MIDPOINT",
     "DEPOSE IT": "DEPOSITS",
-    "BEFORE IT": "DEPOSITS",
     "DEPOSIT": "DEPOSITS",
-    "WETERN": "VICINITY",
-    "WEST": "WET",
-    "WASTE": "WET",
     
     # --- Météo & Visibilité ---
-    "CAPITAL K": "CAVOK",
-    "CAV OK": "CAVOK",
-    "CABLE K": "CAVOK",
-    "KVK": "CAVOK",
-    "CARGO OKAY": "CAVOK",
+    "VIEWPOINT": "DEW POINT",
     "CABO K": "CAVOK",
     "CABO OK": "CAVOK",
+    "CAPITAL K": "CAVOK",
     "NO SEAT": "NOSIG",
-    "NO SEEK": "NOSIG",
-    "NO SICK": "NOSIG",
-    "NO THICK": "NOSIG",
     "NO SIGN": "NOSIG",
-    "NO FIT": "NOSIG",
-    "THRUST": "FROST",
     "TRUST": "FROST",
     
     # --- Chiffres & Unités ---
-    "9ER": "9",
-    "9R": "9",
-    "NINER": "9",
-    "TREE": "3",
-    "FIFE": "5",
-    "AIT": "8",
+    "ZERO": "0", "ONE": "1", "TWO": "2", "THREE": "3", "FOUR": "4",
+    "FIVE": "5", "FIFE": "5", "SIX": "6", "SEVEN": "7", "EIGHT": "8",
+    "NINE": "9", "NINER": "9", "TREE": "3",
     "HECTO PASCAL": "HECTOPASCALS",
-    "HECTO PASCALS": "HECTOPASCALS",
-    "KKNOTSS": "KNOTS",
     "KKNOTS": "KNOTS",
-    "NOTS": "KNOTS",
-    "GULF": "G",
-    "HOTEL": "H",
     
-    # --- Procédures ---
-    "EXPECTED LS": "EXPECT ILS",
-    "EXPECT ALL IS": "EXPECT ILS",
-    "TRANSITION LEVEL SIXTY": "TRANSITION LEVEL 60",
-    "BIRD ACTIVITY IN WETERN": "BIRD ACTIVITY IN VICINITY"
+    # --- Alphabet Radio ---
+    "JULIET": "J", "GULF": "G", "HOTEL": "H", "INDIA": "I", "KILO": "K"
 }
