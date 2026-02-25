@@ -1,29 +1,30 @@
-name: 1. Record ATIS Audio
+name: Record ATIS Audio
+
 on:
   schedule:
-    - cron: '25 * * * *'
-    - cron: '55 * * * *'
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 jobs:
   record:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Record Audio (180s)
-        run: ffmpeg -i https://icecast.kobly.com/eetn2_atis -t 180 -acodec pcm_s16le -ar 16000 atis_recorded.wav -y
-
-      - name: Commit Audio
+      - name: Record Audio
         run: |
-          git config --global user.name 'ATIS-Recorder'
-          git config --global user.email 'bot@github.com'
+          # On enregistre 120 secondes du flux
+          ffmpeg -i "http://dhr.tallinn-airport.ee:8000/atis" -t 120 -c:a pcm_s16le -ar 16000 -ac 1 atis_recorded.wav
+
+      - name: Commit and Push Audio
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add atis_recorded.wav
-          git commit -m "New Audio Recording" || exit 0
-          git push origin main
+          # Le "|| exit 0" évite que le workflow plante s'il n'y a pas de changement (peu probable ici)
+          git commit -m "Update ATIS Audio Recording" || exit 0
+          git push
