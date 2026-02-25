@@ -4,42 +4,33 @@
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>ATIS TALLINN LIVE</title>
             <style>
-                :root { --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --accent: #ffffff; --border: #333; }
-                body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
-                .container { max-width: 800px; width: 100%; }
-                header { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: baseline; }
-                h1 { font-size: 1.2rem; letter-spacing: 2px; color: var(--accent); margin: 0; }
-                .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
-                .stat-card { background: var(--card); padding: 15px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
-                .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; margin-bottom: 5px; }
-                .stat-value { font-size: 1.4rem; font-weight: bold; color: var(--accent); }
-                .main-msg { background: var(--card); padding: 25px; border-radius: 12px; line-height: 1.6; font-size: 1.1rem; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.3); white-space: pre-wrap; }
-                .raw-zone { margin-top: 30px; font-size: 0.75rem; color: #555; font-family: monospace; }
-                .footer { margin-top: 40px; font-size: 0.7rem; color: #444; text-align: center; text-transform: uppercase; }
+                body { background: #0c0c0c; color: #d0d0d0; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+                .container { max-width: 650px; margin: auto; border: 1px solid #222; padding: 25px; background: #141414; border-radius: 4px; }
+                .header { text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: bold; font-size: 1.1rem; color: #fff; letter-spacing: 2px; }
+                .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+                .item { background: #1a1a1a; padding: 12px; border-radius: 3px; border-left: 3px solid #444; }
+                .label { color: #777; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 4px; }
+                .val { font-size: 1.15rem; color: #efefef; font-weight: 600; font-family: monospace; }
+                .transcription { margin-top: 25px; line-height: 1.5; color: #999; font-size: 0.9rem; background: #0f0f0f; padding: 15px; border-radius: 3px; white-space: pre-wrap; }
+                .footer { margin-top: 30px; font-size: 0.65rem; color: #333; text-align: center; }
             </style>
         </head>
         <body>
             <div class="container">
-                <header>
-                    <h1>TALLINN ATIS</h1>
-                    <div style="font-size: 0.8rem; color: #888;">10:07 UTC</div>
-                </header>
-
+                <div class="header">TALLINN EETN ATIS &nbsp; 11:36 UTC</div>
                 <div class="grid">
-                    <div class="stat-card"><div class="stat-label">Information</div><div class="stat-value">V</div></div>
-                    <div class="stat-card"><div class="stat-label">QNH</div><div class="stat-value">1026</div></div>
-                    <div class="stat-card"><div class="stat-label">Runway</div><div class="stat-value">08</div></div>
+                    <div class="item"><div class="label">INFO</div><div class="val">C</div></div>
+                    <div class="item"><div class="label">RWY</div><div class="val">08</div></div>
+                    <div class="item"><div class="label">QNH</div><div class="val">---- hPa</div></div>
+                    <div class="item"><div class="label">WIND</div><div class="val">--- / --KT</div></div>
+                    <div class="item"><div class="label">VISIBILITY</div><div class="val">CAVOK</div></div>
+                    <div class="item"><div class="label">TEMP / DEW</div><div class="val">-- / --</div></div>
+                    <div class="item"><div class="label">RWY CONDITION</div><div class="val">6 / 6 / 6</div></div>
+                    <div class="item"><div class="label">SURFACE</div><div class="val">FROST / WET</div></div>
                 </div>
-
-                <div class="main-msg">4 KKNOTSS, CARGO OKAY. TEMPERATURE MINUS 5 DEW POINT MINUS 9ER QNH 1026 HECTOPASCAL.  TREND NO THICK, INFORMATION VICTOR OUT. THIS IS TELLING AIRPORT, INFORMATION VICTOR.  TIME 0, 9ER 50, EXPECT ILS APPROACH RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT 0856.  RUNWAY CONDITION CODE, TOUCH DOWN, 6 MIDPOINT, 6 TOP END, 6 DEPOSITS.  TOUCH DOWN, 25% WET.  MIDPOINT, 25% WET.  TOP END, 25% WET.  TRANSITION LEVEL, 6-0, BIRD ACTIVITY IN VICINITY OF AIRPORT.  WIND RUNWAY, 08, TOUCH DOWN Z1, 0, 9ER, 0 DEGREES, 5 KKNOTSS.  TOP END, 08, 0 DEGREES, 4 KKNOTSS.  TEMPERATURE MINUS 5 DEW POINT MINUS 9ER QNH 1026 HECTOPASCAL.  TREND NO THICK, INFORMATION VICTOR OUT. THIS IS TELLING AIRPORT, INFORMATION VICTOR.  TIME 0, 9ER 50, EXPECT ILS APPROACH RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT 0856.  RUNWAY CONDITION CODE, TOUCH DOWN, 6 MIDPOINT, 6 TOP END, 6 DEPOSITS.  TOUCH DOWN, 25% WET.</div>
-
-                <div class="raw-zone">
-                    <strong>RAW DATA:</strong><br>4 KNOTS, CARGO OKAY. TEMPERATURE MINUS 5 DEW POINT MINUS 9ER QNH 1026 HECTOPASCAL.  TREND NO THICK, INFORMATION VICTOR OUT. THIS IS TELLING AIRPORT, INFORMATION VICTOR.  TIME 0, 9ER 50, EXPECT ILS APPROACH RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT 0856.  RUNWAY CONDITION CODE, TOUCH DOWN, 6 MIDPOINT, 6 TOP END, 6 DEPOSIT.  TOUCH DOWN, 25% WET.  MIDPOINT, 25% WET.  TOP END, 25% WET.  TRANSITION LEVEL, 6-0, BIRD ACTIVITY IN VICINITY OF AIRPORT.  WIND RUNWAY, 08, TOUCH DOWN ZONE, 0, 9ER, 0 DEGREES, 5 KNOTS.  TOP END, 08, 0 DEGREES, 4 KNOTS.  TEMPERATURE MINUS 5 DEW POINT MINUS 9ER QNH 1026 HECTOPASCAL.  TREND NO THICK, INFORMATION VICTOR OUT. THIS IS TELLING AIRPORT, INFORMATION VICTOR.  TIME 0, 9ER 50, EXPECT ILS APPROACH RUNWAY 08 IN USE.  RUNWAY 08, CONDITION REPORT TIME AT 0856.  RUNWAY CONDITION CODE, TOUCH DOWN, 6 MIDPOINT, 6 TOP END, 6 DEPOSIT.  TOUCH DOWN, 25% WET.
-                </div>
-
-                <div class="footer">Automatic Transcription System • EETN ATIS</div>
+                <div class="transcription"><strong>MESSAGE:</strong><br><br>MINUS 3 DEW POINT, MINUS 9 HUMAN MATE, 1026 HEKTAR PASCAL  TREND NO SEEK, INFORMATION CHARLIE OUT  WHICH IS DARLING AIRPORT, INFORMATION CHARLIE  TIME, 1, 1, 2, 0, EXPECT ILS APPROACH  RUNWAY 08 IN USE  RUNWAY 08, CONDITION REPORT SOIL MATE  08, 5, 6  RUNWAY CONDITION CODE TOUCH DOWN  6, MIDPOINT  6, SSTOP END  6, DEPLOY  TOUCH DOWN  25% WET  MIDPOINT  25% WET  SSTOP END  25% WET  TRANSITION LEVEL 6, 0  BIRD ACTIVITY IN VICINITY OF AIRPORT  WIND RUNWAY 08, TOUCH DOWN Z1  VARIABLE BETWEEN 0, 7, 0 DEGREES  AND 1, 3, 0 DEGREES  2, NOT SSTOP END  1, 0, 0 DEGREES  4, NOT CAPITAL K  TEMPERATURE MINUS 3, DEW POINT  MINUS 9 HUMAN MATE  1026 HEKTAR PASCAL  TREND NO SEEK, INFORMATION CHARLIE OUT  WHICH IS DARLING AIRPORT  INFORMATION CHARLIE  TIME, 1, 1, 2, 0, EXPECT ILS APPROACH  RUNWAY 08 IN USE  RUNWAY 08, CONDITION REPORT SOIL MATE  08, 5, 6  RUNWAY CONDITION CODE TOUCH DOWN  6, MIDPOINT  6, SSTOP END  6, DEPLOY  TOUCH DOWN  25% WET</div>
+                <div class="footer">EETN AUTOMATIC DECODER</div>
             </div>
         </body>
         </html>
