@@ -35,9 +35,12 @@ def run_atis_system():
     atis_time = find(r"TIME\s+(\d{4})", text)
     display_time = f"{atis_time[:2]}:{atis_time[2:]}" if atis_time != "---" else "---"
 
-    # RCC (Format 5/5/5)
-    rcc_match = re.search(r"CONDITION\s+CODE\s+(\d)\s+(\d)\s+(\d)", text)
-    rcc = f"{rcc_match.group(1)}/{rcc_match.group(2)}/{rcc_match.group(3)}" if rcc_match else "---"
+    # Extraction du RCC (Cherche un chiffre après chaque mot-clé de zone)
+    rcc_match = re.search(r"TOUCHDOWN\s+(\d)\s+MIDPOINT\s+(\d)\s+STOP\s+END\s+(\d)", text)
+    if rcc_match:
+        rcc = f"{rcc_match.group(1)}/{rcc_match.group(2)}/{rcc_match.group(3)}"
+    else:
+        rcc = "---"
 
     # Contaminants (TDZ/MID/END)
     def get_contam(part, src):
