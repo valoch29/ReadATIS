@@ -10,14 +10,17 @@ except ImportError:
 
 def run_atis_system():
     audio_file = "atis_recorded.wav"
-    if not os.path.exists(audio_file): return
+    if not os.path.exists(audio_file):
+        print("Erreur : Fichier audio introuvable.")
+        return
 
     try:
+        # Configuration de Whisper
         model = WhisperModel("medium", device="cpu", compute_type="int8")
         segments, _ = model.transcribe(audio_file, beam_size=5)
         txt = " ".join([s.text for s in segments]).upper()
         
-        # Nettoyage pour l'extraction
+        # Nettoyage pour l'extraction des données
         clean = txt.replace(",", " ").replace(".", " ").replace(":", " ")
         clean = " ".join(clean.split())
 
@@ -25,83 +28,94 @@ def run_atis_system():
             res = re.findall(pattern, src)
             return res[-1] if res else default
 
-        # Extraction Data
+        # Extraction des paramètres clés
         info = find(r"INFORMATION\s+([A-Z])", clean)
         qnh = find(r"(?:QNH|HPA)\s+(\d{4})", clean)
         rwy = find(r"RUNWAY\s+(\d{2})", clean)
         
-        # Vent
+        # Vent (Gestion des variations de Whisper)
         w_m = re.search(r"(\d{3})\s+(?:DEGREES|DEG)\s+(\d+)", clean)
-        wind = f"{w_m.group(1)}° / {w_m.group(2)}<span style='font-size:0.8rem'>KT</span>" if w_m else "---"
+        wind = f"{w_m.group(1)}° / {w_m.group(2)}KT" if w_m else "---"
         
-        # Température
+        # Température et Point de rosée
         t_m = re.search(r"TEMPERATURE\s+(MINUS\s+)?(\d+)\s+DEWPOINT\s+(MINUS\s+)?(\d+)", clean)
-        temp = f"{('-' if t_m.group(1) else '') + t_m.group(2)}° / {('-' if t_m.group(3) else '') + t_m.group(4)}°" if t_m else "-- / --"
+        if t_m:
+            t_val = f"{'-' if t_m.group(1) else ''}{t_m.group(2)}"
+            d_val = f"{'-' if t_m.group(3) else ''}{t_m.group(4)}"
+            temp = f"{t_val}° / {d_val}°"
+        else:
+            temp = "-- / --"
         
-        # RCC & Conditions
+        # RCC et Conditions de surface
         rcc = f"{find(r'TOUCHDOWN\s+(\d)', clean)} {find(r'MIDPOINT\s+(\d)', clean)} {find(r'STOP END\s+(\d)', clean)}"
         cond = "DRY"
         if "SNOW" in clean: cond = "SNOW"
-        if "WET" in clean: cond = "WET"
-        if "ICE" in clean: cond = "ICE"
+        elif "WET" in clean: cond = "WET"
+        elif "ICE" in clean: cond = "ICE"
 
         zulu = datetime.datetime.utcnow().strftime("%H:%M")
 
-        # HTML DESIGN RÉVERSIBLE & RESPONSIVE
+        # Génération du HTML (Design Responsive & Dark)
         html = f"""
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                :root {{ --bg: #0a0a0c; --card: #16161a; --accent: #ffffff; --dim: #828282; }}
-                body {{ background: var(--bg); color: var(--accent); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; }}
-                .container {{ width: 100%; max-width: 480px; margin-top: 20px; }}
-                
-                /* Header Area */
-                .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 5px; }}
-                .airport {{ font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; }}
-                .zulu {{ background: #fff; color: #000; padding: 2px 8px; font-weight: 900; border-radius: 4px; font-size: 0.9rem; }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {{ --bg: #050505; --card: #121214; --accent: #ffffff; --dim: #808080; --border: #252525; }}
+        body {{ background: var(--bg); color: var(--accent); font-family: 'Inter', -apple-system, sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; }}
+        .container {{ width: 100%; max-width: 450px; margin-top: 10px; }}
+        .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px; }}
+        .airport {{ font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; }}
+        .zulu {{ background: #fff; color: #000; padding: 3px 10px; font-weight: 900; border-radius: 5px; font-size: 0.85rem; }}
+        .info-hero {{ background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }}
+        .info-label {{ color: var(--dim); font-size: 0.75rem; text-transform: uppercase; font-weight: bold; }}
+        .info-letter {{ font-size: 4.5rem; font-weight: 900; line-height: 1; }}
+        .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }}
+        .tile {{ background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 15px; }}
+        .tile-label {{ color: var(--dim); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 5px; font-weight: 600; }}
+        .tile-val {{ font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; }}
+        .status {{ font-size: 0.75rem; background: #1a1a1c; padding: 5px 12px; border-radius: 50px; color: #fff; margin-top: 8px; display: inline-block; border: 1px solid #333; }}
+        .raw-box {{ margin-top: 20px; background: #0a0a0a; border-radius: 10px; padding: 15px; font-size: 0.7rem; color: #444; line-height: 1.4; border: 1px dashed #222; text-transform: uppercase; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="airport">EETN TALLINN</div>
+            <div class="zulu">{zulu}Z</div>
+        </div>
+        <div class="info-hero">
+            <div>
+                <div class="info-label">Information</div>
+                <div class="status">RWY {rwy} IN USE</div>
+            </div>
+            <div class="info-letter">{info}</div>
+        </div>
+        <div class="grid">
+            <div class="tile"><div class="tile-label">Wind</div><div class="tile-val">{wind}</div></div>
+            <div class="tile"><div class="tile-label">QNH</div><div class="tile-val">{qnh}</div></div>
+            <div class="tile"><div class="tile-label">Temp / Dew</div><div class="tile-val">{temp}</div></div>
+            <div class="tile">
+                <div class="tile-label">RCC / Surface</div>
+                <div class="tile-val">{rcc}</div>
+                <div style="font-size:0.7rem; color:var(--dim); margin-top:4px;">{cond}</div>
+            </div>
+        </div>
+        <div class="raw-box">
+            <strong>Whisper Transcript:</strong><br>{txt}
+        </div>
+    </div>
+</body>
+</html>
+"""
+        with open("index.html", "w", encoding="utf-8") as f:
+            f.write(html)
+        print("Transcription et mise à jour de la page réussies.")
 
-                /* Information Letter Box */
-                .info-hero {{ background: var(--card); border: 1px solid #333; border-radius: 12px; padding: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }}
-                .info-label {{ color: var(--dim); font-size: 0.8rem; text-transform: uppercase; font-weight: bold; }}
-                .info-letter {{ font-size: 4rem; font-weight: 900; line-height: 1; }}
+    except Exception as e:
+        print(f"Erreur lors du traitement : {e}")
 
-                /* Data Grid */
-                .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }}
-                .tile {{ background: var(--card); border: 1px solid #2a2a2a; border-radius: 12px; padding: 15px; }}
-                .tile-label {{ color: var(--dim); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }}
-                .tile-val {{ font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }}
-                
-                /* Status Badge */
-                .status {{ font-size: 0.8rem; background: #222; padding: 4px 10px; border-radius: 20px; color: #fff; margin-top: 5px; display: inline-block; border: 1px solid #444; }}
-
-                /* Footer Message */
-                .raw-box {{ margin-top: 25px; background: #111; border-radius: 8px; padding: 15px; font-size: 0.75rem; color: #666; line-height: 1.4; border-left: 3px solid #333; }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <div class="airport">EETN TALLINN</div>
-                    <div class="zulu">{zulu}Z</div>
-                </div>
-
-                <div class="info-hero">
-                    <div>
-                        <div class="info-label">Current Information</div>
-                        <div class="status">ILS APCH / RWY {rwy}</div>
-                    </div>
-                    <div class="info-letter">{info}</div>
-                </div>
-
-                <div class="grid">
-                    <div class="tile"><div class="tile-label">Wind</div><div class="tile-val">{wind}</div></div>
-                    <div class="tile"><div class="tile-label">QNH</div><div class="tile-val">{qnh}</div></div>
-                    <div class="tile"><div class="tile-label">Temp / DW</div><div class="tile-val">{temp}</div></div>
-                    <div class="tile">
-                        <div class="tile-label">RCC / Surface</div>
-                        <div class="tile-val" style="font-size:1.2rem">{rcc}</div>
-                        <div style
+if __name__ == "__main__":
+    run_atis_system()
