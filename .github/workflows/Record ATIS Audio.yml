@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -18,15 +18,20 @@ jobs:
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Record Audio
+      - name: Record Audio (2m30s)
         run: |
-          # Utilisation du nouveau flux Kobly
-          ffmpeg -y -i "https://icecast.kobly.com/eetn2_atis" -t 180 -c:a pcm_s16le -ar 16000 -ac 1 atis_recorded.wav
+          # -t 150 pour 2 minutes et 30 secondes
+          # Ajout de flags pour stabiliser la connexion au flux icecast
+          ffmpeg -y -i "https://icecast.kobly.com/eetn2_atis" -t 150 -c:a pcm_s16le -ar 16000 -ac 1 atis_recorded.wav
+
+      - name: Verify Audio
+        run: ls -lh atis_recorded.wav
 
       - name: Commit and Push Audio
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add atis_recorded.wav
-          git commit -m "Update ATIS Audio Recording" || exit 0
+          # Le timestamp dans le message force GitHub à voir un changement réel
+          git commit -m "New Audio Recording: $(date +'%Y-%m-%d %H:%M:%S')" || exit 0
           git push
