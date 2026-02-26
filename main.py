@@ -15,7 +15,7 @@ def run_atis_system():
     segments, _ = model.transcribe(audio_file, beam_size=5, initial_prompt=prompt)
     raw_text = " ".join([s.text for s in segments]).upper()
 
-    # 2. Nettoyage de base et application du dictionnaire
+    # 2. Nettoyage
     text = raw_text.replace(",", " ").replace(".", " ")
     for wrong, right in replacement_dict.items():
         text = re.sub(rf'\b{wrong}\b', right, text)
@@ -29,36 +29,38 @@ def run_atis_system():
     info = find(r"INFORMATION\s+([A-Z])", text)
     rwy  = find(r"RUNWAY\s+(\d{2})", text)
     qnh  = find(r"(?:QNH|HPA|HECTOPASCALS)\s+(\d{4})", text)
-    
-    # Heure de l'ATIS (ex: TIME 1052)
     atis_time = find(r"TIME\s+(\d{4})", text)
-    if atis_time != "---":
-        atis_time = f"{atis_time[:2]}:{atis_time[2:]}"
+    display_time = f"{atis_time[:2]}:{atis_time[2:]}" if atis_time != "---" else "---"
+    
+    # Température & Dewpoint
+    def get_temp(type_name, src):
+        match = re.search(rf"{type_name}\s+(MINUS\s+)?(\d+)", src)
+        if match:
+            val = match.group(2)
+            return f"-{val}" if match.group(1) else val
+        return "---"
+
+    temp = get_temp("TEMPERATURE", text)
+    dewp = get_temp("DEWPOINT", text)
 
     # Vent
     w_match = re.search(r"(\d{3})\s+DEGREES\s+(\d+)\s+KNOTS", text)
-    wind = f"{w_match.group(1)}° / {w_match.group(2)} KT" if w_match else "---"
+    wind = f"{w_match.group(1)}°/{w_match.group(2)}KT" if w_match else "---"
 
-    # 4. Découpe : Une seule itération de "THIS IS TALLINN" jusqu'à la fin de la boucle
-    # On cherche l'amorce du message
+    # 4. Découpe Chirurgicale (Une seule itération)
     start_trigger = "THIS IS TALLINN"
     start_idx = text.find(start_trigger)
-    
     if start_idx != -1:
-        # On prend tout à partir du premier "THIS IS TALLINN"
         iteration = text[start_idx:]
-        # On cherche si le message recommence plus loin pour couper la répétition
-        # On cherche la 2ème occurrence de "THIS IS TALLINN" (au moins 50 caractères plus loin)
-        next_iter = iteration.find(start_trigger, 50)
-        if next_iter != -1:
-            clean_display_text = iteration[:next_iter].strip()
-        else:
-            clean_display_text = iteration.strip()
+        # On coupe avant la prochaine répétition
+        next_iter = iteration.find(start_trigger, 60)
+        if next_iter == -1: 
+            next_iter = iteration.find("INFORMATION", 60)
+        clean_display_text = iteration[:next_iter].strip() if next_iter != -1 else iteration.strip()
     else:
-        # Fallback si l'amorce n'est pas trouvée : on garde le texte tel quel
         clean_display_text = text
 
-    # 5. Génération HTML (Design Monochrome)
+    # 5. Génération HTML (Design Premium Monochrome)
     html_template = """
 <!DOCTYPE html>
 <html lang="fr">
@@ -66,51 +68,52 @@ def run_atis_system():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        :root {{ --bg: #000000; --card: #111111; --border: #333333; --text: #ffffff; --dim: #666666; }}
-        body {{ background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }}
-        .container {{ width: 100%; max-width: 450px; }}
-        .header {{ display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }}
-        .zulu {{ font-size: 1.2rem; font-weight: 700; letter-spacing: 1px; }}
-        .info-box {{ background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 30px; text-align: center; margin-bottom: 15px; }}
-        .info-letter {{ font-size: 7rem; font-weight: 900; line-height: 1; display: block; color: var(--text); }}
-        .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }}
-        .tile {{ background: var(--card); padding: 20px; }}
-        .label {{ color: var(--dim); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px; font-weight: 800; letter-spacing: 1.5px; }}
-        .val {{ font-size: 1.3rem; font-weight: 700; }}
-        .raw {{ margin-top: 40px; font-size: 0.85rem; color: var(--text); line-height: 1.6; text-align: justify; border-left: 2px solid var(--border); padding-left: 15px; }}
-        .raw strong {{ color: var(--dim); display: block; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 10px; }}
+        :root {{ --bg: #000; --card: #0d0d0d; --border: #222; --text: #fff; --dim: #555; }}
+        body {{ background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, system-ui, sans-serif; margin: 0; padding: 25px; display: flex; justify-content: center; }}
+        .container {{ width: 100%; max-width: 420px; }}
+        .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; letter-spacing: 2px; font-weight: 800; font-size: 0.8rem; color: var(--dim); }}
+        .time {{ color: var(--text); font-size: 1.1rem; }}
+        .info-section {{ display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 30px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }}
+        .info-letter {{ font-size: 6rem; font-weight: 900; line-height: 1; }}
+        .info-label {{ text-transform: uppercase; font-size: 0.6rem; letter-spacing: 3px; color: var(--dim); writing-mode: vertical-rl; transform: rotate(180deg); }}
+        .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }}
+        .tile {{ background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; transition: border 0.3s; }}
+        .label {{ color: var(--dim); font-size: 0.6rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }}
+        .val {{ font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px; }}
+        .raw {{ margin-top: 40px; font-size: 0.75rem; color: #444; line-height: 1.6; text-align: justify; border-top: 1px solid #111; padding-top: 20px; text-transform: uppercase; }}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 2px;">EETN TALLINN</div>
-            <div class="zulu">{ZULU}Z</div>
+            <span>EETN TALLINN</span>
+            <span class="time">{ZULU}Z</span>
         </div>
-        <div class="info-box">
-            <div class="label" style="margin-bottom: 0;">Information</div>
-            <span class="info-letter">{INFO}</span>
+        <div class="info-section">
+            <div class="info-label">Information</div>
+            <div class="info-letter">{INFO}</div>
         </div>
         <div class="grid">
             <div class="tile"><div class="label">Runway</div><div class="val">{RWY}</div></div>
             <div class="tile"><div class="label">QNH</div><div class="val">{QNH}</div></div>
             <div class="tile"><div class="label">Wind</div><div class="val">{WIND}</div></div>
             <div class="tile"><div class="label">Visibility</div><div class="val">CAVOK</div></div>
+            <div class="tile"><div class="label">Temp</div><div class="val">{TEMP}°C</div></div>
+            <div class="tile"><div class="label">Dewpoint</div><div class="val">{DEWP}°C</div></div>
         </div>
-        <div class="raw">
-            <strong>TRANSCRIPTION</strong>
-            {RAW}
-        </div>
+        <div class="raw">{RAW}</div>
     </div>
 </body>
 </html>
 """
     final_html = html_template.format(
-        ZULU=atis_time if atis_time != "---" else datetime.datetime.utcnow().strftime("%H:%M"),
+        ZULU=display_time,
         INFO=info[0] if info != "---" else "---",
         RWY=rwy,
         QNH=qnh,
         WIND=wind,
+        TEMP=temp,
+        DEWP=dewp,
         RAW=clean_display_text
     )
 
