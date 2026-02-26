@@ -32,7 +32,6 @@ def run_atis_system():
     atis_time = find(r"TIME\s+(\d{4})", text)
     display_time = f"{atis_time[:2]}:{atis_time[2:]}" if atis_time != "---" else "---"
     
-    # Température & Dewpoint
     def get_temp(type_name, src):
         match = re.search(rf"{type_name}\s+(MINUS\s+)?(\d+)", src)
         if match:
@@ -43,16 +42,17 @@ def run_atis_system():
     temp = get_temp("TEMPERATURE", text)
     dewp = get_temp("DEWPOINT", text)
 
-    # Vent
-    w_match = re.search(r"(\d{3})\s+DEGREES\s+(\d+)\s+KNOTS", text)
+    # Vent : Priorité à la TOUCHDOWN ZONE
+    w_match = re.search(r"TOUCHDOWN ZONE\s+(\d{3})\s+DEGREES\s+(\d+)\s+KNOTS", text)
+    if not w_match:
+        w_match = re.search(r"(\d{3})\s+DEGREES\s+(\d+)\s+KNOTS", text)
     wind = f"{w_match.group(1)}°/{w_match.group(2)}KT" if w_match else "---"
 
-    # 4. Découpe Chirurgicale (Une seule itération)
+    # 4. Découpe Chirurgicale
     start_trigger = "THIS IS TALLINN"
     start_idx = text.find(start_trigger)
     if start_idx != -1:
         iteration = text[start_idx:]
-        # On coupe avant la prochaine répétition
         next_iter = iteration.find(start_trigger, 60)
         if next_iter == -1: 
             next_iter = iteration.find("INFORMATION", 60)
@@ -60,7 +60,7 @@ def run_atis_system():
     else:
         clean_display_text = text
 
-    # 5. Génération HTML (Design Premium Monochrome)
+    # 5. Génération HTML
     html_template = """
 <!DOCTYPE html>
 <html lang="fr">
@@ -68,19 +68,19 @@ def run_atis_system():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        :root {{ --bg: #000; --card: #0d0d0d; --border: #222; --text: #fff; --dim: #555; }}
-        body {{ background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, system-ui, sans-serif; margin: 0; padding: 25px; display: flex; justify-content: center; }}
+        :root {{ --bg: #000; --card: #0d0d0d; --border: #222; --text: #fff; --dim: #777; --subtext: #bbb; }}
+        body {{ background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; margin: 0; padding: 25px; display: flex; justify-content: center; }}
         .container {{ width: 100%; max-width: 420px; }}
-        .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; letter-spacing: 2px; font-weight: 800; font-size: 0.8rem; color: var(--dim); }}
+        .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; letter-spacing: 2px; font-weight: 800; font-size: 0.8rem; color: var(--dim); }}
         .time {{ color: var(--text); font-size: 1.1rem; }}
-        .info-section {{ display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 30px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }}
-        .info-letter {{ font-size: 6rem; font-weight: 900; line-height: 1; }}
-        .info-label {{ text-transform: uppercase; font-size: 0.6rem; letter-spacing: 3px; color: var(--dim); writing-mode: vertical-rl; transform: rotate(180deg); }}
+        .info-section {{ text-align: center; margin-bottom: 25px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; }}
+        .info-letter {{ font-size: 6rem; font-weight: 900; line-height: 1; margin: 0; }}
+        .info-label {{ text-transform: uppercase; font-size: 0.7rem; letter-spacing: 4px; color: var(--dim); margin-bottom: 5px; display: block; }}
         .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }}
-        .tile {{ background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; transition: border 0.3s; }}
+        .tile {{ background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }}
         .label {{ color: var(--dim); font-size: 0.6rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }}
-        .val {{ font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px; }}
-        .raw {{ margin-top: 40px; font-size: 0.75rem; color: #444; line-height: 1.6; text-align: justify; border-top: 1px solid #111; padding-top: 20px; text-transform: uppercase; }}
+        .val {{ font-size: 1.3rem; font-weight: 700; }}
+        .raw {{ margin-top: 40px; font-size: 0.8rem; color: var(--subtext); line-height: 1.6; text-align: justify; border-top: 1px solid #222; padding-top: 20px; text-transform: uppercase; }}
     </style>
 </head>
 <body>
@@ -90,13 +90,13 @@ def run_atis_system():
             <span class="time">{ZULU}Z</span>
         </div>
         <div class="info-section">
-            <div class="info-label">Information</div>
+            <span class="info-label">Information</span>
             <div class="info-letter">{INFO}</div>
         </div>
         <div class="grid">
             <div class="tile"><div class="label">Runway</div><div class="val">{RWY}</div></div>
             <div class="tile"><div class="label">QNH</div><div class="val">{QNH}</div></div>
-            <div class="tile"><div class="label">Wind</div><div class="val">{WIND}</div></div>
+            <div class="tile"><div class="label">Wind (TDZ)</div><div class="val">{WIND}</div></div>
             <div class="tile"><div class="label">Visibility</div><div class="val">CAVOK</div></div>
             <div class="tile"><div class="label">Temp</div><div class="val">{TEMP}°C</div></div>
             <div class="tile"><div class="label">Dewpoint</div><div class="val">{DEWP}°C</div></div>
