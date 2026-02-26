@@ -1,30 +1,50 @@
 
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
         <head>
             <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>EETN ATIS - PILOT VIEW</title>
             <style>
-                body { background: #050505; color: #e0e0e0; font-family: 'Monaco', monospace; display: flex; justify-content: center; padding: 20px; }
-                .box { width: 100%; max-width: 600px; border: 2px solid #333; background: #000; padding: 20px; box-shadow: 0 0 20px rgba(0,255,0,0.05); }
-                .row { display: flex; justify-content: space-between; border-bottom: 1px solid #111; padding: 10px 0; }
-                .lbl { color: #666; font-size: 12px; }
-                .val { color: #00FF00; font-size: 18px; font-weight: bold; }
-                .msg { margin-top: 20px; font-size: 13px; color: #888; line-height: 1.6; border-top: 1px solid #333; padding-top: 10px; }
-                .status { font-size: 10px; color: #444; text-align: right; margin-top: 10px; }
+                :root { --bg: #000000; --text: #ffffff; --border: #ffffff; --dim: #888888; }
+                * { box-sizing: border-box; }
+                body { background: var(--bg); color: var(--text); font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace; margin: 0; padding: 15px; display: flex; justify-content: center; }
+                .container { width: 100%; max-width: 550px; border: 2px solid var(--border); padding: 20px; }
+                .header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 25px; }
+                .icao { font-size: 1.8rem; font-weight: 900; }
+                .time { font-size: 0.9rem; font-weight: bold; color: var(--dim); }
+                .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; background: var(--border); border: 2px solid var(--border); }
+                .item { background: var(--bg); padding: 20px; display: flex; flex-direction: column; }
+                .full-width { grid-column: span 2; }
+                .label { font-size: 0.7rem; font-weight: bold; color: var(--dim); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+                .value { font-size: 2rem; font-weight: 800; line-height: 1; }
+                .info-box { font-size: 3.5rem; border: 4px solid var(--border); padding: 5px 15px; display: inline-block; line-height: 1; }
+                .raw-msg { margin-top: 25px; font-size: 0.8rem; line-height: 1.5; color: var(--dim); border-top: 1px solid #333; padding-top: 15px; text-transform: uppercase; }
+                @media (max-width: 480px) {
+                    .value { font-size: 1.4rem; }
+                    .info-box { font-size: 2.5rem; }
+                    .item { padding: 12px; }
+                }
             </style>
         </head>
         <body>
-            <div class="box">
-                <div style="text-align:center; color:#fff; margin-bottom:20px;">EETN ATIS MONITOR</div>
-                <div class="row"><span class="lbl">INFORMATION</span><span class="val" style="color:#ffcc00">M</span></div>
-                <div class="row"><span class="lbl">ACTIVE RWY</span><span class="val">08</span></div>
-                <div class="row"><span class="lbl">WIND</span><span class="val">160° / 4KT</span></div>
-                <div class="row"><span class="lbl">VISIBILITY / CLOUDS</span><span class="val">CAVOK</span></div>
-                <div class="row"><span class="lbl">TEMP / DEW</span><span class="val">-2° / -10°</span></div>
-                <div class="row"><span class="lbl">QNH</span><span class="val">1026 hPa</span></div>
-                <div class="row"><span class="lbl">RWY COND</span><span class="val">6 / 6 / 6</span></div>
-                <div class="msg">RAW DATA:<br>TREND NO 6 INFORMATION MIC OUT THIS IS TALLINN AIRPORT INFORMATION MIC TIME 1550 EXPECT ILS APPROACH RUNWAY 08 IN USE RUNWAY 08 CONDITION REPORT TIME AT 1526 RUNWAY CONDITION CODE PATCH DOWN 5 MIDPOINT 52P END 5 DEPOSIT PATCH DOWN 50 WET MIDPOINT 50 WET 2P END 50 WET TRANSITION LEVEL 60 BIRD ACTIVITY IN VICINITY OF AIRPORT WIND RUNWAY 082UCHDOWN Z1160 DEGREES 4 KNOTS 2P END 170 DEGREES 4 KNOTS CAPITAL K TEMPERATURE MINUS 2 DEWPOINT MINUS 10 QNH 1026 HPA TREND NO 6 INFORMATION MIC OUT THIS IS TALLINN AIRPORT INFORMATION MIC TIME 1550 EXPECT ILS APPROACH RUNWAY 08 IN USE RUNWAY 08 CONDITION REPORT TIME AT 1526 RUNWAY CONDITION CODE PATCH DOWN 5 MIDPOINT 52P END 5 DEPOSIT PATCH DOWN 50 WET MIDPOINT 50 WET 2P END 50 WET TRANSITION LEVEL 60 BIRD ACTIVITY IN VICINITY OF AIRPORT WIND RUNWAY 082UCHDOWN Z1160 DEGREES 4 KNOTS 2P END 170 DEGREES 4 KNOTS CAPITAL K TEMPERATURE MINUS 2 DEWPOINT MINUS 10 QNH 1026 HPA TREND NO 6 INFORMATION MIC OUT THIS IS TALLINN AIRPORT INFORMATION MIC TIME 1550 EXPECT ILS APPROACH RUNWAY 08 IN USE RUNWAY 08 CONDITION REPORT TIME AT 1526 RUNWAY CONDITION CODE PATCH DOWN 5 MIDPOINT 52P END 5 DEPOSIT PATCH DOWN</div>
-                <div class="status">LAST UPDATED: 16:20 UTC | WHISPER MEDIUM INT8</div>
+            <div class="container">
+                <div class="header">
+                    <div class="icao">EETN TALLINN</div>
+                    <div class="time">26 FEB 10:28 UTC</div>
+                </div>
+                <div class="grid">
+                    <div class="item"><div class="label">Information</div><div><span class="info-box">---</span></div></div>
+                    <div class="item"><div class="label">Active Rwy</div><div class="value">08</div></div>
+                    <div class="item"><div class="label">Wind</div><div class="value">--- / --KT</div></div>
+                    <div class="item"><div class="label">QNH</div><div class="value">---</div></div>
+                    <div class="item"><div class="label">Temperature</div><div class="value">-1° / -4°</div></div>
+                    <div class="item"><div class="label">RCC (Codes)</div><div class="value">1 / 1 / 1</div></div>
+                    <div class="item full-width"><div class="label">Visibility / Clouds</div><div class="value">CAVOK</div></div>
+                </div>
+                <div class="raw-msg">
+                    <strong>Decoded:</strong> 1 0 0 PERCENT, 3 MILLIMETERS, DRY SNOW, TRANSITION LEVEL 6 0, BIRD ACTIVITY IN VICINITY OF THE AIRPORT, WIND RUNWAY 2 6 TOUCHDOWN Z1, 1 9 0 DEGREES, 1 8 KKNOTS, MAXIMUM 2 8 MINIMUM, 1 1 SSTOP END, 1 9 0 DEGREES, 1 3 KKNOTS, MAXIMUM 2 3 MINIMUM 5 VISIBILITY, RUNWAY 2 6 TOUCHDOWN Z1, 1 0 KILOMETERS, MIDPOINT 1 0 KILOMETERS, SSTOP END 1 0 KILOMETERS, LIGHT SNOW, DRINKING SNOW, CLOUD FEW 3 THOUSAND FEET, BROKEN 4 THOUSAND 4 HUNDRED FEET, TEMPERATURE MINUS 1 DEWPOINT MINUS 4 Q AND H, 1 0 1 8 HPA, TREND TEMPORARY VISIBILITY 2 THOUSAND METERS, MODERATE SNOW, LIGHT FREEZING RAIN, INFLAMMATION, MIKE OUT, THIS IS TALENT AIRPORT, INFLAMMATION, MIKE TIME, 0 9 5 0, EXPECT ILS APPROACH, RUNWAY 2 6 IN USE, RUNWAY 2 6 CONDITIONS REPORT TIME AT 0 3 4 8, RUNWAY CONDITION CODE TOUCHDOWN 5 MIDPOINT, 5 SSTOP END, 5 DEPOSIT, TOUCHDOWN 1 0 0 PERCENT, 3 MILLIMETERS, DRY SNOW, MIDPOINT 1 0 0 PERCENT, 3 MILLIMETERS, DRY SNOW, SSTOP END, 1 0 0 PERCENT, 3 MILLIMETERS, DRY SNOW, TRANSITION LEVEL 6 0, BIRD ACTIVITY IN VICINITY OF AIRPORT, WIND RUNWAY 2 6 TOUCHDOWN Z1, 1 9 0 DEGREES, 1 8 KKNOTS, MAXIMUM 2 8 MINIMUM, 1 1 SSTOP END, 1 9 0 DEGREES, 1 3 KKNOTS, MAXIMUM 2 3 MINIMUM 5 VISIBILITY, RUNWAY 2 6 TOUCHDOWN Z1, 1 0 KILOMETERS, MIDPOINT 1 0 KILOMETERS, SSTOP END, 1 0 KILOMETERS, LIGHT SNOW, DRIPPING SNOW, CLOUD FEW 3 THOUSAND FEET, BROKEN 4 THOUSAND 4 HUNDRED FEET, TEMPERATURE MINUS 1 DEWPOINT MINUS 4 Q AND H, 1 0 1 8 HPA.
+                </div>
             </div>
         </body>
         </html>
