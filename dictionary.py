@@ -26,6 +26,7 @@ replacement_dict = {
     "STOPEND": "STOP END",
     "TOP END": "STOP END",
     "STUPEND": "STOP END",
+    "STOP-END": "STOP END",
     "52P END": "5 STOP END",
     "IN YOU": "IN USE",
     "IN YOUTH": "IN USE",
