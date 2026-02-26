@@ -1,5 +1,5 @@
 replacement_dict = {
-    # --- Identification Aéroport & Aéroport ---
+    # --- Identification ---
     "INFLATION": "INFORMATION",
     "INFORMAATION": "INFORMATION",
     "DARWIN AIRPORT": "TALLINN AIRPORT",
@@ -10,7 +10,7 @@ replacement_dict = {
     "STALIN": "TALLINN",
     "TALIN": "TALLINN",
 
-    # --- Piste & Zones RCC (Crucial) ---
+    # --- Piste & RCC (Codes de condition) ---
     "PATCH DOWN": "TOUCHDOWN",
     "PACHYDOWN": "TOUCHDOWN",
     "TOUCH DOWN": "TOUCHDOWN",
@@ -24,41 +24,28 @@ replacement_dict = {
     "STOPEND": "STOP END",
     "TOP END": "STOP END",
     "STUPEND": "STOP END",
-    "DEPOSE IT": "DEPOSITS",
-    "BEFORE IT": "DEPOSITS",
-    "DEPOSIT": "DEPOSITS",
+    "52P END": "5 STOP END",
 
-    # --- Météo & Visibilité ---
+    # --- Météo & Tendance ---
     "CAPITAL K": "CAVOK",
     "CAV OK": "CAVOK",
     "CABLE K": "CAVOK",
-    "KVK": "CAVOK",
-    "CARGO OKAY": "CAVOK",
     "CABO K": "CAVOK",
     "CABO OK": "CAVOK",
     "NO SEAT": "NOSIG",
     "NO SEEK": "NOSIG",
     "NO SICK": "NOSIG",
-    "NO THICK": "NOSIG",
-    "NO SIGN": "NOSIG",
-    "NO FIT": "NOSIG",
     "NO 6": "NOSIG",
     "NO SIX": "NOSIG",
-    "THRUST": "FROST",
-    "TRUST": "FROST",
+    "NO SIGN": "NOSIG",
     "VIEW POINT": "DEWPOINT",
     "VIEWPOINT": "DEWPOINT",
     "DUE POINT": "DEWPOINT",
 
-    # --- Chiffres & Unités ---
+    # --- Chiffres & Alphabet ---
     "ZERO": "0", "ONE": "1", "TWO": "2", "THREE": "3", "FOUR": "4",
     "FIVE": "5", "FIFE": "5", "SIX": "6", "SEVEN": "7", "EIGHT": "8",
-    "NINE": "9", "NINER": "9", "TREE": "3", "TO": "2", "AIT": "8",
-    "KKNOTSS": "KNOTS", "KKNOTS": "KNOTS", "NOTS": "KNOTS",
-    "HECTO PASCAL": "HPA", "HECTO PASCALS": "HPA", "HECTOPASCAL": "HPA",
-
-    # --- Alphabet Radio ---
-    "MIC": "MIKE", "MIKE": "M", "GULF": "G", "HOTEL": "H", "INDIA": "I", 
-    "JULIET": "J", "KILO": "K", "LIMA": "L", "NOVEMBER": "N", "OSCAR": "O",
-    "PAPA": "P", "QUEBEC": "Q", "ROMEO": "R", "SIERRA": "S", "TANGO": "T"
+    "NINE": "9", "NINER": "9", "TREE": "3", "AIT": "8",
+    "MIC": "MIKE", "MIKE": "M", "GULF": "G", "HOTEL": "H", "INDIA": "I", "JULIET": "J",
+    "KKNOTS": "KNOTS", "NOTS": "KNOTS", "HPA": "HPA", "HECTOPASCAL": "HPA"
 }
