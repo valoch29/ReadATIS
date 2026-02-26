@@ -5,28 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        :root { --bg: #0a0a0c; --card: #16161a; --accent: #ffffff; --dim: #828282; }
-        body { background: var(--bg); color: var(--accent); font-family: system-ui, sans-serif; margin: 0; padding: 15px; display: flex; justify-content: center; }
+        :root { --bg: #000000; --card: #111111; --border: #333333; --text: #ffffff; --dim: #666666; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .zulu { background: #fff; color: #000; padding: 3px 10px; font-weight: 900; border-radius: 4px; font-size: 0.9rem; }
-        .info-box { background: var(--card); border: 1px solid #333; border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 15px; }
-        .info-letter { font-size: 5rem; font-weight: 900; line-height: 1; display: block; color: #00ff41; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .tile { background: var(--card); border: 1px solid #2a2a2a; border-radius: 12px; padding: 15px; }
-        .label { color: var(--dim); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; }
-        .val { font-size: 1.4rem; font-weight: bold; }
-        .raw { margin-top: 30px; font-size: 0.7rem; color: #444; text-transform: uppercase; line-height: 1.4; border-top: 1px solid #222; padding-top: 15px; }
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .zulu { font-size: 1.2rem; font-weight: 700; letter-spacing: 1px; }
+        .info-box { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 30px; text-align: center; margin-bottom: 15px; }
+        .info-letter { font-size: 7rem; font-weight: 900; line-height: 1; display: block; color: var(--text); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+        .tile { background: var(--card); padding: 20px; }
+        .label { color: var(--dim); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px; font-weight: 800; letter-spacing: 1.5px; }
+        .val { font-size: 1.3rem; font-weight: 700; }
+        .raw { margin-top: 40px; font-size: 0.85rem; color: var(--text); line-height: 1.6; text-align: justify; border-left: 2px solid var(--border); padding-left: 15px; }
+        .raw strong { color: var(--dim); display: block; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div style="font-weight: 800; letter-spacing: 1px;">EETN TALLINN</div>
-            <div class="zulu">11:12Z</div>
+            <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 2px;">EETN TALLINN</div>
+            <div class="zulu">10:52Z</div>
         </div>
         <div class="info-box">
-            <span class="label">Information</span>
+            <div class="label" style="margin-bottom: 0;">Information</div>
             <span class="info-letter">Q</span>
         </div>
         <div class="grid">
@@ -35,7 +36,10 @@
             <div class="tile"><div class="label">Wind</div><div class="val">190° / 20 KT</div></div>
             <div class="tile"><div class="label">Visibility</div><div class="val">CAVOK</div></div>
         </div>
-        <div class="raw"><strong>Transcription:</strong><br>VISIBILITY 3000M MODERATE FREEZING RAIN INFORMATION QUEBEC OUT BUSINESS TRAVELLING AIRPORT SPECIAL INFORMATION QUEBEC TIME 1052 EXPECT ILS APPROACH RUNWAY 26 IN USE RUNWAY 26 CONDITIONS REPORT TIME AT 0348 RUNWAY CONDITION CODE TOUCHDOWN 5 MIDPOINT 5 TOP-END 5 DEPOSIT TOUCHDOWN 100% 3MM DRY SNOW MIDPOINT 100% 3MM DRY SNOW TOP-END 100% 3MM DRY SNOW TRANSITION LEVEL 60 BIRD ACTIVITY IN VICINITY OF AIRPORT WIND RUNWAY 26 TOUCHDOWN ZONE 190 DEGREES 20 KNOTS MAXIMUM 30 MINIMUM 13 STOP-END 180 DEGREES 190 KNOTS VISIBILITY RUNWAY 26 TOUCHDOWN ZONE 8KM MIDPOINT 10KM TOP-END 10KM LAKE ICE PALACE CLOUD LOWERCAST 4800FT TEMPERATURE MINUS 1 DEWPOINT MINUS 4 QNH 1016 HECTOPASCALS TREND TEMPORARY VISIBILITY 3000M MODERATE FREEZING RAIN INFORMATION QUEBEC OUT BUSINESS TRAVELLING AIRPORT SPECIAL INFORMATION QUEBEC TIME 1052 EXPECT ILS APPROACH RUNWAY 26 IN USE RUNWAY 26 CONDITIONS REPORT TIME AT 0348 RUNWAY CONDITION CODE TOUCHDOWN 5 MIDPOINT 5 TOP-END 5 DEPOSIT TOUCHDOWN 100% 3MM</div>
+        <div class="raw">
+            <strong>TRANSCRIPTION</strong>
+            VISIBILITY 3000M MODERATE FREEZING RAIN INFORMATION QUEBEC OUT BUSINESS TRAVELLING AIRPORT SPECIAL INFORMATION QUEBEC TIME 1052 EXPECT ILS APPROACH RUNWAY 26 IN USE RUNWAY 26 CONDITIONS REPORT TIME AT 0348 RUNWAY CONDITION CODE TOUCHDOWN 5 MIDPOINT 5 TOP-END 5 DEPOSIT TOUCHDOWN 100% 3MM DRY SNOW MIDPOINT 100% 3MM DRY SNOW TOP-END 100% 3MM DRY SNOW TRANSITION LEVEL 60 BIRD ACTIVITY IN VICINITY OF AIRPORT WIND RUNWAY 26 TOUCHDOWN ZONE 190 DEGREES 20 KNOTS MAXIMUM 30 MINIMUM 13 STOP-END 180 DEGREES 190 KNOTS VISIBILITY RUNWAY 26 TOUCHDOWN ZONE 8KM MIDPOINT 10KM TOP-END 10KM LAKE ICE PALACE CLOUD LOWERCAST 4800FT TEMPERATURE MINUS 1 DEWPOINT MINUS 4 QNH 1016 HECTOPASCALS TREND TEMPORARY VISIBILITY 3000M MODERATE FREEZING RAIN INFORMATION QUEBEC OUT BUSINESS TRAVELLING AIRPORT SPECIAL INFORMATION QUEBEC TIME 1052 EXPECT ILS APPROACH RUNWAY 26 IN USE RUNWAY 26 CONDITIONS REPORT TIME AT 0348 RUNWAY CONDITION CODE TOUCHDOWN 5 MIDPOINT 5 TOP-END 5 DEPOSIT TOUCHDOWN 100% 3MM
+        </div>
     </div>
 </body>
 </html>
