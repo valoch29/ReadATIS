@@ -1,35 +1,43 @@
 
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body { background: #000; color: #fff; font-family: monospace; padding: 20px; display: flex; justify-content: center; }
-                .card { width: 100%; max-width: 500px; border: 2px solid #fff; padding: 20px; }
-                .grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #fff; margin-top: 20px; }
-                .cell { border: 1px solid #fff; padding: 15px; }
-                .label { font-size: 0.7rem; color: #888; text-transform: uppercase; }
-                .value { font-size: 1.8rem; font-weight: bold; }
-                .info { font-size: 3rem; border: 3px solid #fff; padding: 0 10px; }
-                .raw { margin-top: 20px; font-size: 0.7rem; color: #444; }
-            </style>
-        </head>
-        <body>
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:1.5rem; font-weight:bold;">EETN TALLINN</span>
-                    <span style="color:#888;">26 FEB 10:40 UTC</span>
-                </div>
-                <div class="grid">
-                    <div class="cell"><div class="label">Information</div><span class="info">P</span></div>
-                    <div class="cell"><div class="label">Runway</div><div class="value">26</div></div>
-                    <div class="cell"><div class="label">Wind</div><div class="value">190° / 190KT</div></div>
-                    <div class="cell"><div class="label">QNH</div><div class="value">---</div></div>
-                    <div class="cell"><div class="label">Temp/Dew</div><div class="value">-- / --</div></div>
-                    <div class="cell"><div class="label">RCC</div><div class="value">1 / 1 / 6</div></div>
-                </div>
-                <div class="raw">RAW:  THIS IS DARWIN AIRPORT. SPECIAL INFORMATION, PAPA. TIME 1022, EXPECT ILS APPROACH.  RUNWAY 26 IN USE.  RUNWAY 26, CONDITION REPORT TIME AT 0348.  RUNWAY CONDITION CODE, TOUCHDOWN, 5 MIDPOINT, 5 TOP END, 5 DEPOSIT.  TOUCHDOWN, 100%, 3MM, DRY SNOW.  MIDPOINT, 100%, 3MM, DRY SNOW.  TOP END, 100%, 3MM, DRY SNOW.  TRANSITION LEVEL 60, BIRD ACTIVITY IN VICINITY OF AIRPORT.  WIND, RUNWAY 26, TOUCHDOWN ZONE, 190 DEGREES, 190 KNOTS.  MAXIMUM, 29, MINIMUM, 11, TOP END, 190 DEGREES, 17 KNOTS.  VISIBILITY, RUNWAY 26, TOUCHDOWN ZONE, 90 KM, MIDPOINT, 10 KM.  TOP END, 10 KM, LIGHT FREEZING RAIN, LIGHT SNOW, CLOUD OVERCAST, 4500 FEET.  TEMPERATURE, MINUS 1, DEW POINT, MINUS 4, Q AND H, 1017 HPA.  INFORMATION, PAPA OUT. THIS IS DARWIN AIRPORT.  SPECIAL INFORMATION, PAPA. TIME 1022, EXPECT ILS APPROACH.  RUNWAY 26 IN USE.  RUNWAY 26, CONDITION REPORT TIME AT 0348.  RUNWAY CONDITION CODE, TOUCHDOWN, 5 MIDPOINT, 5 TOP END, 5 DEPOSIT.  TOUCHDOWN, 100%, 3MM, DRY SNOW.  MIDPOINT, 100%, 3MM, DRY SNOW.  TOP END, 100%, 3MM.</div>
-            </div>
-        </body>
-        </html>
-        
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root { --bg: #0a0a0c; --card: #16161a; --accent: #ffffff; --dim: #828282; }
+        body { background: var(--bg); color: var(--accent); font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 450px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .zulu { background: #fff; color: #000; padding: 3px 10px; font-weight: 900; border-radius: 4px; font-size: 0.9rem; }
+        .info-box { background: var(--card); border: 1px solid #333; border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 15px; }
+        .info-letter { font-size: 5rem; font-weight: 900; line-height: 1; display: block; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .tile { background: var(--card); border: 1px solid #2a2a2a; border-radius: 12px; padding: 15px; }
+        .label { color: var(--dim); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; }
+        .val { font-size: 1.4rem; font-weight: bold; }
+        .raw { margin-top: 30px; font-size: 0.7rem; color: #444; text-transform: uppercase; line-height: 1.4; border-top: 1px solid #222; padding-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="font-weight: 800; letter-spacing: 1px;">EETN TALLINN</div>
+            <div class="zulu">11:07Z</div>
+        </div>
+        <div class="info-box">
+            <span class="label">Information</span>
+            <span class="info-letter">---</span>
+        </div>
+        <div class="grid">
+            <div class="tile"><div class="label">Runway</div><div class="val">26</div></div>
+            <div class="tile"><div class="label">QNH</div><div class="val">---</div></div>
+            <div class="tile"><div class="label">Wind</div><div class="val">---</div></div>
+            <div class="tile"><div class="tile-label">Visibility</div><div class="val">CAVOK</div></div>
+        </div>
+        <div class="raw">
+            <strong>Transcription:</strong><br>VISIBILITY, 3000M, MODERATE FREEZING RAIN, INFORMATION, QUEBEC, OUT, BUSINESS TRAVELLING AIRPORT, SPECIAL INFORMATION, QUEBEC, TIME, 1052, EXPECT ILS APPROACH, RUNWAY 26 IN USE, RUNWAY 26, CONDITIONS REPORT TIME AT 0348, RUNWAY CONDITION CODE, TOUCHDOWN, 5, MIDPOINT, 5, TOP-END, 5, DEPOSIT, TOUCHDOWN, 100%, 3MM, DRY SNOW, MIDPOINT, 100%, 3MM, DRY SNOW, TOP-END, 100%, 3MM, DRY SNOW, TRANSITION LEVEL 60. BIRD ACTIVITY IN VICINITY OF AIRPORT, WIND, RUNWAY 26, TOUCHDOWN ZONE, 190, DEGREES, 20 KNOTS, MAXIMUM, 30, MINIMUM, 13, STOP-END, 180, DEGREES, 190 KNOTS. VISIBILITY, RUNWAY 26, TOUCHDOWN ZONE, 8KM, MIDPOINT, 10KM, TOP-END, 10KM, LAKE, ICE PALACE, CLOUD, LOWERCAST, 4800FT, TEMPERATURE, MINUS 1, DEWPOINT, MINUS 4, QNH, 1016, HECTOPASCALS. TREND, TEMPORARY, VISIBILITY, 3000M, MODERATE FREEZING RAIN, INFORMATION, QUEBEC, OUT, BUSINESS TRAVELLING AIRPORT, SPECIAL INFORMATION, QUEBEC, TIME, 1052, EXPECT ILS APPROACH, RUNWAY 26 IN USE, RUNWAY 26, CONDITIONS REPORT TIME AT 0348, RUNWAY CONDITION CODE, TOUCHDOWN, 5, MIDPOINT, 5, TOP-END, 5, DEPOSIT, TOUCHDOWN, 100%, 3MM.
+        </div>
+    </div>
+</body>
+</html>
