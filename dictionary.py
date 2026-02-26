@@ -25,6 +25,9 @@ replacement_dict = {
     "TOP END": "STOP END",
     "STUPEND": "STOP END",
     "52P END": "5 STOP END",
+    "IN YOU": "IN USE",
+    "IN YOUTH": "IN USE",
+    
 
     # --- Météo & Tendance ---
     "CAPITAL K": "CAVOK",
