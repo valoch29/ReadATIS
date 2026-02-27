@@ -71,7 +71,7 @@ def run_atis_system():
     }
 
     # 5. Injection dans le template
-    if os.path.exists("template.html"):
+    if os.path.exists("index.html"):
         with open("template.html", "r", encoding="utf-8") as f:
             html_content = f.read()
 
