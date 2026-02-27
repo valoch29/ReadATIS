@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{INFO}}<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -158,7 +158,7 @@
     <div class="container">
         <div class="header">
             <span>EETN TALLINN</span>
-            {{LVP_TAG}}
+            <span class="lvp-alert">⚠️ LVP ACTIVE</span>
             <span class="zulu-time">{{ZULU}}Z</span>
         </div>
 
@@ -174,7 +174,7 @@
             </div>
             <div class="tile">
                 <div class="label">QNH</div>
-                <div class="val">{{QNH}} hPa</div>
+                <div class="val">{{QNH}}hPa</div>
             </div>
             <div class="tile">
                 <div class="label">Wind (TDZ)</div>
@@ -182,5 +182,27 @@
             </div>
             <div class="tile">
                 <div class="label">Visibility</div>
-                <div class="val">{{VIS}}</div>
-                <div class="sub-val">{{RVR}}</div>
+                <div class="val">{{RVR}}</div>
+                <div class="sub-val"></div>
+            </div>
+            <div class="tile">
+                <div class="label">Temp / Dewp</div>
+                <div class="val">{{TEMP_DEWP}}</div>
+            </div>
+            <div class="tile">
+                <div class="label">RCC</div>
+                <div class="val">{{RCC}}</div>
+            </div>
+            <div class="tile full-width">
+                <div class="label">Contaminants</div>
+                <div class="val">{{CONTAM}}</div>
+            </div>
+        </div>
+
+        <div class="raw">
+            <div class="label" style="margin-bottom: 10px;">Transcription brute</div>
+            {{RAW_TEXT}}
+        </div>
+    </div>
+</body>
+</html>
