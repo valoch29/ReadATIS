@@ -12,6 +12,7 @@ replacement_dict = {
     "VST AIRPORT": "TALLINN AIRPORT",
     "1450M": "1450", 
     "NO-SICK": "NOSIG",
+    "STATUS SKY": "STATE OF SKY",
 
     # --- Piste & RCC ---
     "PATCH DOWN": "TOUCHDOWN",
@@ -22,6 +23,7 @@ replacement_dict = {
     "TOP-END": "STOP END",
     "TOP END": "STOP END",
     "PATRICK IN USE": "RUNWAY 26 IN USE",
+    "IN YOUTH": "IN USE",
 
     # --- Météo & LVP ---
     "CAPITAL K": "CAVOK",
