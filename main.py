@@ -76,7 +76,7 @@ def run_atis_system():
             html_content = f.read()
 
         for key, value in data.items():
-            html_content = html_content.replace(f"{{{{{key}}}}}", str(value))
+            html_content = html_content.replace(f"{{key}}", str(value))
 
         with open("index.html", "w", encoding="utf-8") as f:
             f.write(html_content)
