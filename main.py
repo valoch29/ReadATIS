@@ -71,18 +71,18 @@ def run_atis_system():
     }
 
     # 5. Injection dans le template
-    if os.path.exists("index.html"):
-        with open("index.html", "r", encoding="utf-8") as f:
+
+if os.path.exists("template.html"):
+        with open("template.html", "r", encoding="utf-8") as f:
             html_content = f.read()
 
-for key, value in data.items():
-            # Construction manuelle de la balise {{KEY}}
+        for key, value in data.items():
             placeholder = "{{" + key + "}}"
-            # Remplacement forcé
             html_content = html_content.replace(placeholder, str(value))
 
+        # ALWAYS write to index.html (the result for the web)
         with open("index.html", "w", encoding="utf-8") as f:
             f.write(html_content)
-
+            
 if __name__ == "__main__":
     run_atis_system()
