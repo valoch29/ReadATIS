@@ -72,17 +72,19 @@ def run_atis_system():
 
     # 5. Injection dans le template
 
-if os.path.exists("template.html"):
-        with open("template.html", "r", encoding="utf-8") as f:
-            html_content = f.read()
-
-        for key, value in data.items():
-            placeholder = "{{" + key + "}}"
-            html_content = html_content.replace(placeholder, str(value))
-
-        # ALWAYS write to index.html (the result for the web)
-        with open("index.html", "w", encoding="utf-8") as f:
-            f.write(html_content)
+    if os.path.exists("template.html"):
+            with open("template.html", "r", encoding="utf-8") as f:
+                html_content = f.read()
+    
+            for key, value in data.items():
+                # Construct the placeholder {{KEY}}
+                placeholder = "{{" + str(key) + "}}"
+                # Replace placeholder with the actual value
+                html_content = html_content.replace(placeholder, str(value))
+    
+            # This line must be indented exactly like the 'for' loop
+            with open("index.html", "w", encoding="utf-8") as f:
+                f.write(html_content)
             
 if __name__ == "__main__":
     run_atis_system()
