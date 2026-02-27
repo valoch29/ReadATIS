@@ -77,7 +77,7 @@ def run_atis_system():
 
 for key, value in data.items():
             # Construction manuelle de la balise {{KEY}}
-            placeholder = "{{" + str(key) + "}}"
+            placeholder = "{{" + key + "}}"
             # Remplacement forcé
             html_content = html_content.replace(placeholder, str(value))
 
