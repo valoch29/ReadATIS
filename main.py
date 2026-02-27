@@ -15,39 +15,67 @@ def run_atis_system():
     for wrong, right in replacement_dict.items():
         text = re.sub(rf'\b{wrong}\b', right, text)
 
-    # 2. Extraction (comme précédemment)
+    # 2. Fonction d'extraction sécurisée
     def find(pattern, src):
         res = re.findall(pattern, src)
         return res[-1] if res else "---"
 
-    atis_time = find(r"TIME\s+(\d{4})", text)
-    temp_val = find(r"TEMPERATURE\s+(\d+)", text)
-    dewp_val = find(r"DEWPOINT\s+(\d+)", text)
+    # 3. Extraction PRÉALABLE (pour éviter le SyntaxError)
+    info_val = find(r"INFORMATION\s+([A-Z])", text)
+    rwy_val = find(r"RUNWAY\s+(\d{2})", text)
+    qnh_val = find(r"QNH\s+(\d{4})", text)
     
-    # 3. Préparation du dictionnaire de données
+    # Temps (Zulu)
+    time_raw = find(r"TIME\s+(\d{4})", text)
+    zulu_val = f"{time_raw[:2]}:{time_raw[2:]}" if time_raw != "---" else "---"
+
+    # Vent (TDZ)
+    w_dir = find(r"ZONE\s+(\d{3})", text)
+    w_spd = find(r"(\d+)\s+KNOTS", text)
+    wind_display = f"{w_dir}°/{w_spd}KT" if w_dir != "---" else "---"
+
+    # Visibilité et RVR
+    vis_raw = find(r"ZONE\s+(\d+)\s*M", text)
+    vis_display = f"{vis_raw}m" if vis_raw != "---" else ("CAVOK" if "CAVOK" in text else "---")
+    rvr_val = f"RVR {find(r'RANGE.*?ZONE\s+(\d+)', text)}m" if "RANGE" in text else ""
+
+    # Temp/Dewp
+    t_val = find(r"TEMPERATURE\s+(\d+)", text)
+    d_val = find(r"DEWPOINT\s+(\d+)", text)
+    
+    # RCC et Contaminants (Valeurs par défaut ou extraites)
+    rcc_val = "5/5/5" if "TOUCHDOWN 5" in text else "---"
+    contam_val = "WET / WET / WET" if "WET" in text else "---"
+
+    # LVP Status
+    lvp_html = '<span class="lvp-alert">⚠️ LVP ACTIVE</span>' if "LVP ACTIVE" in text else ""
+
+    # 4. Préparation du dictionnaire pour le template
     data = {
-        "INFO": find(r"INFORMATION\s+([A-Z])", text),
-        "ZULU": f"{atis_time[:2]}:{atis_time[2:]}" if atis_time != "---" else "---",
-        "RWY": find(r"RUNWAY\s+(\d{2})", text),
-        "QNH": find(r"QNH\s+(\d{4})", text),
-        "WIND": f"{find(r'ZONE\s+(\d{3})', text)}°/{find(r'(\d+)\s+KNOTS', text)}KT",
-        "VIS": f"{find(r'ZONE\s+(\d+)\s*M', text)}m",
-        "RVR": f"RVR {find(r'RANGE.*?ZONE\s+(\d+)', text)}m" if "RANGE" in text else "",
-        "TEMP_DEWP": f"{temp_val}° / {dewp_val}°",
-        "LVP_TAG": '<span class="lvp-alert">⚠️ LVP ACTIVE</span>' if "LVP ACTIVE" in text else "",
+        "INFO": info_val,
+        "ZULU": zulu_val,
+        "RWY": rwy_val,
+        "QNH": qnh_val,
+        "WIND": wind_display,
+        "VIS": vis_display,
+        "RVR": rvr_val,
+        "TEMP_DEWP": f"{t_val}° / {d_val}°",
+        "RCC": rcc_val,
+        "CONTAM": contam_val,
+        "LVP_TAG": lvp_html,
         "RAW_TEXT": text
     }
 
-    # 4. Chargement du template et Remplacement
-    with open("template.html", "r", encoding="utf-8") as f:
-        html_content = f.read()
+    # 5. Injection dans le template
+    if os.path.exists("template.html"):
+        with open("template.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
 
-    for key, value in data.items():
-        html_content = html_content.replace(f"{{{{{key}}}}}", str(value))
+        for key, value in data.items():
+            html_content = html_content.replace(f"{{{{{key}}}}}", str(value))
 
-    # 5. Sauvegarde
-    with open("index.html", "w", encoding="utf-8") as f:
-        f.write(html_content)
+        with open("index.html", "w", encoding="utf-8") as f:
+            f.write(html_content)
 
 if __name__ == "__main__":
     run_atis_system()
