@@ -1,37 +1,186 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EETN ATIS Dashboard</title>
     <style>
-        :root { --bg: #000; --card: #0d0d0d; --border: #222; --text: #fff; --dim: #777; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 25px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 420px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; font-size: 0.8rem; color: var(--dim); font-weight: 800; }
-        .info-section { text-align: center; margin-bottom: 25px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; }
-        .info-letter { font-size: 6rem; font-weight: 900; line-height: 1; margin: 0; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .tile { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
-        .label { color: var(--dim); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
-        .val { font-size: 1.2rem; font-weight: 700; }
-        .lvp-alert { color: #ff4444; border: 1px solid #ff4444; padding: 2px 8px; border-radius: 5px; animation: blink 2s infinite; font-size: 0.7rem; }
-        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
-        .raw { margin-top: 40px; font-size: 0.7rem; color: #555; text-align: justify; text-transform: uppercase; border-top: 1px solid #222; padding-top: 20px; }
+        /* Variables de design pour la cohérence */
+        :root {
+            --bg: #000000;
+            --card: #0d0d0d;
+            --border: #222222;
+            --text-main: #ffffff;
+            --text-dim: #777777;
+            --accent: #ffffff;
+            --danger: #ff4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            line-height: 1.4;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px; /* Largeur idéale pour la lisibilité */
+        }
+
+        /* En-tête avec indicateur LVP dynamique */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: 800;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .zulu-time { color: var(--text-main); }
+
+        /* Section Information (Lettre Géante) */
+        .info-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .info-label {
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            letter-spacing: 4px;
+            color: var(--text-dim);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .info-letter {
+            font-size: 6.5rem;
+            font-weight: 900;
+            line-height: 1;
+            margin: 0;
+        }
+
+        /* Grille Responsive */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .tile {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .full-width { grid-column: span 2; }
+
+        .label {
+            color: var(--text-dim);
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .val {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .sub-val {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        /* Alerte LVP clignotante */
+        .lvp-alert {
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 900;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.2; }
+            100% { opacity: 1; }
+        }
+
+        /* Texte brut (RAW) */
+        .raw-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .raw-text {
+            font-size: 0.7rem;
+            color: #444444; /* Très discret */
+            text-align: justify;
+            text-transform: uppercase;
+            line-height: 1.6;
+        }
+
+        /* Ajustements pour très petits écrans */
+        @media (max-width: 350px) {
+            .info-letter { font-size: 5rem; }
+            .val { font-size: 1.1rem; }
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <div class="header"><span>EETN TALLINN</span> <span class="lvp-alert">⚠️ LVP ACTIVE</span> <span>---Z</span></div>
-        <div class="info-section"><span style="color:var(--dim); text-transform:uppercase; font-size:0.7rem; letter-spacing:3px;">Information</span><div class="info-letter">---</div></div>
-        <div class="grid">
-            <div class="tile"><div class="label">Runway</div><div class="val">26</div></div>
-            <div class="tile"><div class="label">QNH</div><div class="val">1010 hPa</div></div>
-            <div class="tile"><div class="label">Wind (TDZ)</div><div class="val">---</div></div>
-            <div class="tile"><div class="label">Visibility</div><div class="val">--- <span style="font-size:0.7rem; color:var(--dim)"></span></div></div>
-            <div class="tile"><div class="label">Temp / Dewp</div><div class="val">---° / ---°</div></div>
-            <div class="tile"><div class="label">RCC</div><div class="val">5/5/5</div></div>
+        <div class="header">
+            <span>EETN TALLINN</span>
+            <span class="lvp-alert">⚠️ LVP ACTIVE</span>
+            <span class="zulu-time">15:50Z</span>
         </div>
-        <div class="raw"> ...300M, TOP END 2700M, MIST, CLOUD, LOWERCAST 250FT, TEMPERATURE, FREE, DEWPOINT, FREE, QNH 1010P,  TREND, TEMPORARY, VISIBILITY 1500M, INFORMATION, V, OUT, VST AIRPORT, INFORMATION, V, TIME, 1450M,  ILS APPROACH EXPECTED, LVP ACTIVE IN OPERATION, RUNWAY 26 IN USE, RUNWAY 26, CONDITIONS REPORT TIME AT 08 OR 07,  RUNWAY CONDITION CODE TOUCHDOWN 5, MIDPOINT 5, TOP END 5, DEPOSIT, TOUCHDOWN 100%, WET, MIDPOINT 100%, WET, TOP END 100%, WET.  TRANSITION LEVEL 65, BIRD ACTIVITY IN VICINITY OF AIRPORT, WIND, RUNWAY 26, TOUCHDOWN ZONE 200°, 11 KNOTS, TOP END 200°, NINER KNOTS,  VISIBILITY, RUNWAY 26, TOUCHDOWN ZONE 2500M, MIDPOINT 2300M, TOP END 2700M, MIST, CLOUD, LOWERCAST 250FT, TEMPERATURE,  FREE, DEWPOINT, FREE, QNH 1010P, TREND, TEMPORARY, VISIBILITY 1500M, INFORMATION, V, OUT, VST AIRPORT, INFORMATION, V, TIME, 1450M,  ILS APPROACH EXPECTED, LVP ACTIVE IN OPERATION, RUNWAY 26 IN USE, RUNWAY 26, CONDITIONS REPORT TIME AT 08 OR 07,</div>
-    </div>
-</body>
-</html>
+
+        <div class="info-card">
+            <span class="info-label">Information</span>
+            <div class="info-letter">A</div>
+        </div>
+
+        <div class="grid">
+            <div class="tile">
+                <div class="label">Runway</div>
+                <div class="val">26</div>
+            </div>
+            <div class="tile">
+                <div class="label">QNH</div>
+                <div class="val">1010 hPa</div>
+            </div>
+            <div class="tile">
+                <div class="label">Wind (TDZ)</div>
+                <div class="val">---</div>
+            </div>
+            <div class="tile">
+                <div class="label">Visibility</div>
+                <div class="val">---</div>
+                <div class="sub-val"></div>
