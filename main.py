@@ -81,8 +81,7 @@ def run_atis_system():
                 placeholder = "{{" + str(key) + "}}"
                 # Replace placeholder with the actual value
                 html_content = html_content.replace(placeholder, str(value))
-    
-            # This line must be indented exactly like the 'for' loop
+
             with open("index.html", "w", encoding="utf-8") as f:
                 f.write(html_content)
             
