@@ -159,7 +159,7 @@
         <div class="header">
             <span>EETN TALLINN</span>
             <span class="lvp-alert">⚠️ LVP ACTIVE</span>
-            <span class="zulu-time">15:50Z</span>
+            <span class="zulu-time">{{ZULU}}Z</span>
         </div>
 
         <div class="info-card">
@@ -170,17 +170,38 @@
         <div class="grid">
             <div class="tile">
                 <div class="label">Runway</div>
-                <div class="val">26</div>
+                <div class="val">{{RWY}}</div>
             </div>
             <div class="tile">
                 <div class="label">QNH</div>
-                <div class="val">1010 hPa</div>
+                <div class="val">{{QNH}}hPa</div>
             </div>
             <div class="tile">
                 <div class="label">Wind (TDZ)</div>
-                <div class="val">---</div>
+                <div class="val">{{WIND}}</div>
             </div>
             <div class="tile">
                 <div class="label">Visibility</div>
-                <div class="val">---</div>
+                <div class="val">{{RVR}}</div>
                 <div class="sub-val"></div>
+            </div>
+            <div class="tile">
+                <div class="label">Temp / Dewp</div>
+                <div class="val">{{TEMP_DEWP}}</div>
+            <div class="tile">
+                <div class="label">RCC</div>
+                <div class="val">{{RCC}}</div>
+            </div>
+            <div class="tile full-width">
+                <div class="label">Contaminants</div>
+                <div class="val">{{CONTAM}}</div>
+            </div>
+        </div>
+
+        <div class="raw">
+            <div class="label" style="margin-bottom: 10px;">Transcription brute</div>
+            {{RAW_TEXT}}
+        </div>
+    </div>
+</body>
+</html>
