@@ -2,7 +2,7 @@ name: Record ATIS Audio
 
 on:
   schedule:
-    - cron: '*/1 * * * *'
+    - cron: '*/20 * * * *'
   workflow_dispatch:
 
 jobs:
