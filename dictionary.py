@@ -1,5 +1,5 @@
 replacement_dict = {
-    # --- Identification & Aéroport ---
+    # --- Identification & Temps ---
     "INFLATION": "INFORMATION",
     "INFORMAATION": "INFORMATION",
     "DARWIN AIRPORT": "TALLINN AIRPORT",
@@ -9,6 +9,8 @@ replacement_dict = {
     "TELLING": "TALLINN",
     "STALIN": "TALLINN",
     "TALIN": "TALLINN",
+    "VST AIRPORT": "TALLINN AIRPORT",
+    "1450M": "1450", 
 
     # --- Piste & RCC ---
     "PATCH DOWN": "TOUCHDOWN",
@@ -17,22 +19,27 @@ replacement_dict = {
     "STOPEND": "STOP END",
     "STOP-END": "STOP END",
     "TOP-END": "STOP END",
-    "PATRICK IN USE": "RUNWAY 26 IN USE", # Erreur détectée dans l'info Delta
+    "TOP END": "STOP END",
+    "PATRICK IN USE": "RUNWAY 26 IN USE",
 
     # --- Météo & LVP ---
     "CAPITAL K": "CAVOK",
     "CABO K": "CAVOK",
-    "DEW POINT": "DEWPOINT", # Crucial pour l'info Delta
+    "DEW POINT": "DEWPOINT",
     "VIEW POINT": "DEWPOINT",
-    "ESTHER PASCAL": "HPA",   # Erreur détectée dans l'info Delta
+    "ESTHER PASCAL": "HPA",
     "EXTRA PASCAL": "HPA",
     "HECTOPASCAL": "HPA",
-    "LOW VISIBILITY PROCEDURES": "LVP ACTIVE", # Pour déclencher l'alerte
+    "QNH 1010P": "QNH 1010",
+    "LOWERCAST": "OVERCAST",
+    "LOW VISIBILITY PROCEDURES": "LVP ACTIVE",
+    "LVP ACTIVE IN OPERATION": "LVP ACTIVE",
 
-    # --- Chiffres & Alphabet (Sélection indispensable) ---
+    # --- Chiffres & Alphabet ---
     "ZERO": "0", "ONE": "1", "TWO": "2", "THREE": "3", "FOUR": "4",
     "FIVE": "5", "SIX": "6", "SEVEN": "7", "EIGHT": "8", "NINE": "9",
-    "095 0": "0950", # Correction spécifique pour l'heure
+    "FREE": "3", # Whisper entend "Free" au lieu de "Three"
+    "NINER": "9",
     "GULF": "G", "HOTEL": "H", "DELTA": "D", "VICTOR": "V",
     "KKNOTS": "KNOTS"
 }
