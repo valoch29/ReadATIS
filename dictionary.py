@@ -1,5 +1,5 @@
 replacement_dict = {
-    # --- Identification ---
+    # --- Identification & Aéroport ---
     "INFLATION": "INFORMATION",
     "INFORMAATION": "INFORMATION",
     "DARWIN AIRPORT": "TALLINN AIRPORT",
@@ -13,41 +13,26 @@ replacement_dict = {
     # --- Piste & RCC ---
     "PATCH DOWN": "TOUCHDOWN",
     "PACHYDOWN": "TOUCHDOWN",
-    "TOUCH DOWN": "TOUCHDOWN",
-    "2UCHDOWN": "TOUCHDOWN",
     "MEET POINT": "MIDPOINT",
-    "MEAT POINT": "MIDPOINT",
-    "MADE POINT": "MIDPOINT",
-    "MID POINT": "MIDPOINT",
     "STOPEND": "STOP END",
     "STOP-END": "STOP END",
-    "TOP END": "STOP END",
     "TOP-END": "STOP END",
-    "STUPEND": "STOP END",
-    "IN YOU": "IN USE",
-    "IN YOUTH": "IN USE",
-    "PATRICK IN USE": "RUNWAY 26 IN USE", # Correction pour "Patrick"
+    "PATRICK IN USE": "RUNWAY 26 IN USE", # Erreur détectée dans l'info Delta
 
-    # --- Météo & Tendance ---
+    # --- Météo & LVP ---
     "CAPITAL K": "CAVOK",
-    "CAV OK": "CAVOK",
-    "CABLE K": "CAVOK",
     "CABO K": "CAVOK",
-    "NO SEAT": "NOSIG",
-    "NO SEEK": "NOSIG",
-    "NO SICK": "NOSIG",
-    "NO SIGN": "NOSIG",
+    "DEW POINT": "DEWPOINT", # Crucial pour l'info Delta
     "VIEW POINT": "DEWPOINT",
-    "VIEWPOINT": "DEWPOINT",
-    "DUE POINT": "DEWPOINT",
+    "ESTHER PASCAL": "HPA",   # Erreur détectée dans l'info Delta
     "EXTRA PASCAL": "HPA",
-    "ESTHER PASCAL": "HPA", # Correction pour "Esther"
     "HECTOPASCAL": "HPA",
+    "LOW VISIBILITY PROCEDURES": "LVP ACTIVE", # Pour déclencher l'alerte
 
-    # --- Chiffres & Alphabet ---
+    # --- Chiffres & Alphabet (Sélection indispensable) ---
     "ZERO": "0", "ONE": "1", "TWO": "2", "THREE": "3", "FOUR": "4",
-    "FIVE": "5", "FIFE": "5", "SIX": "6", "SEVEN": "7", "EIGHT": "8",
-    "NINE": "9", "NINER": "9", "TREE": "3", "AIT": "8", "6-5": "65",
-    "MIKE": "M", "GULF": "G", "HOTEL": "H", "INDIA": "I", "JULIET": "J", "VICTOR": "V",
-    "KKNOTS": "KNOTS", "NOTS": "KNOTS"
+    "FIVE": "5", "SIX": "6", "SEVEN": "7", "EIGHT": "8", "NINE": "9",
+    "095 0": "0950", # Correction spécifique pour l'heure
+    "GULF": "G", "HOTEL": "H", "DELTA": "D", "VICTOR": "V",
+    "KKNOTS": "KNOTS"
 }
