@@ -10,10 +10,27 @@ def run_atis_system():
     # 1. Transcription et Nettoyage
     model = WhisperModel("medium.en", device="cpu", compute_type="int8")
     segments, _ = model.transcribe(audio_file, beam_size=5)
-    text = " ".join([s.text for s in segments]).upper()
+    full_text = " ".join([s.text for s in segments]).upper()
 
+    # Application du dictionnaire
     for wrong, right in replacement_dict.items():
-        text = re.sub(rf'\b{wrong}\b', right, text)
+        full_text = re.sub(rf'\b{wrong}\b', right, full_text)
+
+    # --- NOUVEAU : Nettoyage des itérations ---
+    # On cherche la première occurrence de "TALLINN AIRPORT" ou "INFORMATION"
+    # et on essaie de couper avant que le message ne recommence.
+    
+    if "TALLINN AIRPORT" in full_text:
+        # On prend à partir du premier "TALLINN"
+        parts = full_text.split("TALLINN AIRPORT")
+        # parts[1] contient le premier message complet (si le split a fonctionné)
+        text = "TALLINN AIRPORT" + parts[1]
+    else:
+        text = full_text
+
+    # Si le texte est encore trop long (contient deux fois INFORMATION), on recoupe
+    if text.count("INFORMATION") > 1:
+        text = text.split("INFORMATION")[0] + "INFORMATION " + text.split("INFORMATION")[1]
 
     # 2. Fonction d'extraction sécurisée
     def find(pattern, src):
