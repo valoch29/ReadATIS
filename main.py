@@ -56,7 +56,7 @@ def run_atis_system():
 
     # 4. Dictionnaire de données pour le template
     data = {
-        "INFO": "test",
+        "INFO": info_val,
         "ZULU": zulu_val,
         "RWY": rwy_val,
         "QNH": qnh_val,
