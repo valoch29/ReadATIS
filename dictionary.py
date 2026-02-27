@@ -11,6 +11,7 @@ replacement_dict = {
     "TALIN": "TALLINN",
     "VST AIRPORT": "TALLINN AIRPORT",
     "1450M": "1450", 
+    "NO-SICK": "NOSIG",
 
     # --- Piste & RCC ---
     "PATCH DOWN": "TOUCHDOWN",
