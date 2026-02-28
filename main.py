@@ -37,7 +37,7 @@ def run_atis_system():
         res = re.findall(pattern, src)
         return res[-1] if res else "---"
 
-    # 3. EXTRACTION PRÉALABLE (Zéro backslash dans les f-strings)
+# 3. EXTRACTION PRÉALABLE
     info_val = find(r"INFORMATION\s+([A-Z])", text)
     rwy_val = find(r"RUNWAY\s+(\d{2})", text)
     qnh_val = find(r"QNH\s+(\d{4})", text)
@@ -46,31 +46,25 @@ def run_atis_system():
     time_raw = find(r"TIME\s+(\d{4})", text)
     zulu_val = f"{time_raw[:2]}:{time_raw[2:]}" if time_raw != "---" else "---"
 
-    # Vent (TDZ)
-    w_dir = find(r"ZONE\s+(\d{3})", text)
-    w_spd = find(r"(\d+)\s+KNOTS", text)
+    # Vent (TDZ) - On cherche après "TOUCHDOWN ZONE"
+    # On gère le symbole ° ou le mot DEGREES
+    w_dir = find(r"WIND.*?TOUCHDOWN ZONE,\s+(\d{3})", text)
+    w_spd = find(r"WIND.*?TOUCHDOWN ZONE,.*?(\d+)\s+KNOTS", text)
     wind_display = f"{w_dir}°/{w_spd}KT" if w_dir != "---" else "---"
 
-    # Visibilité
-    vis_raw = find(r"ZONE\s+(\d+)\s*M", text)
-    vis_display = f"{vis_raw}m" if vis_raw != "---" else ("CAVOK" if "CAVOK" in text else "---")
+    # Visibilité - On cherche 10 KM ou des METERS
+    vis_raw = find(r"VISIBILITY.*?TOUCHDOWN ZONE,\s+(\d+\s*\w+)", text)
+    vis_display = vis_raw if vis_raw != "---" else ("CAVOK" if "CAVOK" in text else "---")
     
-    # RVR (Correction de la ligne 40 : on sort le find de la f-string)
-    rvr_raw = find(r'RANGE.*?ZONE\s+(\d+)', text)
-    rvr_val = f"RVR {rvr_raw}m" if "RANGE" in text and rvr_raw != "---" else ""
+    # RVR - On cherche après "VISUAL RANGE"
+    rvr_raw = find(r"VISUAL RANGE.*?TOUCHDOWN ZONE,\s+(\d+)", text)
+    rvr_display = f"RVR {rvr_raw}m" if rvr_raw != "---" else ""
 
     # Temp/Dewp
     t_val = find(r"TEMPERATURE\s+(\d+)", text)
     d_val = find(r"DEWPOINT\s+(\d+)", text)
     temp_dewp_display = f"{t_val}° / {d_val}°"
     
-    # RCC et Contaminants
-    rcc_val = "5/5/5" if "TOUCHDOWN 5" in text else "---"
-    contam_val = "WET / WET / WET" if "WET" in text else "---"
-
-    # LVP Status
-    lvp_html = '<span class="lvp-alert">⚠️ LVP ACTIVE</span>' if "LVP ACTIVE" in text else ""
-
     # 4. Dictionnaire de données pour le template
     data = {
         "INFO": info_val,
@@ -79,7 +73,7 @@ def run_atis_system():
         "QNH": qnh_val,
         "WIND": wind_display,
         "VIS": vis_display,
-        "RVR": rvr_val,
+        "RVR": rvr_display,
         "TEMP_DEWP": temp_dewp_display,
         "RCC": rcc_val,
         "CONTAM": contam_val,
