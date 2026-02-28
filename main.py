@@ -1,7 +1,7 @@
 import os
 import re
 from faster_whisper import WhisperModel
-from dictionary import replacement_dict 
+from dictionary import replacement_dict
 
 def run_atis_system():
     audio_file = "atis_recorded.wav"
@@ -12,51 +12,43 @@ def run_atis_system():
     segments, _ = model.transcribe(audio_file, beam_size=5)
     full_text = " ".join([s.text for s in segments]).upper()
 
-    # Application du dictionnaire
     for wrong, right in replacement_dict.items():
         full_text = re.sub(rf'\b{wrong}\b', right, full_text)
 
-    # --- NOUVEAU : Nettoyage des itérations ---
-    # On cherche la première occurrence de "TALLINN AIRPORT" ou "INFORMATION"
-    # et on essaie de couper avant que le message ne recommence.
-    
+    # Nettoyage des itérations
     if "TALLINN AIRPORT" in full_text:
-        # On prend à partir du premier "TALLINN"
         parts = full_text.split("TALLINN AIRPORT")
-        # parts[1] contient le premier message complet (si le split a fonctionné)
         text = "TALLINN AIRPORT" + parts[1]
     else:
         text = full_text
 
-    # Si le texte est encore trop long (contient deux fois INFORMATION), on recoupe
     if text.count("INFORMATION") > 1:
         text = text.split("INFORMATION")[0] + "INFORMATION " + text.split("INFORMATION")[1]
 
     # 2. Fonction d'extraction sécurisée
     def find(pattern, src):
-        res = re.findall(pattern, src)
+        # Utilisation de DOTALL pour chercher sur plusieurs lignes
+        res = re.findall(pattern, src, re.DOTALL)
         return res[-1] if res else "---"
 
-# 3. EXTRACTION PRÉALABLE
+    # 3. EXTRACTION PRÉALABLE
     info_val = find(r"INFORMATION\s+([A-Z])", text)
     rwy_val = find(r"RUNWAY\s+(\d{2})", text)
     qnh_val = find(r"QNH\s+(\d{4})", text)
     
-    # Temps (Zulu)
     time_raw = find(r"TIME\s+(\d{4})", text)
     zulu_val = f"{time_raw[:2]}:{time_raw[2:]}" if time_raw != "---" else "---"
 
-    # Vent (TDZ) - On cherche après "TOUCHDOWN ZONE"
-    # On gère le symbole ° ou le mot DEGREES
+    # Vent (TDZ)
     w_dir = find(r"WIND.*?TOUCHDOWN ZONE,\s+(\d{3})", text)
     w_spd = find(r"WIND.*?TOUCHDOWN ZONE,.*?(\d+)\s+KNOTS", text)
     wind_display = f"{w_dir}°/{w_spd}KT" if w_dir != "---" else "---"
 
-    # Visibilité - On cherche 10 KM ou des METERS
+    # Visibilité
     vis_raw = find(r"VISIBILITY.*?TOUCHDOWN ZONE,\s+(\d+\s*\w+)", text)
     vis_display = vis_raw if vis_raw != "---" else ("CAVOK" if "CAVOK" in text else "---")
     
-    # RVR - On cherche après "VISUAL RANGE"
+    # RVR
     rvr_raw = find(r"VISUAL RANGE.*?TOUCHDOWN ZONE,\s+(\d+)", text)
     rvr_display = f"RVR {rvr_raw}m" if rvr_raw != "---" else ""
 
@@ -64,7 +56,12 @@ def run_atis_system():
     t_val = find(r"TEMPERATURE\s+(\d+)", text)
     d_val = find(r"DEWPOINT\s+(\d+)", text)
     temp_dewp_display = f"{t_val}° / {d_val}°"
-    
+
+    # --- Variables de statut (RCC, Contaminants, LVP) ---
+    rcc_val = "5/5/5" if "TOUCHDOWN 5" in text else "---"
+    contam_val = "WET / WET / WET" if "WET" in text else "---"
+    lvp_html = '<span class="lvp-alert">⚠️ LVP ACTIVE</span>' if "LVP ACTIVE" in text else ""
+
     # 4. Dictionnaire de données pour le template
     data = {
         "INFO": info_val,
@@ -82,19 +79,16 @@ def run_atis_system():
     }
 
     # 5. Injection dans le template
-
     if os.path.exists("template.html"):
-            with open("template.html", "r", encoding="utf-8") as f:
-                html_content = f.read()
+        with open("template.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
     
-            for key, value in data.items():
-                # Construct the placeholder {{KEY}}
-                placeholder = "{{" + str(key) + "}}"
-                # Replace placeholder with the actual value
-                html_content = html_content.replace(placeholder, str(value))
+        for key, value in data.items():
+            placeholder = "{{" + str(key) + "}}"
+            html_content = html_content.replace(placeholder, str(value))
                 
-            with open("index.html", "w", encoding="utf-8") as f:
-                f.write(html_content)
+        with open("index.html", "w", encoding="utf-8") as f:
+            f.write(html_content)
             
 if __name__ == "__main__":
     run_atis_system()
